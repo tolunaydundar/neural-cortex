@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import SystemStatus from './SystemStatus';
 
 interface TopBarProps {
   onAddHabit: () => void;
@@ -46,10 +47,7 @@ export default function TopBar({ onAddHabit, onMenuToggle }: TopBarProps) {
         <span className="font-label-caps text-label-caps text-on-surface-variant hidden sm:inline">{time}</span>
       </div>
       <div className="flex items-center gap-3 sm:gap-8">
-        <div className="hidden sm:flex items-center gap-2 bg-surface-container-low px-4 py-2 border border-white/5">
-          <span className="material-symbols-outlined text-primary-fixed-dim text-sm pulse" style={{fontVariationSettings: "'FILL' 1"}}>bolt</span>
-          <span className="font-label-caps text-[10px] text-primary-fixed-dim tracking-widest">ON TRACK</span>
-        </div>
+        <SystemStatus />
         <div className="flex items-center gap-4">
           <button 
             onClick={onAddHabit}

@@ -725,3 +725,197 @@ body {
     background: rgba(0, 105, 111, 0.06);
 }
 
+/* ═══════════════════════════════════════════════════════
+   SYSTEM STATUS INDICATOR
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Trigger button backgrounds ── */
+.system-status-on-track {
+    background: rgba(0, 220, 230, 0.06);
+    border-color: rgba(0, 220, 230, 0.15);
+}
+.system-status-on-track:hover {
+    background: rgba(0, 220, 230, 0.1);
+    border-color: rgba(0, 220, 230, 0.25);
+}
+
+.system-status-needs-focus {
+    background: rgba(255, 183, 77, 0.08);
+    border-color: rgba(255, 183, 77, 0.2);
+}
+.system-status-needs-focus:hover {
+    background: rgba(255, 183, 77, 0.13);
+    border-color: rgba(255, 183, 77, 0.3);
+}
+
+.system-status-off-track {
+    background: rgba(255, 75, 75, 0.08);
+    border-color: rgba(255, 75, 75, 0.2);
+}
+.system-status-off-track:hover {
+    background: rgba(255, 75, 75, 0.13);
+    border-color: rgba(255, 75, 75, 0.3);
+}
+
+/* ── Light theme trigger overrides ── */
+[data-theme="light"] .system-status-on-track {
+    background: rgba(0, 105, 111, 0.06);
+    border-color: rgba(0, 105, 111, 0.15);
+}
+[data-theme="light"] .system-status-on-track:hover {
+    background: rgba(0, 105, 111, 0.1);
+    border-color: rgba(0, 105, 111, 0.25);
+}
+[data-theme="light"] .system-status-needs-focus {
+    background: rgba(200, 130, 0, 0.06);
+    border-color: rgba(200, 130, 0, 0.15);
+}
+[data-theme="light"] .system-status-needs-focus:hover {
+    background: rgba(200, 130, 0, 0.1);
+    border-color: rgba(200, 130, 0, 0.25);
+}
+[data-theme="light"] .system-status-off-track {
+    background: rgba(186, 26, 26, 0.06);
+    border-color: rgba(186, 26, 26, 0.15);
+}
+[data-theme="light"] .system-status-off-track:hover {
+    background: rgba(186, 26, 26, 0.1);
+    border-color: rgba(186, 26, 26, 0.25);
+}
+
+/* ── Amber text color (not in theme) ── */
+.system-status-amber {
+    color: #ffb74d;
+}
+[data-theme="light"] .system-status-amber {
+    color: #c88200;
+}
+
+/* ── Animated pulse dot ── */
+.system-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: system-status-pulse 2s infinite ease-in-out;
+}
+
+.system-status-dot-on-track {
+    background: #00dce6;
+    box-shadow: 0 0 6px rgba(0, 220, 230, 0.6);
+}
+.system-status-dot-needs-focus {
+    background: #ffb74d;
+    box-shadow: 0 0 6px rgba(255, 183, 77, 0.6);
+}
+.system-status-dot-off-track {
+    background: #ff4b4b;
+    box-shadow: 0 0 6px rgba(255, 75, 75, 0.6);
+}
+
+[data-theme="light"] .system-status-dot-on-track {
+    background: #00696f;
+    box-shadow: 0 0 4px rgba(0, 105, 111, 0.4);
+}
+[data-theme="light"] .system-status-dot-needs-focus {
+    background: #c88200;
+    box-shadow: 0 0 4px rgba(200, 130, 0, 0.4);
+}
+[data-theme="light"] .system-status-dot-off-track {
+    background: #ba1a1a;
+    box-shadow: 0 0 4px rgba(186, 26, 26, 0.4);
+}
+
+@keyframes system-status-pulse {
+    0%, 100% { opacity: 0.5; transform: scale(0.85); }
+    50% { opacity: 1; transform: scale(1); }
+}
+
+/* ── Popover panel ── */
+.system-status-popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 280px;
+    padding: 16px;
+    background: rgba(30, 30, 33, 0.95);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 100;
+    animation: status-popover-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="light"] .system-status-popover {
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.12),
+        0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+@keyframes status-popover-in {
+    from {
+        opacity: 0;
+        transform: translateY(-6px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ── Score bar ── */
+.system-status-bar-track {
+    height: 3px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+[data-theme="light"] .system-status-bar-track {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.system-status-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Metric rows ── */
+.system-status-metric-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.system-status-metric-row:last-child {
+    border-bottom: none;
+}
+
+[data-theme="light"] .system-status-metric-row {
+    border-bottom-color: rgba(0, 0, 0, 0.05);
+}
+
+/* ── Tip box ── */
+.system-status-tip {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 2px;
+}
+
+[data-theme="light"] .system-status-tip {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.06);
+}
+
