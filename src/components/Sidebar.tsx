@@ -21,7 +21,7 @@ export default function Sidebar({ onLogActivity }: SidebarProps) {
   const getNavLinkClass = ({ isActive }: { isActive: boolean }) => {
     const base = "flex items-center gap-4 px-6 py-4 transition-all duration-300";
     if (isActive) {
-      return `${base} text-primary-fixed-dim bg-primary-fixed-dim/10 border-r-2 border-primary-fixed-dim shadow-[inset_0_0_12px_rgba(0,220,230,0.2)] active:scale-95`;
+      return `${base} text-primary-fixed-dim bg-primary-fixed-dim/10 border-r-2 border-primary-fixed-dim active:scale-95`;
     }
     return `${base} text-on-surface-variant hover:text-primary-fixed-dim hover:bg-white/5`;
   };
