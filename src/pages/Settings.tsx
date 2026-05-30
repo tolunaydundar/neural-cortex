@@ -126,7 +126,7 @@ export default function Settings() {
                 </div>
                 <button
                   onClick={handleExport}
-                  className="flex items-center gap-2 px-4 py-2 border border-primary-fixed-dim/30 text-primary-fixed-dim font-label-caps text-[10px] hover:bg-primary-fixed-dim/10 transition-colors cursor-pointer"
+                  className="flex items-center justify-center gap-2 w-full sm:w-32 px-4 py-2 border border-primary-fixed-dim/30 text-primary-fixed-dim font-label-caps text-[10px] hover:bg-primary-fixed-dim/10 transition-colors cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-sm">download</span>
                   EXPORT
@@ -140,7 +140,7 @@ export default function Settings() {
                 </div>
                 <button
                   onClick={handleImport}
-                  className="flex items-center gap-2 px-4 py-2 border border-primary-fixed-dim/30 text-primary-fixed-dim font-label-caps text-[10px] hover:bg-primary-fixed-dim/10 transition-colors cursor-pointer"
+                  className="flex items-center justify-center gap-2 w-full sm:w-32 px-4 py-2 border border-primary-fixed-dim/30 text-primary-fixed-dim font-label-caps text-[10px] hover:bg-primary-fixed-dim/10 transition-colors cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-sm">upload</span>
                   IMPORT
@@ -154,7 +154,7 @@ export default function Settings() {
                 </div>
                 <button
                   onClick={() => setShowClearConfirm(true)}
-                  className="flex items-center gap-2 px-4 py-2 border border-error/40 text-error font-label-caps text-[10px] hover:bg-error/10 transition-colors cursor-pointer"
+                  className="flex items-center justify-center gap-2 w-full sm:w-32 px-4 py-2 border border-error/40 text-error font-label-caps text-[10px] hover:bg-error/10 transition-colors cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-sm">delete_forever</span>
                   PURGE
