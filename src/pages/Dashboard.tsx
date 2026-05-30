@@ -3,10 +3,12 @@ import { useTheme } from '../context/ThemeContext';
 import { startOfDay, subDays, isSameDay } from 'date-fns';
 import HabitCard from '../components/HabitCard';
 import PerformancePanel from '../components/PerformancePanel';
+import { useOutletContext } from 'react-router-dom';
 
 export default function Dashboard() {
   const { habits, logs, getStreak, getEfficiency, getPattern } = useHabits();
   const { isDark } = useTheme();
+  const { openAddModal } = useOutletContext<{ openAddModal: () => void }>();
   
   const today = startOfDay(new Date());
   const last7Days = Array.from({ length: 7 }, (_, i) => subDays(today, i));
@@ -75,10 +77,15 @@ export default function Dashboard() {
 
         {habits.length === 0 ? (
           <div className="glass-panel p-12 flex flex-col items-center justify-center gap-4 text-center">
-            <span className="material-symbols-outlined text-6xl text-primary-fixed-dim/20">add_circle</span>
+            <button 
+              onClick={openAddModal} 
+              className="material-symbols-outlined text-6xl text-primary-fixed-dim/20 hover:text-primary-fixed-dim transition-colors cursor-pointer outline-none focus:outline-none hover:scale-110 active:scale-95"
+            >
+              add_circle
+            </button>
             <h3 className="font-headline-sm text-headline-sm text-on-surface-variant">NO PROTOCOLS INITIALIZED</h3>
             <p className="text-sm text-on-surface-variant/60 max-w-md">
-              Click the <span className="text-primary-fixed-dim font-semibold">+</span> button in the bottom right to create your first habit protocol and start tracking.
+              Click the <span className="text-primary-fixed-dim font-semibold">+</span> button in the top bar to create your first habit protocol and start tracking.
             </p>
           </div>
         ) : (

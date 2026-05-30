@@ -11,10 +11,18 @@ export default function AddHabitModal({ onClose, onSuccess }: AddHabitModalProps
   const [title, setTitle] = useState('');
   const [icon, setIcon] = useState('psychology');
 
-  // Common futuristic icons to choose from
+  // Curated list of futuristic / practical icons (15 icons for a clean 3x5 grid)
   const availableIcons = [
-    'psychology', 'fitness_center', 'terminal', 'book', 'local_cafe', 
-    'sports_martial_arts', 'self_improvement', 'directions_run', 'code', 'monitoring'
+    // Health & Body
+    'psychology', 'fitness_center', 'directions_run',
+    // Tech & Work
+    'terminal', 'code', 'monitoring',
+    // Learning & Focus
+    'menu_book', 'school', 'brush',
+    // Life & Home
+    'local_cafe', 'nightlight', 'cleaning_services',
+    // Leisure & Finance
+    'music_note', 'sports_esports', 'savings'
   ];
 
   useEffect(() => {
@@ -54,7 +62,7 @@ export default function AddHabitModal({ onClose, onSuccess }: AddHabitModalProps
               type="text" 
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Neural Link (Meditation)"
+              placeholder="e.g. Study Feynman diagrams"
               className="bg-surface-container-lowest border-b border-white/20 p-3 font-body-md text-on-surface focus:outline-none focus:border-primary-fixed-dim focus:shadow-[0_4px_12px_rgba(0,220,230,0.1)] transition-all"
               autoFocus
             />

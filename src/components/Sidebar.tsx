@@ -19,17 +19,17 @@ export default function Sidebar({ onLogActivity }: SidebarProps) {
   }, []);
 
   const getNavLinkClass = ({ isActive }: { isActive: boolean }) => {
-    const base = "flex items-center gap-4 px-6 py-4 transition-all duration-300";
+    const base = "flex items-center gap-4 px-6 py-4";
     if (isActive) {
       return `${base} text-primary-fixed-dim bg-primary-fixed-dim/10 border-r-2 border-primary-fixed-dim active:scale-95`;
     }
-    return `${base} text-on-surface-variant hover:text-primary-fixed-dim hover:bg-white/5`;
+    return `${base} text-on-surface-variant hover:text-primary-fixed-dim hover:bg-white/5 transition-colors duration-150`;
   };
 
   return (
     <aside className="fixed left-0 top-0 h-full z-50 flex flex-col py-8 w-64 border-r border-white/10 bg-surface/10 backdrop-blur-xl">
       <div className="px-8 mb-12">
-        <h1 className="font-headline-md text-headline-md font-bold tracking-tighter text-primary-fixed-dim app-title-glow">Neural Cortex</h1>
+        <h1 className="font-headline-md text-headline-md font-bold tracking-tighter text-primary-fixed-dim">Neural Cortex</h1>
         <p className="font-label-caps text-label-caps text-on-surface-variant/60 mt-1 ml-[2px]">Version 1.0.0</p>
       </div>
       <nav className="flex-grow flex flex-col gap-2">
@@ -72,13 +72,9 @@ export default function Sidebar({ onLogActivity }: SidebarProps) {
             aria-label={`Switch to ${isDark ? 'light' : 'dark'} theme`}
           />
         </div>
-        <div className="mt-6 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-full border border-primary-fixed-dim/30 bg-primary-fixed-dim/10 flex items-center justify-center">
-            <span className="material-symbols-outlined text-primary-fixed-dim text-lg">person</span>
-          </div>
-          <div className="overflow-hidden">
-            <p className="text-xs font-bold truncate">{userName}</p>
-          </div>
+        <div className="mt-6 border-t border-white/5 pt-4 flex flex-col gap-1">
+          <span className="text-[10px] font-label-caps text-on-surface-variant tracking-widest">OPERATOR</span>
+          <span className="text-sm font-headline-sm font-bold text-primary-fixed-dim truncate">{userName}</span>
         </div>
       </div>
     </aside>

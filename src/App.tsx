@@ -89,15 +89,13 @@ function AppLayout() {
     <>
       <Sidebar onLogActivity={() => setIsLogModalOpen(true)} />
       <main className="ml-64 min-h-screen flex flex-col">
-        <TopBar />
+        <TopBar onAddHabit={() => setIsAddModalOpen(true)} />
         <div className="flex-grow flex flex-col p-margin-desktop">
-          <Outlet />
+          <Outlet context={{ openAddModal: () => setIsAddModalOpen(true) }} />
         </div>
       </main>
 
-      <button onClick={() => setIsAddModalOpen(true)} className="fixed bottom-10 right-10 w-16 h-16 rounded-full bg-primary-fixed-dim text-background flex items-center justify-center shadow-[0_0_20px_rgba(0,220,230,0.4)] hover:scale-110 active:scale-95 transition-all z-50 group cursor-pointer">
-        <span className="material-symbols-outlined text-3xl group-hover:rotate-90 transition-transform">add</span>
-      </button>
+
 
       {isLogModalOpen && (
         <LogActivityModal

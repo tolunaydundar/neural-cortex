@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 
-export default function TopBar() {
+interface TopBarProps {
+  onAddHabit: () => void;
+}
+
+export default function TopBar({ onAddHabit }: TopBarProps) {
   const [time, setTime] = useState("");
   
   useEffect(() => {
@@ -36,10 +40,13 @@ export default function TopBar() {
           <span className="font-label-caps text-[10px] text-primary-fixed-dim tracking-widest">ON TRACK</span>
         </div>
         <div className="flex items-center gap-4">
-          <button className="material-symbols-outlined text-on-surface-variant hover:text-primary-fixed-dim transition-colors cursor-pointer">notifications_active</button>
-          <div className="w-8 h-8 rounded-full bg-primary-fixed-dim/20 border border-primary-fixed-dim/30 flex items-center justify-center">
-            <span className="material-symbols-outlined text-primary-fixed-dim text-sm">person</span>
-          </div>
+          <button 
+            onClick={onAddHabit}
+            className="flex items-center gap-2 px-4 py-2 bg-primary-fixed-dim text-background font-label-caps text-xs hover:bg-[#6ff6ff] transition-colors cursor-pointer shadow-[0_0_15px_rgba(0,220,230,0.4)] hover:shadow-[0_0_20px_rgba(0,220,230,0.6)] rounded-sm"
+          >
+            <span className="material-symbols-outlined text-sm">add</span>
+            NEW PROTOCOL
+          </button>
         </div>
       </div>
     </header>
