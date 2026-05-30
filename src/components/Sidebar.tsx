@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 
 interface SidebarProps {
@@ -5,7 +6,15 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ onLogActivity }: SidebarProps) {
-  const userName = localStorage.getItem('nexus_username') || 'OPERATOR';
+  const [userName, setUserName] = useState(localStorage.getItem('nexus_username') || 'OPERATOR');
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setUserName(localStorage.getItem('nexus_username') || 'OPERATOR');
+    };
+    window.addEventListener('username_updated', handleUpdate);
+    return () => window.removeEventListener('username_updated', handleUpdate);
+  }, []);
 
   const getNavLinkClass = ({ isActive }: { isActive: boolean }) => {
     const base = "flex items-center gap-4 px-6 py-4 transition-all duration-300";
@@ -52,7 +61,6 @@ export default function Sidebar({ onLogActivity }: SidebarProps) {
           </div>
           <div className="overflow-hidden">
             <p className="text-xs font-bold truncate">{userName}</p>
-            <p className="text-[10px] text-on-surface-variant">LVL 42 OPERATOR</p>
           </div>
         </div>
       </div>

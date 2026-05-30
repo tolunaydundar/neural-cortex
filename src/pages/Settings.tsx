@@ -10,6 +10,7 @@ export default function Settings() {
 
   const handleSaveName = () => {
     localStorage.setItem('nexus_username', userName);
+    window.dispatchEvent(new Event('username_updated'));
   };
 
   const handleExport = () => {

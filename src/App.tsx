@@ -10,6 +10,7 @@ import HabitDetails from './pages/HabitDetails';
 import LogActivityModal from './components/LogActivityModal';
 import AddHabitModal from './components/AddHabitModal';
 import Toast from './components/Toast';
+import OnboardingModal from './components/OnboardingModal';
 import { useState, useEffect, useCallback } from 'react';
 
 interface ToastState {
@@ -21,7 +22,15 @@ interface ToastState {
 function AppLayout() {
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('nexus_username'));
   const [toast, setToast] = useState<ToastState | null>(null);
+
+  const handleOnboardingComplete = (name: string) => {
+    localStorage.setItem('nexus_username', name);
+    setShowOnboarding(false);
+    setIsAddModalOpen(true);
+    window.dispatchEvent(new Event('username_updated'));
+  };
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -60,6 +69,10 @@ function AppLayout() {
           onClose={() => setIsAddModalOpen(false)}
           onSuccess={() => setToast({ message: 'PROTOCOL INITIALIZED', icon: 'add_task' })}
         />
+      )}
+
+      {showOnboarding && (
+        <OnboardingModal onComplete={handleOnboardingComplete} />
       )}
 
       {toast && <Toast message={toast.message} icon={toast.icon} onDone={handleToastDone} />}

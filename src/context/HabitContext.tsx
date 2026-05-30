@@ -28,11 +28,7 @@ interface HabitContextType {
 
 const HabitContext = createContext<HabitContextType | undefined>(undefined);
 
-const DEFAULT_HABITS: Habit[] = [
-  { id: '1', title: 'Neural Link (Meditation)', icon: 'psychology', created_at: new Date().toISOString() },
-  { id: '2', title: 'Physical Optimization (Gym)', icon: 'fitness_center', created_at: new Date().toISOString() },
-  { id: '3', title: 'Deep Code (Focus Work)', icon: 'terminal', created_at: new Date().toISOString() },
-];
+const DEFAULT_HABITS: Habit[] = [];
 
 export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [habits, setHabits] = useState<Habit[]>(() => {
