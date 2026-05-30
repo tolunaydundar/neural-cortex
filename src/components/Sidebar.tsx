@@ -53,8 +53,12 @@ export default function Sidebar({ onLogActivity, isOpen = false, onClose }: Side
       </div>
       <nav className="flex-grow flex flex-col gap-2">
         <NavLink to="/" className={getNavLinkClass} end onClick={handleNavClick}>
-          <span className="material-symbols-outlined">grid_view</span>
+          <span className="material-symbols-outlined">dashboard</span>
           <span className="font-label-caps text-label-caps">Core</span>
+        </NavLink>
+        <NavLink to="/habits" className={getNavLinkClass} onClick={handleNavClick}>
+          <span className="material-symbols-outlined">routine</span>
+          <span className="font-label-caps text-label-caps">Habits</span>
         </NavLink>
         <NavLink to="/tasks" className={getNavLinkClass} onClick={handleNavClick}>
           <span className="material-symbols-outlined">task_alt</span>

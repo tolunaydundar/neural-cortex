@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface TopBarProps {
   onAddHabit: () => void;
@@ -7,6 +8,7 @@ interface TopBarProps {
 
 export default function TopBar({ onAddHabit, onMenuToggle }: TopBarProps) {
   const [time, setTime] = useState("");
+  const navigate = useNavigate();
   
   useEffect(() => {
     const updateClock = () => {
@@ -55,6 +57,13 @@ export default function TopBar({ onAddHabit, onMenuToggle }: TopBarProps) {
           >
             <span className="material-symbols-outlined text-sm">add</span>
             <span className="hidden sm:inline">NEW PROTOCOL</span>
+          </button>
+          <button
+            onClick={() => navigate('/settings')}
+            className="text-on-surface-variant hover:text-primary-fixed-dim transition-colors cursor-pointer p-1"
+            aria-label="Settings"
+          >
+            <span className="material-symbols-outlined text-[20px]">settings</span>
           </button>
         </div>
       </div>

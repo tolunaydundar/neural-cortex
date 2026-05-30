@@ -5,6 +5,7 @@ import { ThemeProvider, useTheme } from './context/ThemeContext';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
 import Dashboard from './pages/Dashboard';
+import Habits from './pages/Habits';
 import Tasks from './pages/Tasks';
 import PerformanceAnalytics from './pages/PerformanceAnalytics';
 import LegacyLogs from './pages/LegacyLogs';
@@ -204,16 +205,16 @@ function AppLayout() {
         </div>
       </main>
 
-      {/* Mobile Bottom Navigation — Core, Tasks, FAB, Perf, Systems */}
+      {/* Mobile Bottom Navigation — Core, Habits, FAB, Tasks, Perf */}
       <nav className="mobile-bottom-nav lg:hidden">
         <div className="flex items-center justify-around px-2 pt-1">
           <NavLink to="/" end className={({ isActive }) => getMobileNavClass(isActive)}>
-            <span className="material-symbols-outlined text-[22px]">grid_view</span>
+            <span className="material-symbols-outlined text-[22px]">dashboard</span>
             <span className="text-[9px] font-label-caps tracking-wider">Core</span>
           </NavLink>
-          <NavLink to="/tasks" className={({ isActive }) => getMobileNavClass(isActive)}>
-            <span className="material-symbols-outlined text-[22px]">task_alt</span>
-            <span className="text-[9px] font-label-caps tracking-wider">Tasks</span>
+          <NavLink to="/habits" className={({ isActive }) => getMobileNavClass(isActive)}>
+            <span className="material-symbols-outlined text-[22px]">routine</span>
+            <span className="text-[9px] font-label-caps tracking-wider">Habits</span>
           </NavLink>
 
           {/* Center FAB — Log Activity */}
@@ -225,13 +226,13 @@ function AppLayout() {
             <span className="material-symbols-outlined text-[24px]">add</span>
           </button>
 
+          <NavLink to="/tasks" className={({ isActive }) => getMobileNavClass(isActive)}>
+            <span className="material-symbols-outlined text-[22px]">task_alt</span>
+            <span className="text-[9px] font-label-caps tracking-wider">Tasks</span>
+          </NavLink>
           <NavLink to="/performance" className={({ isActive }) => getMobileNavClass(isActive)}>
             <span className="material-symbols-outlined text-[22px]">insights</span>
             <span className="text-[9px] font-label-caps tracking-wider">Perf</span>
-          </NavLink>
-          <NavLink to="/settings" className={({ isActive }) => getMobileNavClass(isActive)}>
-            <span className="material-symbols-outlined text-[22px]">settings</span>
-            <span className="text-[9px] font-label-caps tracking-wider">Systems</span>
           </NavLink>
         </div>
       </nav>
@@ -273,6 +274,7 @@ function App() {
             <Routes>
               <Route path="/" element={<AppLayout />}>
                 <Route index element={<Dashboard />} />
+                <Route path="habits" element={<Habits />} />
                 <Route path="tasks" element={<Tasks />} />
                 <Route path="performance" element={<PerformanceAnalytics />} />
                 <Route path="legacy" element={<LegacyLogs />} />

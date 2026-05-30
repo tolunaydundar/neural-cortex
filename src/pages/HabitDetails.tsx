@@ -15,7 +15,7 @@ export default function HabitDetails() {
     <div className="flex-grow flex flex-col items-center justify-center gap-4">
       <span className="material-symbols-outlined text-6xl text-error/40">error</span>
       <p className="font-headline-sm text-error">PROTOCOL NOT FOUND</p>
-      <button onClick={() => navigate('/')} className="text-primary-fixed-dim font-label-caps hover:underline cursor-pointer">
+      <button onClick={() => navigate('/habits')} className="text-primary-fixed-dim font-label-caps hover:underline cursor-pointer">
         RETURN TO CORE
       </button>
     </div>
@@ -146,7 +146,7 @@ export default function HabitDetails() {
           confirmLabel="DELETE"
           onConfirm={() => {
             deleteHabit(habit.id);
-            navigate('/');
+            navigate('/habits');
           }}
           onCancel={() => setShowDeleteConfirm(false)}
         />
