@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNotes, type Note } from '../context/NoteContext';
 import NoteCard from '../components/NoteCard';
 import NoteEditorModal from '../components/NoteEditorModal';
@@ -28,8 +28,20 @@ export default function Notes() {
 
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
-  const [sortMode, setSortMode] = useState<SortMode>('updated');
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [sortMode, setSortMode] = useState<SortMode>(() => {
+    return (localStorage.getItem('nexus_notes_sort_mode') as SortMode) || 'updated';
+  });
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    return (localStorage.getItem('nexus_notes_view_mode') as ViewMode) || 'grid';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('nexus_notes_sort_mode', sortMode);
+  }, [sortMode]);
+
+  useEffect(() => {
+    localStorage.setItem('nexus_notes_view_mode', viewMode);
+  }, [viewMode]);
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarFilter, setSidebarFilter] = useState<SidebarFilter>('all');
   const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
