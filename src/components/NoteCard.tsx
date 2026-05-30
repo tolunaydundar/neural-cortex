@@ -52,7 +52,7 @@ export default function NoteCard({ note, onClick }: NoteCardProps) {
   return (
     <div
       onClick={() => onClick(note)}
-      className={`glass-panel p-4 flex flex-col gap-2.5 cursor-pointer group hover:border-primary-fixed-dim/50 transition-all duration-300 relative note-color-${note.color}`}
+      className={`glass-panel p-4 flex flex-col gap-2.5 cursor-pointer group hover:border-primary-fixed-dim/50 transition-all duration-300 relative note-color-${note.color} ${showMenu ? 'z-50' : 'z-0'}`}
     >
       {/* Header: title + menu */}
       <div className="flex justify-between items-start gap-2">
