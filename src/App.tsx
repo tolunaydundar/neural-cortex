@@ -1,12 +1,14 @@
 import { BrowserRouter as Router, Routes, Route, Outlet, NavLink, useLocation } from 'react-router-dom';
 import { HabitProvider } from './context/HabitContext';
 import { TaskProvider } from './context/TaskContext';
+import { NoteProvider } from './context/NoteContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
 import Dashboard from './pages/Dashboard';
 import Habits from './pages/Habits';
 import Tasks from './pages/Tasks';
+import Notes from './pages/Notes';
 import PerformanceAnalytics from './pages/PerformanceAnalytics';
 import LegacyLogs from './pages/LegacyLogs';
 import Settings from './pages/Settings';
@@ -230,9 +232,9 @@ function AppLayout() {
             <span className="material-symbols-outlined text-[22px]">task_alt</span>
             <span className="text-[9px] font-label-caps tracking-wider">Tasks</span>
           </NavLink>
-          <NavLink to="/performance" className={({ isActive }) => getMobileNavClass(isActive)}>
-            <span className="material-symbols-outlined text-[22px]">insights</span>
-            <span className="text-[9px] font-label-caps tracking-wider">Perf</span>
+          <NavLink to="/notes" className={({ isActive }) => getMobileNavClass(isActive)}>
+            <span className="material-symbols-outlined text-[22px]">book</span>
+            <span className="text-[9px] font-label-caps tracking-wider">Notes</span>
           </NavLink>
         </div>
       </nav>
@@ -265,24 +267,29 @@ function AppLayout() {
   );
 }
 
+
+
 function App() {
   return (
     <ThemeProvider>
       <HabitProvider>
         <TaskProvider>
-          <Router>
-            <Routes>
-              <Route path="/" element={<AppLayout />}>
-                <Route index element={<Dashboard />} />
-                <Route path="habits" element={<Habits />} />
-                <Route path="tasks" element={<Tasks />} />
-                <Route path="performance" element={<PerformanceAnalytics />} />
-                <Route path="legacy" element={<LegacyLogs />} />
-                <Route path="settings" element={<Settings />} />
-                <Route path="habit/:id" element={<HabitDetails />} />
-              </Route>
-            </Routes>
-          </Router>
+          <NoteProvider>
+            <Router>
+              <Routes>
+                <Route path="/" element={<AppLayout />}>
+                  <Route index element={<Dashboard />} />
+                  <Route path="habits" element={<Habits />} />
+                  <Route path="tasks" element={<Tasks />} />
+                  <Route path="notes" element={<Notes />} />
+                  <Route path="performance" element={<PerformanceAnalytics />} />
+                  <Route path="legacy" element={<LegacyLogs />} />
+                  <Route path="settings" element={<Settings />} />
+                  <Route path="habit/:id" element={<HabitDetails />} />
+                </Route>
+              </Routes>
+            </Router>
+          </NoteProvider>
         </TaskProvider>
       </HabitProvider>
     </ThemeProvider>
