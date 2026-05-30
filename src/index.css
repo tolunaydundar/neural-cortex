@@ -450,10 +450,30 @@ body {
     padding: 8px 0;
     min-width: 56px;
     transition: color 0.15s ease;
+    position: relative;
 }
 
 .mobile-nav-item.active {
     color: var(--color-primary-fixed-dim);
+}
+
+.mobile-nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    width: 32px;
+    height: 3px;
+    background-color: var(--color-primary-fixed-dim);
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 2px 8px rgba(0, 220, 230, 0.4);
+}
+
+[data-theme="light"] .mobile-nav-item.active::before {
+    box-shadow: 0 2px 6px rgba(0, 105, 111, 0.3);
+}
+
+.mobile-nav-item.active .material-symbols-outlined {
+    font-variation-settings: 'FILL' 1;
 }
 
 /* ═══════════════════════════════════════════════════════
