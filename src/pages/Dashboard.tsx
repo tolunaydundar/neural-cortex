@@ -1,6 +1,5 @@
 import { useHabits } from '../context/HabitContext';
 import { useTasks } from '../context/TaskContext';
-import { useNotes } from '../context/NoteContext';
 import { useTheme } from '../context/ThemeContext';
 import { startOfDay, subDays, isSameDay } from 'date-fns';
 import { Link } from 'react-router-dom';
@@ -9,13 +8,7 @@ import { useOutletContext } from 'react-router-dom';
 export default function Dashboard() {
   const { habits, logs, getStreak, getEfficiency, logHabit } = useHabits();
   const { tasks, moveStatus, getOverdueTasks } = useTasks();
-  const { notes } = useNotes();
   const { isDark } = useTheme();
-
-  // Recent notes — 3 most recently updated
-  const recentNotes = [...notes]
-    .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-    .slice(0, 3);
   const { openAddModal, openAddTaskModal } = useOutletContext<{ openAddModal: () => void; openAddTaskModal: () => void }>();
 
   const today = startOfDay(new Date());
@@ -222,104 +215,57 @@ export default function Dashboard() {
 
         {/* Right Column — System Status */}
         <div className="lg:col-span-4 space-y-4">
-          {/* Weekly Progress */}
-          <div className="glass-panel p-4 lg:p-6">
-            <div className="flex justify-between items-center mb-3">
+          {/* Efficiencies */}
+          <div className="glass-panel p-4 lg:p-6 space-y-4">
+            <div className="flex justify-between items-center">
               <span className="font-label-caps text-[10px] text-on-surface-variant">WEEKLY EFFICIENCY</span>
-              <span className="font-data-display text-data-display text-primary-fixed-dim drop-shadow-[0_0_8px_rgba(0,220,230,0.5)]">
+              <span className="font-data-display text-xl text-primary-fixed-dim drop-shadow-[0_0_8px_rgba(0,220,230,0.5)]">
                 {Math.round(weeklyProgress)}%
               </span>
             </div>
-            <div className="relative h-3 w-full bg-surface-container-lowest overflow-hidden border border-white/5">
-              <div
-                className="absolute top-0 left-0 h-full transition-all duration-1000"
-                style={{
-                  width: `${weeklyProgress}%`,
-                  background: isDark ? '#00f3ff' : '#00696f',
-                  boxShadow: isDark ? '0 0 15px rgba(0,220,230,0.6)' : '0 0 10px rgba(0,105,111,0.35)'
-                }}
-              ></div>
-            </div>
 
-            {/* Overall efficiency */}
-            <div className="flex justify-between items-center mt-4 pt-3 border-t border-white/5">
+            <div className="flex justify-between items-center pt-4 border-t border-white/5">
               <span className="font-label-caps text-[10px] text-on-surface-variant">30-DAY EFFICIENCY</span>
-              <span className="font-data-display text-sm text-primary-fixed-dim">{overallEfficiency}%</span>
+              <span className="font-data-display text-xl text-primary-fixed-dim drop-shadow-[0_0_8px_rgba(0,220,230,0.5)]">
+                {overallEfficiency}%
+              </span>
             </div>
           </div>
 
           {/* System Status */}
           <div className="glass-panel p-4 lg:p-6">
             <h3 className="font-label-caps text-[10px] text-on-surface-variant mb-4">SYSTEM STATUS</h3>
-            <div className="p-3 bg-surface-container/50 border-l-2 border-primary-fixed-dim mb-3">
-              <p className="text-xs leading-relaxed">
-                {consistencyLevel === 'high'
-                  ? 'All systems nominal. Performance exceeds baseline. Maintain protocol adherence.'
-                  : consistencyLevel === 'medium'
-                    ? 'Performance degraded. Increase protocol execution frequency.'
-                    : 'Critical deficit detected. Immediate protocol re-engagement required.'
-                }
-              </p>
-            </div>
-
-            {/* Missing habits */}
-            {missingHabits.length > 0 && (
-              <div className="p-3 bg-surface-container/50 border-l-2 border-secondary">
-                <p className="font-label-caps text-[10px] text-secondary mb-1">PENDING TODAY</p>
+            <div className="space-y-3">
+              <div className="p-3 bg-surface-container/50 border-l-2 border-primary-fixed-dim">
                 <p className="text-xs leading-relaxed">
-                  {missingHabits.length === 1
-                    ? `${missingHabits[0].title} not logged yet.`
-                    : `${missingHabits.length} habits remaining: ${missingHabits.map(h => h.title).join(', ')}.`
+                  {consistencyLevel === 'high'
+                    ? 'All systems nominal. Performance exceeds baseline. Maintain protocol adherence.'
+                    : consistencyLevel === 'medium'
+                      ? 'Performance degraded. Increase protocol execution frequency.'
+                      : 'Critical deficit detected. Immediate protocol re-engagement required.'
                   }
                 </p>
               </div>
-            )}
-            {missingHabits.length === 0 && habits.length > 0 && (
-              <div className="p-3 bg-surface-container/50 border-l-2 border-primary-fixed-dim/50">
-                <p className="font-label-caps text-[10px] text-primary-fixed-dim">ALL CLEAR</p>
-                <p className="text-xs leading-relaxed">All habits executed for today.</p>
-              </div>
-            )}
-          </div>
 
-          {/* Recent Notes */}
-          <div className="glass-panel p-4 lg:p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary-fixed-dim text-[18px]">book</span>
-                <h3 className="font-label-caps text-[10px] text-on-surface-variant">RECENT NOTES</h3>
-              </div>
-              <Link to="/notes" className="font-label-caps text-[9px] text-primary-fixed-dim/60 hover:text-primary-fixed-dim transition-colors flex items-center gap-1">
-                VIEW ALL
-                <span className="material-symbols-outlined text-[12px]">arrow_forward</span>
-              </Link>
+              {/* Missing habits */}
+              {missingHabits.length > 0 && (
+                <div className="p-3 bg-surface-container/50 border-l-2 border-secondary">
+                  <p className="font-label-caps text-[10px] text-secondary mb-1">PENDING TODAY</p>
+                  <p className="text-xs leading-relaxed">
+                    {missingHabits.length === 1
+                      ? `${missingHabits[0].title} not logged yet.`
+                      : `${missingHabits.length} habits remaining: ${missingHabits.map(h => h.title).join(', ')}.`
+                    }
+                  </p>
+                </div>
+              )}
+              {missingHabits.length === 0 && habits.length > 0 && (
+                <div className="p-3 bg-surface-container/50 border-l-2 border-primary-fixed-dim/50">
+                  <p className="font-label-caps text-[10px] text-primary-fixed-dim">ALL CLEAR</p>
+                  <p className="text-xs leading-relaxed">All habits executed for today.</p>
+                </div>
+              )}
             </div>
-            {recentNotes.length === 0 ? (
-              <div className="py-4 text-center">
-                <p className="text-sm text-on-surface-variant/60">No notes yet.</p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {recentNotes.map(note => (
-                  <Link key={note.id} to="/notes" className={`flex items-center gap-3 py-2.5 px-3 bg-surface-container/30 hover:bg-surface-container/50 transition-colors rounded-sm group note-color-${note.color}`}>
-                    {note.pinned && (
-                      <span className="material-symbols-outlined text-primary-fixed-dim/40 text-[14px]" style={{fontVariationSettings: "'FILL' 1"}}>push_pin</span>
-                    )}
-                    <div className="flex-grow min-w-0">
-                      <span className="text-sm text-on-surface block truncate group-hover:text-primary-fixed-dim transition-colors">{note.title || 'Untitled Note'}</span>
-                      {note.tags.length > 0 && (
-                        <span className="font-label-caps text-[9px] text-primary-fixed-dim/50">
-                          {note.tags.slice(0, 2).map(t => `#${t}`).join(' ')}
-                        </span>
-                      )}
-                    </div>
-                    <span className="font-label-caps text-[9px] text-on-surface-variant/40 flex-shrink-0">
-                      {new Date(note.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </span>
-                  </Link>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* Quick Links */}
