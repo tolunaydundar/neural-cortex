@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 
 interface SidebarProps {
   onLogActivity: () => void;
@@ -7,6 +8,7 @@ interface SidebarProps {
 
 export default function Sidebar({ onLogActivity }: SidebarProps) {
   const [userName, setUserName] = useState(localStorage.getItem('nexus_username') || 'OPERATOR');
+  const { theme, toggleTheme, isDark } = useTheme();
 
   useEffect(() => {
     const handleUpdate = () => {
@@ -27,8 +29,8 @@ export default function Sidebar({ onLogActivity }: SidebarProps) {
   return (
     <aside className="fixed left-0 top-0 h-full z-50 flex flex-col py-8 w-64 border-r border-white/10 bg-surface/10 backdrop-blur-xl">
       <div className="px-8 mb-12">
-        <h1 className="font-headline-md text-headline-md font-bold tracking-tighter text-primary-fixed-dim drop-shadow-[0_0_8px_rgba(0,220,230,0.5)]">Neural Cortex</h1>
-        <p className="font-label-caps text-label-caps text-on-surface-variant/60 mt-1">V 1.0.0</p>
+        <h1 className="font-headline-md text-headline-md font-bold tracking-tighter text-primary-fixed-dim app-title-glow">Neural Cortex</h1>
+        <p className="font-label-caps text-label-caps text-on-surface-variant/60 mt-1 ml-[2px]">Version 1.0.0</p>
       </div>
       <nav className="flex-grow flex flex-col gap-2">
         <NavLink to="/" className={getNavLinkClass} end>
@@ -55,7 +57,22 @@ export default function Sidebar({ onLogActivity }: SidebarProps) {
         >
           LOG ACTIVITY
         </button>
-        <div className="mt-8 flex items-center gap-4">
+        <div className="mt-6 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-sm text-on-surface-variant" style={{fontVariationSettings: "'FILL' 1"}}>
+              {isDark ? 'dark_mode' : 'light_mode'}
+            </span>
+            <span className="font-label-caps text-[9px] text-on-surface-variant tracking-widest">
+              {isDark ? 'DARK' : 'LIGHT'}
+            </span>
+          </div>
+          <button
+            onClick={toggleTheme}
+            className="theme-toggle-btn"
+            aria-label={`Switch to ${isDark ? 'light' : 'dark'} theme`}
+          />
+        </div>
+        <div className="mt-6 flex items-center gap-4">
           <div className="w-10 h-10 rounded-full border border-primary-fixed-dim/30 bg-primary-fixed-dim/10 flex items-center justify-center">
             <span className="material-symbols-outlined text-primary-fixed-dim text-lg">person</span>
           </div>

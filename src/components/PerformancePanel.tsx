@@ -1,4 +1,5 @@
 import { useHabits } from '../context/HabitContext';
+import { useTheme } from '../context/ThemeContext';
 import { startOfDay, subDays, isSameDay } from 'date-fns';
 
 interface PerformancePanelProps {
@@ -7,6 +8,7 @@ interface PerformancePanelProps {
 
 export default function PerformancePanel({ consistency }: PerformancePanelProps) {
   const { habits, logs } = useHabits();
+  const { isDark } = useTheme();
 
   // Calculate actual weekly log counts per day (Mon–Sun of the current week)
   const today = startOfDay(new Date());
@@ -63,7 +65,9 @@ export default function PerformancePanel({ consistency }: PerformancePanelProps)
         {/* Dynamic Bar Chart */}
         <div className="relative h-64 w-full bg-surface-container-lowest/50 border border-white/5 p-4 overflow-hidden group">
           <div className="absolute inset-0 opacity-10 pointer-events-none" style={{
-            backgroundImage: "linear-gradient(0deg, transparent 24%, rgba(0, 220, 230, .05) 25%, rgba(0, 220, 230, .05) 26%, transparent 27%, transparent 74%, rgba(0, 220, 230, .05) 75%, rgba(0, 220, 230, .05) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(0, 220, 230, .05) 25%, rgba(0, 220, 230, .05) 26%, transparent 27%, transparent 74%, rgba(0, 220, 230, .05) 75%, rgba(0, 220, 230, .05) 76%, transparent 77%, transparent)",
+            backgroundImage: isDark
+              ? "linear-gradient(0deg, transparent 24%, rgba(0, 220, 230, .05) 25%, rgba(0, 220, 230, .05) 26%, transparent 27%, transparent 74%, rgba(0, 220, 230, .05) 75%, rgba(0, 220, 230, .05) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(0, 220, 230, .05) 25%, rgba(0, 220, 230, .05) 26%, transparent 27%, transparent 74%, rgba(0, 220, 230, .05) 75%, rgba(0, 220, 230, .05) 76%, transparent 77%, transparent)"
+              : "linear-gradient(0deg, transparent 24%, rgba(0, 105, 111, .06) 25%, rgba(0, 105, 111, .06) 26%, transparent 27%, transparent 74%, rgba(0, 105, 111, .06) 75%, rgba(0, 105, 111, .06) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(0, 105, 111, .06) 25%, rgba(0, 105, 111, .06) 26%, transparent 27%, transparent 74%, rgba(0, 105, 111, .06) 75%, rgba(0, 105, 111, .06) 76%, transparent 77%, transparent)",
             backgroundSize: "30px 30px"
           }}></div>
           

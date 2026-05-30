@@ -1,10 +1,12 @@
 import { useHabits } from '../context/HabitContext';
+import { useTheme } from '../context/ThemeContext';
 import { startOfDay, subDays, isSameDay } from 'date-fns';
 import HabitCard from '../components/HabitCard';
 import PerformancePanel from '../components/PerformancePanel';
 
 export default function Dashboard() {
   const { habits, logs, getStreak, getEfficiency, getPattern } = useHabits();
+  const { isDark } = useTheme();
   
   const today = startOfDay(new Date());
   const last7Days = Array.from({ length: 7 }, (_, i) => subDays(today, i));
@@ -29,9 +31,16 @@ export default function Dashboard() {
             </span>
           </div>
           <div className="relative h-4 w-full bg-surface-container-lowest overflow-hidden border border-white/5">
-            <div className="absolute top-0 left-0 h-full bg-[#00f3ff] shadow-[0_0_15px_rgba(0,220,230,0.6)] transition-all duration-1000" style={{ width: `${weeklyProgress}%` }}></div>
+            <div
+              className="absolute top-0 left-0 h-full transition-all duration-1000"
+              style={{
+                width: `${weeklyProgress}%`,
+                background: isDark ? '#00f3ff' : '#00696f',
+                boxShadow: isDark ? '0 0 15px rgba(0,220,230,0.6)' : '0 0 10px rgba(0,105,111,0.35)'
+              }}
+            ></div>
             <div className="absolute top-0 left-0 h-full w-full opacity-20 pointer-events-none" style={{
-              backgroundImage: "linear-gradient(90deg, transparent 49%, rgba(255,255,255,0.2) 50%, transparent 51%)", 
+              backgroundImage: `linear-gradient(90deg, transparent 49%, ${isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'} 50%, transparent 51%)`, 
               backgroundSize: "20px 100%"
             }}></div>
           </div>

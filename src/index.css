@@ -106,18 +106,104 @@
   --text-headline-lg-mobile--font-weight: 700;
 }
 
+/* ═══════════════════════════════════════════════════════
+   LIGHT THEME — Variable overrides
+   ═══════════════════════════════════════════════════════ */
+[data-theme="light"] {
+    /* Primary tones — darker teal for contrast on light */
+    --color-primary: #003d40;
+    --color-on-primary: #ffffff;
+    --color-primary-container: #a4f0f5;
+    --color-on-primary-container: #00696f;
+    --color-primary-fixed: #a4f0f5;
+    --color-primary-fixed-dim: #00696f;
+    --color-inverse-primary: #4dd9e1;
+
+    /* Secondary tones */
+    --color-secondary: #8b47b0;
+    --color-on-secondary: #ffffff;
+    --color-secondary-container: #f3daff;
+    --color-on-secondary-container: #7a3a9f;
+    --color-secondary-fixed: #f8d8ff;
+    --color-secondary-fixed-dim: #d499f0;
+    --color-on-secondary-fixed: #320047;
+    --color-on-secondary-fixed-variant: #74009f;
+
+    /* Tertiary tones */
+    --color-tertiary: #555a5f;
+    --color-on-tertiary: #ffffff;
+    --color-tertiary-container: #dde3ea;
+    --color-on-tertiary-container: #555a5f;
+    --color-tertiary-fixed: #dde3ea;
+    --color-tertiary-fixed-dim: #c0c6cd;
+    --color-on-tertiary-fixed: #1b1b1f;
+    --color-on-tertiary-fixed-variant: #47464b;
+
+    /* Surfaces — warm neutral light palette */
+    --color-surface: #fbf8fd;
+    --color-surface-dim: #ddd9de;
+    --color-surface-bright: #fbf8fd;
+    --color-surface-variant: #e3e1e6;
+    --color-surface-container-lowest: #ffffff;
+    --color-surface-container-low: #f6f2f7;
+    --color-surface-container: #f0ecf1;
+    --color-surface-container-high: #eae7ec;
+    --color-surface-container-highest: #e5e1e6;
+    --color-surface-tint: #00696f;
+    --color-on-surface: #1c1b1f;
+    --color-on-surface-variant: #49454f;
+    --color-inverse-surface: #313033;
+    --color-inverse-on-surface: #f4eff4;
+
+    /* Background */
+    --color-background: #fbf8fd;
+    --color-on-background: #1c1b1f;
+
+    /* Outline */
+    --color-outline: #7a7680;
+    --color-outline-variant: #cac4cf;
+
+    /* Error */
+    --color-error: #ba1a1a;
+    --color-on-error: #ffffff;
+    --color-error-container: #ffdad6;
+    --color-on-error-container: #93000a;
+}
+
+/* ═══════════════════════════════════════════════════════
+   BASE — Body
+   ═══════════════════════════════════════════════════════ */
 body {
     background-color: #0A0A0C;
     color: #e5e1e4;
     overflow-x: hidden;
+    transition: background-color 0.4s ease, color 0.4s ease;
 }
 
+[data-theme="light"] body {
+    background-color: #f5f1f6;
+    color: #1c1b1f;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Glass Panel — adapts to theme
+   ═══════════════════════════════════════════════════════ */
 .glass-panel {
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
 }
 
+[data-theme="light"] .glass-panel {
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* ═══════════════════════════════════════════════════════
+   Habit Cells
+   ═══════════════════════════════════════════════════════ */
 .habit-cell {
     width: 12px;
     height: 12px;
@@ -130,15 +216,35 @@ body {
     box-shadow: 0 0 8px rgba(0, 220, 230, 0.6);
 }
 
+[data-theme="light"] .habit-cell.active {
+    background-color: #00696f;
+    box-shadow: 0 0 6px rgba(0, 105, 111, 0.35);
+}
+
 .habit-cell.inactive {
     background-color: rgba(58, 73, 75, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+[data-theme="light"] .habit-cell.inactive {
+    background-color: rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* ═══════════════════════════════════════════════════════
+   Hologram / glow effects
+   ═══════════════════════════════════════════════════════ */
 .hologram-line {
     filter: drop-shadow(0 0 4px #00dce6);
 }
 
+[data-theme="light"] .hologram-line {
+    filter: drop-shadow(0 0 3px rgba(0, 105, 111, 0.4));
+}
+
+/* ═══════════════════════════════════════════════════════
+   Custom scrollbar
+   ═══════════════════════════════════════════════════════ */
 .custom-scrollbar::-webkit-scrollbar {
     width: 4px;
 }
@@ -147,11 +253,22 @@ body {
     background: rgba(255, 255, 255, 0.02);
 }
 
+[data-theme="light"] .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.03);
+}
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
     background: #00dce6;
     border-radius: 10px;
 }
 
+[data-theme="light"] .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #00696f;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Pulse animation
+   ═══════════════════════════════════════════════════════ */
 @keyframes pulse-glow {
     0%, 100% { opacity: 0.6; }
     50% { opacity: 1; }
@@ -159,4 +276,153 @@ body {
 
 .pulse {
     animation: pulse-glow 2s infinite ease-in-out;
+}
+
+/* ═══════════════════════════════════════════════════════
+   LIGHT THEME — Hardcoded utility adaptations
+   These override Tailwind classes that reference white/
+   or black/ for the opposite theme.
+   ═══════════════════════════════════════════════════════ */
+
+/* border-white/* → border-black/* */
+[data-theme="light"] .border-white\/5 { border-color: rgba(0, 0, 0, 0.06) !important; }
+[data-theme="light"] .border-white\/10 { border-color: rgba(0, 0, 0, 0.1) !important; }
+[data-theme="light"] .border-white\/20 { border-color: rgba(0, 0, 0, 0.15) !important; }
+[data-theme="light"] .border-white\/30 { border-color: rgba(0, 0, 0, 0.2) !important; }
+
+/* bg-white/* → bg-black/* */
+[data-theme="light"] .bg-white\/5 { background-color: rgba(0, 0, 0, 0.04) !important; }
+[data-theme="light"] .bg-white\/10 { background-color: rgba(0, 0, 0, 0.06) !important; }
+
+/* hover:bg-white/* → hover:bg-black/* */
+[data-theme="light"] .hover\:bg-white\/5:hover { background-color: rgba(0, 0, 0, 0.04) !important; }
+
+/* hover:border-white/* */
+[data-theme="light"] .hover\:border-white\/20:hover { border-color: rgba(0, 0, 0, 0.15) !important; }
+[data-theme="light"] .hover\:border-white\/30:hover { border-color: rgba(0, 0, 0, 0.2) !important; }
+
+/* bg-black/60 modal overlays — lighter in light mode */
+[data-theme="light"] .bg-black\/60 { background-color: rgba(0, 0, 0, 0.25) !important; }
+
+/* Divider lines */
+[data-theme="light"] .bg-white\/\[0\.1\] { background-color: rgba(0, 0, 0, 0.08) !important; }
+
+/* Selection highlight */
+[data-theme="light"] .selection\:bg-primary-fixed-dim\/30 ::selection {
+    background: rgba(0, 105, 111, 0.2);
+}
+
+/* Sidebar border + bg */
+[data-theme="light"] .border-r.border-white\/10,
+[data-theme="light"] aside.border-r { border-color: rgba(0, 0, 0, 0.08) !important; }
+
+[data-theme="light"] .bg-surface\/10 { background-color: rgba(251, 248, 253, 0.85) !important; }
+
+/* Drop-shadows: tone down neon glow in light mode */
+[data-theme="light"] .drop-shadow-\[0_0_8px_rgba\(0\,220\,230\,0\.5\)\] {
+    filter: drop-shadow(0 0 4px rgba(0, 105, 111, 0.3)) !important;
+}
+
+/* Box-shadow glows */
+[data-theme="light"] .shadow-\[0_0_20px_rgba\(0\,220\,230\,0\.4\)\] {
+    box-shadow: 0 0 15px rgba(0, 105, 111, 0.25) !important;
+}
+
+[data-theme="light"] .shadow-\[0_0_30px_rgba\(0\,220\,230\,0\.1\)\] {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] .shadow-\[0_0_30px_rgba\(0\,220\,230\,0\.15\)\] {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"] .shadow-\[0_0_20px_rgba\(0\,220\,230\,0\.05\)\] {
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="light"] .shadow-\[0_0_30px_rgba\(255\,75\,75\,0\.1\)\] {
+    box-shadow: 0 2px 12px rgba(186, 26, 26, 0.1) !important;
+}
+
+/* FAB button text on light */
+[data-theme="light"] .text-background { color: #ffffff !important; }
+
+/* Theme toggle button styles */
+.theme-toggle-btn {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+}
+
+[data-theme="light"] .theme-toggle-btn {
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.theme-toggle-btn::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #00dce6;
+    box-shadow: 0 0 6px rgba(0, 220, 230, 0.4);
+    transition: all 0.3s ease;
+}
+
+[data-theme="light"] .theme-toggle-btn::after {
+    left: 22px;
+    background: #00696f;
+    box-shadow: 0 0 4px rgba(0, 105, 111, 0.3);
+}
+
+/* Additional inline shadow/glow overrides for light theme */
+[data-theme="light"] .shadow-\[inset_0_0_12px_rgba\(0\,220\,230\,0\.2\)\] {
+    box-shadow: inset 0 0 8px rgba(0, 105, 111, 0.1) !important;
+}
+
+[data-theme="light"] .shadow-\[0_0_15px_rgba\(0\,220\,230\,0\.6\)\] {
+    box-shadow: 0 0 10px rgba(0, 105, 111, 0.3) !important;
+}
+
+[data-theme="light"] .shadow-\[0_0_6px_rgba\(0\,220\,230\,0\.5\)\] {
+    box-shadow: 0 0 4px rgba(0, 105, 111, 0.25) !important;
+}
+
+[data-theme="light"] .shadow-\[0_0_4px_\#00dce6\] {
+    box-shadow: 0 0 3px rgba(0, 105, 111, 0.3) !important;
+}
+
+/* Focus/input glow */
+[data-theme="light"] .focus\:shadow-\[0_4px_12px_rgba\(0\,220\,230\,0\.1\)\]:focus {
+    box-shadow: 0 4px 12px rgba(0, 105, 111, 0.08) !important;
+}
+
+/* Submit button hover state — adapt the hardcoded #6ff6ff */
+[data-theme="light"] .hover\:bg-\[\#6ff6ff\]:hover {
+    background-color: #00807a !important;
+}
+
+/* Smooth transition on all theme token colors */
+[data-theme="light"] *,
+[data-theme="dark"] * {
+    transition-property: color, background-color, border-color, box-shadow, filter;
+    transition-duration: 0s;
+}
+
+/* App Title Glow Effect */
+.app-title-glow {
+    text-shadow: 0 0 8px rgba(0, 220, 230, 0.5);
+}
+
+[data-theme="light"] .app-title-glow {
+    text-shadow: 0 0 6px rgba(0, 105, 111, 0.4);
 }

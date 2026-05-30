@@ -28,8 +28,6 @@ export default function TopBar() {
   return (
     <header className="flex justify-between items-center w-full px-margin-desktop py-gutter bg-transparent">
       <div className="flex items-center gap-4">
-        <span className="font-headline-sm text-headline-sm font-bold text-primary-fixed-dim">Neural Cortex</span>
-        <div className="h-4 w-[1px] bg-white/10 mx-2"></div>
         <span className="font-label-caps text-label-caps text-on-surface-variant">{time}</span>
       </div>
       <div className="flex items-center gap-8">

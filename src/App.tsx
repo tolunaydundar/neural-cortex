@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
 import { HabitProvider } from './context/HabitContext';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
 import Dashboard from './pages/Dashboard';
@@ -32,15 +33,20 @@ function AppLayout() {
     window.dispatchEvent(new Event('username_updated'));
   };
 
+  const { isDark } = useTheme();
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       const x = e.clientX / window.innerWidth;
       const y = e.clientY / window.innerHeight;
-      document.body.style.backgroundImage = `radial-gradient(circle at ${x * 100}% ${y * 100}%, rgba(0, 220, 230, 0.03) 0%, transparent 50%)`;
+      const color = isDark
+        ? 'rgba(0, 220, 230, 0.03)'
+        : 'rgba(0, 105, 111, 0.03)';
+      document.body.style.backgroundImage = `radial-gradient(circle at ${x * 100}% ${y * 100}%, ${color} 0%, transparent 50%)`;
     };
     document.addEventListener('mousemove', handleMouseMove);
     return () => document.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+  }, [isDark]);
 
   const handleToastDone = useCallback(() => setToast(null), []);
 
@@ -82,19 +88,21 @@ function AppLayout() {
 
 function App() {
   return (
-    <HabitProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<AppLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="performance" element={<PerformanceAnalytics />} />
-            <Route path="legacy" element={<LegacyLogs />} />
-            <Route path="settings" element={<Settings />} />
-            <Route path="habit/:id" element={<HabitDetails />} />
-          </Route>
-        </Routes>
-      </Router>
-    </HabitProvider>
+    <ThemeProvider>
+      <HabitProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<AppLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="performance" element={<PerformanceAnalytics />} />
+              <Route path="legacy" element={<LegacyLogs />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="habit/:id" element={<HabitDetails />} />
+            </Route>
+          </Routes>
+        </Router>
+      </HabitProvider>
+    </ThemeProvider>
   );
 }
 
