@@ -20,6 +20,8 @@ export default function Settings() {
       nexus_habits: localStorage.getItem('nexus_habits'),
       nexus_logs: localStorage.getItem('nexus_logs'),
       nexus_tasks: localStorage.getItem('nexus_tasks'),
+      nexus_notes: localStorage.getItem('nexus_notes'),
+      nexus_folders: localStorage.getItem('nexus_folders'),
       nexus_username: localStorage.getItem('nexus_username'),
       exported_at: new Date().toISOString(),
     };
@@ -48,6 +50,8 @@ export default function Settings() {
           if (data.nexus_habits) localStorage.setItem('nexus_habits', data.nexus_habits);
           if (data.nexus_logs) localStorage.setItem('nexus_logs', data.nexus_logs);
           if (data.nexus_tasks) localStorage.setItem('nexus_tasks', data.nexus_tasks);
+          if (data.nexus_notes) localStorage.setItem('nexus_notes', data.nexus_notes);
+          if (data.nexus_folders) localStorage.setItem('nexus_folders', data.nexus_folders);
           if (data.nexus_username) localStorage.setItem('nexus_username', data.nexus_username);
           setShowImportSuccess(true);
           setTimeout(() => {
@@ -67,6 +71,8 @@ export default function Settings() {
     localStorage.removeItem('nexus_habits');
     localStorage.removeItem('nexus_logs');
     localStorage.removeItem('nexus_tasks');
+    localStorage.removeItem('nexus_notes');
+    localStorage.removeItem('nexus_folders');
     localStorage.removeItem('nexus_username');
     setShowClearConfirm(false);
     window.location.reload();
@@ -197,7 +203,7 @@ export default function Settings() {
               <div className="flex justify-between items-center py-2 border-b border-white/5">
                 <span className="text-xs text-on-surface-variant">Storage Used</span>
                 <span className="font-data-display text-sm text-primary-fixed-dim">
-                  {((new Blob([JSON.stringify({ h: habits, l: logs, t: tasks })]).size) / 1024).toFixed(1)} KB
+                  {((new Blob([JSON.stringify({ h: habits, l: logs, t: tasks, n: localStorage.getItem('nexus_notes'), f: localStorage.getItem('nexus_folders') })]).size) / 1024).toFixed(1)} KB
                 </span>
               </div>
               <div className="flex justify-between items-center py-2">

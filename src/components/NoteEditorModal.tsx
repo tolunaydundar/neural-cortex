@@ -327,6 +327,7 @@ export default function NoteEditorModal({ initialNote, onClose }: NoteEditorModa
         <FolderEditorModal
           folderId={null}
           onClose={() => setShowNewFolderModal(false)}
+          onSuccess={(id) => setFolderId(id)}
         />
       )}
     </>

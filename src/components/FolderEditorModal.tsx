@@ -5,6 +5,7 @@ import ConfirmModal from './ConfirmModal';
 interface FolderEditorModalProps {
   folderId?: string | null;
   onClose: () => void;
+  onSuccess?: (id: string) => void;
 }
 
 const FOLDER_ICONS = [
@@ -14,7 +15,7 @@ const FOLDER_ICONS = [
   'travel_explore', 'savings', 'receipt_long', 'inventory_2',
 ];
 
-export default function FolderEditorModal({ folderId, onClose }: FolderEditorModalProps) {
+export default function FolderEditorModal({ folderId, onClose, onSuccess }: FolderEditorModalProps) {
   const { folders, addFolder, updateFolder, deleteFolder } = useNotes();
   const existing = folderId ? folders.find(f => f.id === folderId) : null;
 
@@ -34,8 +35,10 @@ export default function FolderEditorModal({ folderId, onClose }: FolderEditorMod
     if (!name.trim()) return;
     if (existing) {
       updateFolder(existing.id, { name: name.trim(), icon });
+      onSuccess?.(existing.id);
     } else {
-      addFolder(name.trim(), icon);
+      const newId = addFolder(name.trim(), icon);
+      onSuccess?.(newId);
     }
     onClose();
   };

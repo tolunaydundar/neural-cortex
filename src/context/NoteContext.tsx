@@ -38,7 +38,7 @@ interface NoteContextType {
 
   // Folders
   folders: Folder[];
-  addFolder: (name: string, icon: string) => void;
+  addFolder: (name: string, icon: string) => string;
   updateFolder: (id: string, updates: Partial<Omit<Folder, 'id' | 'created_at'>>) => void;
   deleteFolder: (id: string) => void;
 
@@ -188,6 +188,7 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       created_at: new Date().toISOString(),
     };
     setFolders(prev => [...prev, newFolder]);
+    return newFolder.id;
   };
 
   const updateFolder = (id: string, updates: Partial<Omit<Folder, 'id' | 'created_at'>>) => {
