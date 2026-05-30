@@ -249,7 +249,7 @@ export default function Notes() {
   const renderNotes = (noteList: Note[]) => {
     const strategy = viewMode === 'grid' ? rectSortingStrategy : verticalListSortingStrategy;
     const containerClass = viewMode === 'grid' 
-      ? "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4" 
+      ? "grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4" 
       : "space-y-2";
 
     return (
@@ -273,7 +273,7 @@ export default function Notes() {
         </div>
         <button
           onClick={() => handleOpenEditor()}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-fixed-dim text-background font-label-caps text-xs hover:bg-[#6ff6ff] transition-colors cursor-pointer shadow-[0_0_15px_rgba(0,220,230,0.4)] hover:shadow-[0_0_20px_rgba(0,220,230,0.6)] rounded-sm w-fit"
+          className="flex justify-center items-center gap-2 px-4 py-2 bg-primary-fixed-dim text-background font-label-caps text-xs hover:bg-[#6ff6ff] transition-colors cursor-pointer shadow-[0_0_15px_rgba(0,220,230,0.4)] hover:shadow-[0_0_20px_rgba(0,220,230,0.6)] rounded-sm w-full sm:w-fit"
         >
           <span className="material-symbols-outlined text-sm">edit_square</span>
           <span>NEW NOTE</span>
@@ -297,29 +297,32 @@ export default function Notes() {
       </div>
 
       {/* Main layout: Sidebar + Content */}
-      <div className="flex gap-0 lg:gap-6 flex-grow min-h-0">
+      <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 flex-grow min-h-0">
 
         {/* Desktop Sidebar */}
         <div className="note-sidebar hidden lg:block glass-panel custom-scrollbar rounded-sm">
           {sidebarContent}
         </div>
 
-        {/* Mobile Sidebar Toggle */}
-        <button
-          onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-          className="lg:hidden flex items-center gap-2 px-3 py-2 border border-white/10 text-on-surface-variant font-label-caps text-[10px] hover:bg-white/5 transition-colors cursor-pointer rounded-sm mb-0 self-start"
-        >
-          <span className="material-symbols-outlined text-sm">folder_open</span>
-          {filterLabel}
-          <span className="material-symbols-outlined text-[14px]">{mobileSidebarOpen ? 'expand_less' : 'expand_more'}</span>
-        </button>
+        {/* Mobile Sidebar Area */}
+        <div className="lg:hidden flex flex-col gap-2">
+          <button
+            onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+            className="flex items-center justify-between w-full px-3 py-2 border border-white/10 text-on-surface-variant font-label-caps text-[10px] hover:bg-white/5 transition-colors cursor-pointer rounded-sm"
+          >
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-sm">folder_open</span>
+              {filterLabel}
+            </div>
+            <span className="material-symbols-outlined text-[14px]">{mobileSidebarOpen ? 'expand_less' : 'expand_more'}</span>
+          </button>
 
-        {/* Mobile Sidebar Dropdown */}
-        {mobileSidebarOpen && (
-          <div className="lg:hidden glass-panel rounded-sm absolute z-30 left-4 right-4 mt-10 max-h-[60vh] overflow-y-auto custom-scrollbar">
-            {sidebarContent}
-          </div>
-        )}
+          {mobileSidebarOpen && (
+            <div className="glass-panel rounded-sm max-h-[60vh] overflow-y-auto custom-scrollbar">
+              {sidebarContent}
+            </div>
+          )}
+        </div>
 
         {/* Content area */}
         <div className="flex-grow flex flex-col gap-4 min-w-0">
@@ -337,7 +340,7 @@ export default function Notes() {
               />
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between sm:justify-start gap-2 w-full sm:w-auto">
               <select
                 value={sortMode}
                 onChange={(e) => setSortMode(e.target.value as SortMode)}
