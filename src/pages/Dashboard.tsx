@@ -1,6 +1,5 @@
 import { useHabits } from '../context/HabitContext';
 import { useTasks } from '../context/TaskContext';
-import { useTheme } from '../context/ThemeContext';
 import { startOfDay, subDays, isSameDay } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { useOutletContext } from 'react-router-dom';
@@ -8,7 +7,6 @@ import { useOutletContext } from 'react-router-dom';
 export default function Dashboard() {
   const { habits, logs, getStreak, getEfficiency, logHabit } = useHabits();
   const { tasks, moveStatus, getOverdueTasks } = useTasks();
-  const { isDark } = useTheme();
   const { openAddModal, openAddTaskModal } = useOutletContext<{ openAddModal: () => void; openAddTaskModal: () => void }>();
 
   const today = startOfDay(new Date());
