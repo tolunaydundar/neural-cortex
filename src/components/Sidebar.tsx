@@ -8,7 +8,7 @@ interface SidebarProps {
 
 export default function Sidebar({ onLogActivity }: SidebarProps) {
   const [userName, setUserName] = useState(localStorage.getItem('nexus_username') || 'OPERATOR');
-  const { theme, toggleTheme, isDark } = useTheme();
+  const { toggleTheme, isDark } = useTheme();
 
   useEffect(() => {
     const handleUpdate = () => {

@@ -26,8 +26,43 @@ function AppLayout() {
   const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('nexus_username'));
   const [toast, setToast] = useState<ToastState | null>(null);
 
-  const handleOnboardingComplete = (name: string) => {
+  const handleOnboardingComplete = (name: string, wantsExampleData: boolean) => {
     localStorage.setItem('nexus_username', name);
+    
+    if (wantsExampleData) {
+      const now = new Date();
+      const habit1Id = crypto.randomUUID();
+      const habit2Id = crypto.randomUUID();
+      const habit3Id = crypto.randomUUID();
+
+      const dummyHabits = [
+        { id: habit1Id, title: 'Meditation', icon: 'self_improvement', created_at: new Date(now.getTime() - 14 * 86400000).toISOString() },
+        { id: habit2Id, title: 'Read 10 Pages', icon: 'menu_book', created_at: new Date(now.getTime() - 14 * 86400000).toISOString() },
+        { id: habit3Id, title: 'Workout', icon: 'fitness_center', created_at: new Date(now.getTime() - 14 * 86400000).toISOString() },
+      ];
+
+      const dummyLogs = [];
+      for (let i = 0; i < 14; i++) {
+        const date = new Date(now.getTime() - i * 86400000);
+        // Habit 1: Everyday
+        dummyLogs.push({ id: crypto.randomUUID(), habitId: habit1Id, date: date.toISOString() });
+        // Habit 2: Skip a few days
+        if (i % 3 !== 0) {
+          dummyLogs.push({ id: crypto.randomUUID(), habitId: habit2Id, date: date.toISOString() });
+        }
+        // Habit 3: Every other day
+        if (i % 2 === 0) {
+          dummyLogs.push({ id: crypto.randomUUID(), habitId: habit3Id, date: date.toISOString() });
+        }
+      }
+
+      localStorage.setItem('nexus_habits', JSON.stringify(dummyHabits));
+      localStorage.setItem('nexus_logs', JSON.stringify(dummyLogs));
+      
+      window.location.reload();
+      return;
+    }
+
     setShowOnboarding(false);
     setIsAddModalOpen(true);
     window.dispatchEvent(new Event('username_updated'));
