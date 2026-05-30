@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useHabits } from '../context/HabitContext';
+import { useTasks } from '../context/TaskContext';
 
 export default function Settings() {
   const { habits, logs } = useHabits();
+  const { tasks } = useTasks();
   const [userName, setUserName] = useState(() => localStorage.getItem('nexus_username') || 'OPERATOR');
   const [showExportSuccess, setShowExportSuccess] = useState(false);
   const [showImportSuccess, setShowImportSuccess] = useState(false);
@@ -17,6 +19,7 @@ export default function Settings() {
     const data = {
       nexus_habits: localStorage.getItem('nexus_habits'),
       nexus_logs: localStorage.getItem('nexus_logs'),
+      nexus_tasks: localStorage.getItem('nexus_tasks'),
       nexus_username: localStorage.getItem('nexus_username'),
       exported_at: new Date().toISOString(),
     };
@@ -44,6 +47,7 @@ export default function Settings() {
           const data = JSON.parse(ev.target?.result as string);
           if (data.nexus_habits) localStorage.setItem('nexus_habits', data.nexus_habits);
           if (data.nexus_logs) localStorage.setItem('nexus_logs', data.nexus_logs);
+          if (data.nexus_tasks) localStorage.setItem('nexus_tasks', data.nexus_tasks);
           if (data.nexus_username) localStorage.setItem('nexus_username', data.nexus_username);
           setShowImportSuccess(true);
           setTimeout(() => {
@@ -62,6 +66,7 @@ export default function Settings() {
   const handleClearAll = () => {
     localStorage.removeItem('nexus_habits');
     localStorage.removeItem('nexus_logs');
+    localStorage.removeItem('nexus_tasks');
     localStorage.removeItem('nexus_username');
     setShowClearConfirm(false);
     window.location.reload();
@@ -182,9 +187,17 @@ export default function Settings() {
                 <span className="font-data-display text-sm text-primary-fixed-dim">{logs.length}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-white/5">
+                <span className="text-xs text-on-surface-variant">Active Tasks</span>
+                <span className="font-data-display text-sm text-primary-fixed-dim">{tasks.filter(t => t.status !== 'done').length}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-white/5">
+                <span className="text-xs text-on-surface-variant">Completed Tasks</span>
+                <span className="font-data-display text-sm text-primary-fixed-dim">{tasks.filter(t => t.status === 'done').length}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-white/5">
                 <span className="text-xs text-on-surface-variant">Storage Used</span>
                 <span className="font-data-display text-sm text-primary-fixed-dim">
-                  {((new Blob([JSON.stringify({ h: habits, l: logs })]).size) / 1024).toFixed(1)} KB
+                  {((new Blob([JSON.stringify({ h: habits, l: logs, t: tasks })]).size) / 1024).toFixed(1)} KB
                 </span>
               </div>
               <div className="flex justify-between items-center py-2">

@@ -531,3 +531,197 @@ body {
 [data-theme="light"] .mobile-fab {
     box-shadow: 0 4px 14px rgba(0, 105, 111, 0.3), 0 0 0 4px rgba(0, 105, 111, 0.06);
 }
+
+/* ═══════════════════════════════════════════════════════
+   TASK PRIORITY INDICATORS
+   ═══════════════════════════════════════════════════════ */
+.priority-critical { border-left: 3px solid var(--color-error); }
+.priority-high { border-left: 3px solid var(--color-secondary); }
+.priority-medium { border-left: 3px solid var(--color-primary-fixed-dim); }
+.priority-low { border-left: 3px solid var(--color-outline); }
+
+.priority-dot-critical { background-color: var(--color-error); }
+.priority-dot-high { background-color: var(--color-secondary); }
+.priority-dot-medium { background-color: var(--color-primary-fixed-dim); }
+.priority-dot-low { background-color: var(--color-outline); }
+
+/* ═══════════════════════════════════════════════════════
+   TASK STATUS BADGES
+   ═══════════════════════════════════════════════════════ */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-family: var(--font-label-caps);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.status-todo {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--color-on-surface-variant);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.status-in_progress {
+    background: rgba(0, 220, 230, 0.1);
+    color: var(--color-primary-fixed-dim);
+    border: 1px solid rgba(0, 220, 230, 0.2);
+}
+
+.status-done {
+    background: rgba(0, 220, 230, 0.06);
+    color: var(--color-primary-fixed-dim);
+    opacity: 0.6;
+    border: 1px solid rgba(0, 220, 230, 0.1);
+}
+
+[data-theme="light"] .status-todo {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--color-on-surface-variant);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .status-in_progress {
+    background: rgba(0, 105, 111, 0.08);
+    color: var(--color-primary-fixed-dim);
+    border: 1px solid rgba(0, 105, 111, 0.2);
+}
+
+[data-theme="light"] .status-done {
+    background: rgba(0, 105, 111, 0.05);
+    color: var(--color-primary-fixed-dim);
+    border: 1px solid rgba(0, 105, 111, 0.1);
+}
+
+/* ═══════════════════════════════════════════════════════
+   OVERDUE DATE BADGE
+   ═══════════════════════════════════════════════════════ */
+.date-overdue {
+    color: var(--color-error);
+    animation: overdue-pulse 2s infinite ease-in-out;
+}
+
+@keyframes overdue-pulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   SUBTASK PROGRESS BAR
+   ═══════════════════════════════════════════════════════ */
+.subtask-progress-bar {
+    height: 3px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+}
+
+.subtask-progress-fill {
+    height: 100%;
+    background: var(--color-primary-fixed-dim);
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="light"] .subtask-progress-bar {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+/* ═══════════════════════════════════════════════════════
+   CATEGORY CHIP
+   ═══════════════════════════════════════════════════════ */
+.category-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 6px;
+    border-radius: 2px;
+    font-family: var(--font-label-caps);
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--color-on-surface-variant);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .category-chip {
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* ═══════════════════════════════════════════════════════
+   TASK COMPLETION CHECKBOX
+   ═══════════════════════════════════════════════════════ */
+.task-checkbox {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--color-outline);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.task-checkbox:hover {
+    border-color: var(--color-primary-fixed-dim);
+    background: rgba(0, 220, 230, 0.08);
+}
+
+.task-checkbox.checked {
+    border-color: var(--color-primary-fixed-dim);
+    background: var(--color-primary-fixed-dim);
+}
+
+[data-theme="light"] .task-checkbox:hover {
+    background: rgba(0, 105, 111, 0.08);
+}
+
+/* ═══════════════════════════════════════════════════════
+   TASK FILTER PILL
+   ═══════════════════════════════════════════════════════ */
+.filter-pill {
+    padding: 4px 12px;
+    border-radius: 2px;
+    font-family: var(--font-label-caps);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--color-on-surface-variant);
+    background: transparent;
+}
+
+.filter-pill:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--color-on-surface);
+}
+
+.filter-pill.active {
+    border-color: var(--color-primary-fixed-dim);
+    color: var(--color-primary-fixed-dim);
+    background: rgba(0, 220, 230, 0.08);
+}
+
+[data-theme="light"] .filter-pill {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .filter-pill:hover {
+    border-color: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="light"] .filter-pill.active {
+    border-color: var(--color-primary-fixed-dim);
+    background: rgba(0, 105, 111, 0.06);
+}
+

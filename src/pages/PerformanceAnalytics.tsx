@@ -1,8 +1,24 @@
 import { useHabits } from '../context/HabitContext';
+import { useTasks } from '../context/TaskContext';
 import { startOfDay, subDays, isSameDay } from 'date-fns';
 
 export default function PerformanceAnalytics() {
   const { habits, logs, getStreak, getEfficiency } = useHabits();
+  const { tasks, getCompletionStats, getOverdueTasks } = useTasks();
+
+  // Task metrics
+  const taskStats7d = getCompletionStats(7);
+  const taskStats14d = getCompletionStats(14);
+  const overdueTaskCount = getOverdueTasks().length;
+  const tasksDoneTotal = tasks.filter(t => t.status === 'done').length;
+
+  // Per-category task completion
+  const taskCategories = Array.from(new Set(tasks.map(t => t.category).filter(Boolean)));
+  const categoryStats = taskCategories.map(cat => {
+    const catTasks = tasks.filter(t => t.category === cat);
+    const done = catTasks.filter(t => t.status === 'done').length;
+    return { name: cat, done, total: catTasks.length, rate: catTasks.length > 0 ? Math.round((done / catTasks.length) * 100) : 0 };
+  }).sort((a, b) => b.rate - a.rate);
 
   // Calculate weekly efficiency for last 4 weeks per habit
   const today = startOfDay(new Date());
@@ -49,7 +65,7 @@ export default function PerformanceAnalytics() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4">
         <div className="glass-panel p-4 lg:p-6 text-center">
           <p className="font-label-caps text-[10px] text-on-surface-variant mb-2">ACTIVE PROTOCOLS</p>
           <p className="font-data-display text-3xl text-primary-fixed-dim">{totalActive}</p>
@@ -67,6 +83,10 @@ export default function PerformanceAnalytics() {
           <p className="font-data-display text-3xl text-primary-fixed-dim">
             {sortedByStreak.length > 0 ? getStreak(sortedByStreak[0].id) : 0}
           </p>
+        </div>
+        <div className="glass-panel p-4 lg:p-6 text-center">
+          <p className="font-label-caps text-[10px] text-on-surface-variant mb-2">TASKS DONE</p>
+          <p className="font-data-display text-3xl text-primary-fixed-dim">{tasksDoneTotal}</p>
         </div>
       </div>
 
@@ -149,6 +169,41 @@ export default function PerformanceAnalytics() {
               </div>
             </div>
           )}
+
+          {/* Task Metrics */}
+          <div className="glass-panel p-4 lg:p-6">
+            <h3 className="font-label-caps text-[10px] text-on-surface-variant mb-4">TASK METRICS</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center py-2 border-b border-white/5">
+                <span className="text-xs text-on-surface-variant">This Week</span>
+                <span className="font-data-display text-sm text-primary-fixed-dim">{taskStats7d.completed}/{taskStats7d.total}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-white/5">
+                <span className="text-xs text-on-surface-variant">Last 2 Weeks</span>
+                <span className="font-data-display text-sm text-primary-fixed-dim">{taskStats14d.completed}/{taskStats14d.total}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-white/5">
+                <span className="text-xs text-on-surface-variant">Overdue</span>
+                <span className={`font-data-display text-sm ${overdueTaskCount > 0 ? 'text-error' : 'text-primary-fixed-dim'}`}>{overdueTaskCount}</span>
+              </div>
+              {categoryStats.length > 0 && (
+                <div className="pt-2">
+                  <p className="font-label-caps text-[9px] text-on-surface-variant/70 mb-2">BY CATEGORY</p>
+                  {categoryStats.map(cat => (
+                    <div key={cat.name} className="mb-2">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-[10px] text-on-surface-variant">{cat.name}</span>
+                        <span className="font-data-display text-[10px] text-primary-fixed-dim">{cat.rate}%</span>
+                      </div>
+                      <div className="subtask-progress-bar">
+                        <div className="subtask-progress-fill" style={{ width: `${cat.rate}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Streak Rankings */}
           <div className="glass-panel p-6">

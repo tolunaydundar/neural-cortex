@@ -56,6 +56,10 @@ export default function Sidebar({ onLogActivity, isOpen = false, onClose }: Side
           <span className="material-symbols-outlined">grid_view</span>
           <span className="font-label-caps text-label-caps">Core</span>
         </NavLink>
+        <NavLink to="/tasks" className={getNavLinkClass} onClick={handleNavClick}>
+          <span className="material-symbols-outlined">task_alt</span>
+          <span className="font-label-caps text-label-caps">Tasks</span>
+        </NavLink>
         <NavLink to="/performance" className={getNavLinkClass} onClick={handleNavClick}>
           <span className="material-symbols-outlined">insights</span>
           <span className="font-label-caps text-label-caps">Performance</span>
