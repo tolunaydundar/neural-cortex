@@ -19,7 +19,7 @@ export default function ConfirmModal({ title, message, confirmLabel = 'CONFIRM',
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onCancel}>
-      <div className="glass-panel p-8 w-full max-w-sm rounded-lg border-error/30 shadow-[0_0_30px_rgba(255,75,75,0.1)]" onClick={e => e.stopPropagation()}>
+      <div className="glass-panel p-6 lg:p-8 w-full max-w-sm mx-4 rounded-lg border-error/30 shadow-[0_0_30px_rgba(255,75,75,0.1)]" onClick={e => e.stopPropagation()}>
         <h2 className="font-headline-md text-headline-md text-error mb-2">{title}</h2>
         <p className="text-sm text-on-surface-variant mb-6">{message}</p>
         <div className="flex gap-4">

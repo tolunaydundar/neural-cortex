@@ -5,9 +5,10 @@ export default function LegacyLogs() {
   
   return (
     <div className="flex-grow">
-      <h1 className="font-headline-lg text-primary-fixed-dim mb-8">Legacy Logs</h1>
-      <div className="glass-panel p-6">
-        <table className="w-full text-left font-body-md text-on-surface">
+      <h1 className="font-headline-lg text-headline-lg-mobile lg:text-headline-lg text-primary-fixed-dim mb-8">Legacy Logs</h1>
+      <div className="glass-panel p-4 lg:p-6">
+        <div className="overflow-x-auto">
+        <table className="w-full text-left font-body-md text-on-surface min-w-[400px]">
           <thead className="border-b border-white/10 font-label-caps text-on-surface-variant">
             <tr>
               <th className="pb-4">DATE</th>
@@ -28,6 +29,7 @@ export default function LegacyLogs() {
             })}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

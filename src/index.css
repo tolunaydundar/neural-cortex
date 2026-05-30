@@ -420,3 +420,114 @@ body {
 [data-theme="light"] .app-title-glow {
     text-shadow: 0 0 6px rgba(0, 105, 111, 0.4);
 }
+
+/* ═══════════════════════════════════════════════════════
+   MOBILE BOTTOM NAVIGATION
+   ═══════════════════════════════════════════════════════ */
+.mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: rgba(19, 19, 21, 0.92);
+    backdrop-filter: blur(24px);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+[data-theme="light"] .mobile-bottom-nav {
+    background: rgba(251, 248, 253, 0.92);
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 0;
+    min-width: 56px;
+    transition: color 0.15s ease;
+}
+
+.mobile-nav-item.active {
+    color: var(--color-primary-fixed-dim);
+}
+
+/* ═══════════════════════════════════════════════════════
+   MOBILE DRAWER OVERLAY
+   ═══════════════════════════════════════════════════════ */
+.drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.drawer-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.drawer-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 70;
+    width: 280px;
+    max-width: 85vw;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--color-surface);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="light"] .drawer-panel {
+    background: var(--color-surface-container-lowest);
+    border-right: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.drawer-panel.open {
+    transform: translateX(0);
+}
+
+/* ═══════════════════════════════════════════════════════
+   MOBILE CONTENT PADDING (clear bottom nav)
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 1023px) {
+    .mobile-content-pad {
+        padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    }
+}
+
+/* ═══════════════════════════════════════════════════════
+   MOBILE FAB (floating action button in bottom nav)
+   ═══════════════════════════════════════════════════════ */
+.mobile-fab {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary-fixed-dim);
+    color: var(--color-background);
+    box-shadow: 0 4px 14px rgba(0, 220, 230, 0.35), 0 0 0 4px rgba(0, 220, 230, 0.08);
+    transform: translateY(-14px);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mobile-fab:active {
+    transform: translateY(-12px) scale(0.93);
+}
+
+[data-theme="light"] .mobile-fab {
+    box-shadow: 0 4px 14px rgba(0, 105, 111, 0.3), 0 0 0 4px rgba(0, 105, 111, 0.06);
+}

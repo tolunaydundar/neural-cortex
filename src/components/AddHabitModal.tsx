@@ -44,7 +44,7 @@ export default function AddHabitModal({ onClose, onSuccess }: AddHabitModalProps
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div className="glass-panel p-8 w-full max-w-md relative rounded-lg border-primary-fixed-dim/30 shadow-[0_0_30px_rgba(0,220,230,0.1)]" onClick={e => e.stopPropagation()}>
+      <div className="glass-panel p-6 lg:p-8 w-full max-w-md mx-4 relative rounded-lg border-primary-fixed-dim/30 shadow-[0_0_30px_rgba(0,220,230,0.1)]" onClick={e => e.stopPropagation()}>
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 text-on-surface-variant hover:text-primary-fixed-dim transition-colors cursor-pointer"

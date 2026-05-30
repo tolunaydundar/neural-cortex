@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 
 interface TopBarProps {
   onAddHabit: () => void;
+  onMenuToggle?: () => void;
 }
 
-export default function TopBar({ onAddHabit }: TopBarProps) {
+export default function TopBar({ onAddHabit, onMenuToggle }: TopBarProps) {
   const [time, setTime] = useState("");
   
   useEffect(() => {
@@ -30,22 +31,30 @@ export default function TopBar({ onAddHabit }: TopBarProps) {
   }, []);
 
   return (
-    <header className="flex justify-between items-center w-full px-margin-desktop py-gutter bg-transparent">
-      <div className="flex items-center gap-4">
-        <span className="font-label-caps text-label-caps text-on-surface-variant">{time}</span>
+    <header className="flex justify-between items-center w-full px-4 lg:px-margin-desktop py-gutter bg-transparent">
+      <div className="flex items-center gap-3">
+        {/* Mobile hamburger */}
+        <button
+          onClick={onMenuToggle}
+          className="lg:hidden text-on-surface-variant hover:text-primary-fixed-dim transition-colors cursor-pointer p-1"
+          aria-label="Open menu"
+        >
+          <span className="material-symbols-outlined">menu</span>
+        </button>
+        <span className="font-label-caps text-label-caps text-on-surface-variant hidden sm:inline">{time}</span>
       </div>
-      <div className="flex items-center gap-8">
-        <div className="flex items-center gap-2 bg-surface-container-low px-4 py-2 border border-white/5">
+      <div className="flex items-center gap-3 sm:gap-8">
+        <div className="hidden sm:flex items-center gap-2 bg-surface-container-low px-4 py-2 border border-white/5">
           <span className="material-symbols-outlined text-primary-fixed-dim text-sm pulse" style={{fontVariationSettings: "'FILL' 1"}}>bolt</span>
           <span className="font-label-caps text-[10px] text-primary-fixed-dim tracking-widest">ON TRACK</span>
         </div>
         <div className="flex items-center gap-4">
           <button 
             onClick={onAddHabit}
-            className="flex items-center gap-2 px-4 py-2 bg-primary-fixed-dim text-background font-label-caps text-xs hover:bg-[#6ff6ff] transition-colors cursor-pointer shadow-[0_0_15px_rgba(0,220,230,0.4)] hover:shadow-[0_0_20px_rgba(0,220,230,0.6)] rounded-sm"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-primary-fixed-dim text-background font-label-caps text-xs hover:bg-[#6ff6ff] transition-colors cursor-pointer shadow-[0_0_15px_rgba(0,220,230,0.4)] hover:shadow-[0_0_20px_rgba(0,220,230,0.6)] rounded-sm"
           >
             <span className="material-symbols-outlined text-sm">add</span>
-            NEW PROTOCOL
+            <span className="hidden sm:inline">NEW PROTOCOL</span>
           </button>
         </div>
       </div>

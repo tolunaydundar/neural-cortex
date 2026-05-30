@@ -22,10 +22,10 @@ export default function Dashboard() {
   const weeklyProgress = possibleCompletions > 0 ? (actualCompletions / possibleCompletions) * 100 : 0;
 
   return (
-    <div className="grid grid-cols-12 gap-8 flex-grow">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8 flex-grow">
       {/* CENTRAL: CHAIN MATRIX */}
-      <section className="col-span-8 space-y-8">
-        <div className="glass-panel p-6 mb-8 rounded-lg shadow-[0_0_20px_rgba(0,220,230,0.05)]">
+      <section className="lg:col-span-8 space-y-6 lg:space-y-8">
+        <div className="glass-panel p-4 lg:p-6 mb-4 lg:mb-8 rounded-lg shadow-[0_0_20px_rgba(0,220,230,0.05)]">
           <div className="flex justify-between items-end mb-4">
             <h2 className="font-label-caps text-label-caps text-on-surface-variant tracking-widest uppercase">Weekly Progress</h2>
             <span className="font-data-display text-data-display text-primary-fixed-dim drop-shadow-[0_0_8px_rgba(0,220,230,0.5)]">

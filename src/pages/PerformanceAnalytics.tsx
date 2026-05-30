@@ -44,25 +44,25 @@ export default function PerformanceAnalytics() {
     <div className="flex-grow space-y-8">
       {/* Header */}
       <div>
-        <h1 className="font-headline-lg text-primary-fixed-dim">Performance Analytics</h1>
+        <h1 className="font-headline-lg text-headline-lg-mobile lg:text-headline-lg text-primary-fixed-dim">Performance Analytics</h1>
         <p className="text-on-surface-variant font-label-caps text-[10px] mt-1">SYSTEM TELEMETRY & OPTIMIZATION METRICS</p>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-4 gap-4">
-        <div className="glass-panel p-6 text-center">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+        <div className="glass-panel p-4 lg:p-6 text-center">
           <p className="font-label-caps text-[10px] text-on-surface-variant mb-2">ACTIVE PROTOCOLS</p>
           <p className="font-data-display text-3xl text-primary-fixed-dim">{totalActive}</p>
         </div>
-        <div className="glass-panel p-6 text-center">
+        <div className="glass-panel p-4 lg:p-6 text-center">
           <p className="font-label-caps text-[10px] text-on-surface-variant mb-2">TOTAL EXECUTIONS</p>
           <p className="font-data-display text-3xl text-primary-fixed-dim">{totalCompletions}</p>
         </div>
-        <div className="glass-panel p-6 text-center">
+        <div className="glass-panel p-4 lg:p-6 text-center">
           <p className="font-label-caps text-[10px] text-on-surface-variant mb-2">SYSTEM EFFICIENCY</p>
           <p className="font-data-display text-3xl text-primary-fixed-dim">{overallEfficiency}%</p>
         </div>
-        <div className="glass-panel p-6 text-center">
+        <div className="glass-panel p-4 lg:p-6 text-center">
           <p className="font-label-caps text-[10px] text-on-surface-variant mb-2">TOP STREAK</p>
           <p className="font-data-display text-3xl text-primary-fixed-dim">
             {sortedByStreak.length > 0 ? getStreak(sortedByStreak[0].id) : 0}
@@ -71,9 +71,9 @@ export default function PerformanceAnalytics() {
       </div>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8">
         {/* Weekly Breakdown Table */}
-        <div className="col-span-8 glass-panel p-6">
+        <div className="lg:col-span-8 glass-panel p-4 lg:p-6">
           <h2 className="font-headline-sm text-headline-sm text-primary-fixed-dim mb-1">WEEKLY TELEMETRY</h2>
           <p className="font-label-caps text-[10px] text-on-surface-variant mb-6">EFFICIENCY BY PROTOCOL — LAST 4 WEEKS</p>
           
@@ -124,7 +124,7 @@ export default function PerformanceAnalytics() {
         </div>
 
         {/* Streak Leaderboard */}
-        <div className="col-span-4 space-y-6">
+        <div className="lg:col-span-4 space-y-4 lg:space-y-6">
           {/* Best & Worst */}
           {best && worst && habits.length >= 2 && (
             <div className="glass-panel p-6">

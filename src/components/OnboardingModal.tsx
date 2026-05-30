@@ -30,7 +30,7 @@ export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="glass-panel p-8 w-full max-w-md rounded-lg shadow-[0_0_30px_rgba(0,220,230,0.1)]">
+      <div className="glass-panel p-6 lg:p-8 w-full max-w-md mx-4 rounded-lg shadow-[0_0_30px_rgba(0,220,230,0.1)]">
         
         {step === 'NAME' && (
           <>

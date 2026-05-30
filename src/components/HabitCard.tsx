@@ -11,7 +11,7 @@ interface HabitCardProps {
 
 export default function HabitCard({ id, title, streak, icon, efficiency, pattern }: HabitCardProps) {
   return (
-    <Link to={`/habit/${id}`} className="glass-panel p-6 group hover:border-primary-fixed-dim/40 transition-all duration-500 block">
+    <Link to={`/habit/${id}`} className="glass-panel p-4 lg:p-6 group hover:border-primary-fixed-dim/40 transition-all duration-500 block">
       <div className="flex justify-between items-start mb-6">
         <div>
           <h3 className="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary-fixed-dim transition-colors">{title}</h3>

@@ -71,19 +71,19 @@ export default function Settings() {
     <div className="flex-grow space-y-8">
       {/* Header */}
       <div>
-        <h1 className="font-headline-lg text-primary-fixed-dim">System Protocols</h1>
+        <h1 className="font-headline-lg text-headline-lg-mobile lg:text-headline-lg text-primary-fixed-dim">System Protocols</h1>
         <p className="text-on-surface-variant font-label-caps text-[10px] mt-1">CONFIGURATION & DATA MANAGEMENT</p>
       </div>
 
-      <div className="grid grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8">
         {/* Left Column */}
-        <div className="col-span-7 space-y-6">
+        <div className="lg:col-span-7 space-y-4 lg:space-y-6">
           {/* Profile */}
-          <div className="glass-panel p-6">
+          <div className="glass-panel p-4 lg:p-6">
             <h2 className="font-headline-sm text-headline-sm text-primary-fixed-dim mb-1">OPERATOR PROFILE</h2>
             <p className="font-label-caps text-[10px] text-on-surface-variant mb-6">IDENTITY CONFIGURATION</p>
             
-            <div className="flex items-end gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-end gap-4">
               <div className="flex-grow">
                 <label className="font-label-caps text-xs text-on-surface block mb-2">OPERATOR NAME</label>
                 <input
@@ -103,12 +103,12 @@ export default function Settings() {
           </div>
 
           {/* Data Management */}
-          <div className="glass-panel p-6">
+          <div className="glass-panel p-4 lg:p-6">
             <h2 className="font-headline-sm text-headline-sm text-primary-fixed-dim mb-1">DATA MANAGEMENT</h2>
             <p className="font-label-caps text-[10px] text-on-surface-variant mb-6">BACKUP, RESTORE & PURGE</p>
             
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-surface-container/50 border border-white/5 hover:border-white/10 transition-colors">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-surface-container/50 border border-white/5 hover:border-white/10 transition-colors">
                 <div>
                   <p className="text-sm font-semibold">Export Backup</p>
                   <p className="text-xs text-on-surface-variant mt-1">Download all habits and logs as JSON</p>
@@ -122,7 +122,7 @@ export default function Settings() {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-surface-container/50 border border-white/5 hover:border-white/10 transition-colors">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-surface-container/50 border border-white/5 hover:border-white/10 transition-colors">
                 <div>
                   <p className="text-sm font-semibold">Import Backup</p>
                   <p className="text-xs text-on-surface-variant mt-1">Restore from a previously exported file</p>
@@ -136,7 +136,7 @@ export default function Settings() {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-surface-container/50 border border-error/20 hover:border-error/40 transition-colors">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-surface-container/50 border border-error/20 hover:border-error/40 transition-colors">
                 <div>
                   <p className="text-sm font-semibold text-error">Purge All Data</p>
                   <p className="text-xs text-on-surface-variant mt-1">Permanently delete all habits, logs, and settings</p>
@@ -168,7 +168,7 @@ export default function Settings() {
         </div>
 
         {/* Right Column — Info */}
-        <div className="col-span-5 space-y-6">
+        <div className="lg:col-span-5 space-y-4 lg:space-y-6">
           {/* Statistics */}
           <div className="glass-panel p-6">
             <h3 className="font-label-caps text-[10px] text-on-surface-variant mb-4">SYSTEM STATISTICS</h3>
@@ -222,7 +222,7 @@ export default function Settings() {
       {/* Clear Confirmation Modal */}
       {showClearConfirm && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="glass-panel p-8 w-full max-w-sm rounded-lg border-error/30 shadow-[0_0_30px_rgba(255,75,75,0.1)]">
+          <div className="glass-panel p-6 lg:p-8 w-full max-w-sm mx-4 rounded-lg border-error/30 shadow-[0_0_30px_rgba(255,75,75,0.1)]">
             <h2 className="font-headline-md text-headline-md text-error mb-2">CONFIRM PURGE</h2>
             <p className="text-sm text-on-surface-variant mb-6">
               This will permanently delete all habits, logs, and settings. This action cannot be undone.

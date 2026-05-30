@@ -40,8 +40,8 @@ export default function PerformancePanel({ consistency }: PerformancePanelProps)
   const filledSegments = Math.round(consistency / 20);
 
   return (
-    <section className="col-span-4 space-y-8">
-      <div className="glass-panel p-8 sticky top-margin-desktop">
+    <section className="lg:col-span-4 space-y-6 lg:space-y-8">
+      <div className="glass-panel p-4 lg:p-8 lg:sticky lg:top-margin-desktop">
         <div className="mb-10">
           <h2 className="font-headline-md text-headline-md text-primary-fixed-dim border-b border-primary-fixed-dim/20 pb-4">PERFORMANCE</h2>
           <div className="mt-8">

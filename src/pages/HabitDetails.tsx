@@ -42,8 +42,8 @@ export default function HabitDetails() {
         <span className="font-label-caps">RETURN</span>
       </button>
       
-      <div className="glass-panel p-8">
-        <div className="flex justify-between items-start border-b border-white/10 pb-6 mb-6">
+      <div className="glass-panel p-4 lg:p-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-4 border-b border-white/10 pb-6 mb-6">
           <div>
             <h1 className="font-headline-lg text-primary-fixed-dim flex items-center gap-4">
               <span className="material-symbols-outlined text-4xl">{habit.icon}</span>
@@ -51,7 +51,7 @@ export default function HabitDetails() {
             </h1>
             <p className="font-label-caps text-on-surface-variant mt-2">CREATED: {new Date(habit.created_at).toLocaleDateString()}</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 w-full sm:w-auto">
             <button 
               onClick={() => {
                 if (!loggedToday) logHabit(habit.id);
@@ -78,23 +78,23 @@ export default function HabitDetails() {
         </div>
         
         {/* Stats Grid */}
-        <div className="grid grid-cols-4 gap-6 mb-8">
-          <div className="glass-panel p-6 text-center">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6 mb-8">
+          <div className="glass-panel p-4 lg:p-6 text-center">
             <p className="font-label-caps text-[10px] text-on-surface-variant mb-2">CURRENT STREAK</p>
-            <p className="font-data-display text-3xl text-primary-fixed-dim">{streak}</p>
+            <p className="font-data-display text-2xl lg:text-3xl text-primary-fixed-dim">{streak}</p>
             <p className="font-label-caps text-[8px] text-on-surface-variant/60 mt-1">DAYS</p>
           </div>
-          <div className="glass-panel p-6 text-center">
+          <div className="glass-panel p-4 lg:p-6 text-center">
             <p className="font-label-caps text-[10px] text-on-surface-variant mb-2">30-DAY EFFICIENCY</p>
-            <p className="font-data-display text-3xl text-primary-fixed-dim">{efficiency}%</p>
+            <p className="font-data-display text-2xl lg:text-3xl text-primary-fixed-dim">{efficiency}%</p>
             <p className="font-label-caps text-[8px] text-on-surface-variant/60 mt-1">COMPLETION RATE</p>
           </div>
-          <div className="glass-panel p-6 text-center">
+          <div className="glass-panel p-4 lg:p-6 text-center">
             <p className="font-label-caps text-[10px] text-on-surface-variant mb-2">TOTAL LOGS</p>
-            <p className="font-data-display text-3xl text-primary-fixed-dim">{totalLogs}</p>
+            <p className="font-data-display text-2xl lg:text-3xl text-primary-fixed-dim">{totalLogs}</p>
             <p className="font-label-caps text-[8px] text-on-surface-variant/60 mt-1">ALL TIME</p>
           </div>
-          <div className="glass-panel p-6 text-center">
+          <div className="glass-panel p-4 lg:p-6 text-center">
             <p className="font-label-caps text-[10px] text-on-surface-variant mb-2">STATUS</p>
             <p className={`font-data-display text-xl ${efficiency >= 80 ? 'text-primary-fixed-dim' : efficiency >= 50 ? 'text-secondary' : 'text-error'}`}>
               {efficiency >= 80 ? 'OPTIMAL' : efficiency >= 50 ? 'DEGRADED' : 'CRITICAL'}

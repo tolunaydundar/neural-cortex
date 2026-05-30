@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Outlet, NavLink, useLocation } from 'react-router-dom';
 import { HabitProvider } from './context/HabitContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import Sidebar from './components/Sidebar';
@@ -25,6 +25,14 @@ function AppLayout() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('nexus_username'));
   const [toast, setToast] = useState<ToastState | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const location = useLocation();
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
 
   const handleOnboardingComplete = (name: string, wantsExampleData: boolean) => {
     localStorage.setItem('nexus_username', name);
@@ -85,15 +93,57 @@ function AppLayout() {
 
   const handleToastDone = useCallback(() => setToast(null), []);
 
+  const getMobileNavClass = (isActive: boolean) =>
+    `mobile-nav-item ${isActive ? 'active text-primary-fixed-dim' : 'text-on-surface-variant'}`;
+
   return (
     <>
-      <Sidebar onLogActivity={() => setIsLogModalOpen(true)} />
-      <main className="ml-64 min-h-screen flex flex-col">
-        <TopBar onAddHabit={() => setIsAddModalOpen(true)} />
-        <div className="flex-grow flex flex-col p-margin-desktop">
+      <Sidebar
+        onLogActivity={() => setIsLogModalOpen(true)}
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+      />
+      <main className="ml-0 lg:ml-64 min-h-screen flex flex-col mobile-content-pad">
+        <TopBar
+          onAddHabit={() => setIsAddModalOpen(true)}
+          onMenuToggle={() => setIsMobileMenuOpen(prev => !prev)}
+        />
+        <div className="flex-grow flex flex-col px-4 lg:px-margin-desktop pb-4 lg:pb-margin-desktop pt-0">
           <Outlet context={{ openAddModal: () => setIsAddModalOpen(true) }} />
         </div>
       </main>
+
+      {/* Mobile Bottom Navigation — visible below lg */}
+      <nav className="mobile-bottom-nav lg:hidden">
+        <div className="flex items-center justify-around px-2 pt-1">
+          <NavLink to="/" end className={({ isActive }) => getMobileNavClass(isActive)}>
+            <span className="material-symbols-outlined text-[22px]">grid_view</span>
+            <span className="text-[9px] font-label-caps tracking-wider">Core</span>
+          </NavLink>
+          <NavLink to="/performance" className={({ isActive }) => getMobileNavClass(isActive)}>
+            <span className="material-symbols-outlined text-[22px]">insights</span>
+            <span className="text-[9px] font-label-caps tracking-wider">Perf</span>
+          </NavLink>
+
+          {/* Center FAB — Log Activity */}
+          <button
+            onClick={() => setIsLogModalOpen(true)}
+            className="mobile-fab cursor-pointer"
+            aria-label="Log activity"
+          >
+            <span className="material-symbols-outlined text-[24px]">add</span>
+          </button>
+
+          <NavLink to="/legacy" className={({ isActive }) => getMobileNavClass(isActive)}>
+            <span className="material-symbols-outlined text-[22px]">history</span>
+            <span className="text-[9px] font-label-caps tracking-wider">Legacy</span>
+          </NavLink>
+          <NavLink to="/settings" className={({ isActive }) => getMobileNavClass(isActive)}>
+            <span className="material-symbols-outlined text-[22px]">settings</span>
+            <span className="text-[9px] font-label-caps tracking-wider">Systems</span>
+          </NavLink>
+        </div>
+      </nav>
 
 
 
