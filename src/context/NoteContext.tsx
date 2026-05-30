@@ -34,6 +34,7 @@ interface NoteContextType {
   togglePin: (id: string) => void;
   duplicateNote: (id: string) => void;
   moveToFolder: (noteId: string, folderId: string | null) => void;
+  reorderNotes: (activeId: string, overId: string) => void;
 
   // Folders
   folders: Folder[];
@@ -163,6 +164,20 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     updateNote(noteId, { folder_id: folderId });
   };
 
+  const reorderNotes = (activeId: string, overId: string) => {
+    setNotes(prev => {
+      const oldIndex = prev.findIndex(n => n.id === activeId);
+      const newIndex = prev.findIndex(n => n.id === overId);
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newNotes = [...prev];
+        const [removed] = newNotes.splice(oldIndex, 1);
+        newNotes.splice(newIndex, 0, removed);
+        return newNotes;
+      }
+      return prev;
+    });
+  };
+
   // ── Folder CRUD ──
 
   const addFolder = (name: string, icon: string) => {
@@ -206,7 +221,7 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <NoteContext.Provider value={{
-      notes, addNote, updateNote, deleteNote, togglePin, duplicateNote, moveToFolder,
+      notes, addNote, updateNote, deleteNote, togglePin, duplicateNote, moveToFolder, reorderNotes,
       folders, addFolder, updateFolder, deleteFolder,
       getAllTags, getNotesByFolder, getNotesCount,
     }}>

@@ -1,12 +1,13 @@
 import { useState, useMemo } from 'react';
 import { useHabits } from '../context/HabitContext';
 import { useTasks } from '../context/TaskContext';
+import { useNotes } from '../context/NoteContext';
 import { isSameDay } from 'date-fns';
 
-type TypeFilter = 'all' | 'habits' | 'tasks';
+type TypeFilter = 'all' | 'habits' | 'tasks' | 'notes';
 type TimelineEntry = {
   id: string;
-  type: 'habit_log' | 'task_completed' | 'task_created';
+  type: 'habit_log' | 'task_completed' | 'task_created' | 'note_created';
   title: string;
   icon: string;
   date: Date;
@@ -19,6 +20,7 @@ const PAGE_SIZE = 30;
 export default function LegacyLogs() {
   const { logs, habits } = useHabits();
   const { tasks } = useTasks();
+  const { notes } = useNotes();
 
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -68,11 +70,23 @@ export default function LegacyLogs() {
       });
     });
 
+    // Note creation entries
+    notes.forEach(note => {
+      entries.push({
+        id: `n-${note.id}`,
+        type: 'note_created',
+        title: note.title || 'Untitled Note',
+        icon: 'edit_document',
+        date: new Date(note.created_at),
+        category: note.tags?.[0] || 'Uncategorized',
+      });
+    });
+
     // Sort by date descending
     entries.sort((a, b) => b.date.getTime() - a.date.getTime());
 
     return entries;
-  }, [logs, habits, tasks]);
+  }, [logs, habits, tasks, notes]);
 
   // Apply filters
   const filteredEntries = useMemo(() => {
@@ -83,6 +97,8 @@ export default function LegacyLogs() {
       result = result.filter(e => e.type === 'habit_log');
     } else if (typeFilter === 'tasks') {
       result = result.filter(e => e.type === 'task_completed' || e.type === 'task_created');
+    } else if (typeFilter === 'notes') {
+      result = result.filter(e => e.type === 'note_created');
     }
 
     // Search
@@ -112,6 +128,7 @@ export default function LegacyLogs() {
   // Stats
   const habitLogCount = allEntries.filter(e => e.type === 'habit_log').length;
   const taskCompletedCount = allEntries.filter(e => e.type === 'task_completed').length;
+  const noteCreatedCount = allEntries.filter(e => e.type === 'note_created').length;
   const allDates = allEntries.map(e => e.date.getTime());
   const earliestDate = allDates.length > 0 ? new Date(Math.min(...allDates)) : null;
 
@@ -136,6 +153,7 @@ export default function LegacyLogs() {
       case 'habit_log': return 'LOGGED';
       case 'task_completed': return 'COMPLETED';
       case 'task_created': return 'CREATED';
+      case 'note_created': return 'CREATED';
     }
   };
 
@@ -143,6 +161,7 @@ export default function LegacyLogs() {
     switch (type) {
       case 'habit_log': return 'text-primary-fixed-dim';
       case 'task_completed': return 'text-primary-fixed-dim';
+      case 'note_created': return 'text-primary-fixed-dim';
       case 'task_created': return 'text-on-surface-variant/60';
     }
   };
@@ -168,7 +187,7 @@ export default function LegacyLogs() {
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         <div className="glass-panel p-3 lg:p-4 text-center">
           <p className="font-label-caps text-[9px] text-on-surface-variant mb-1">TOTAL ENTRIES</p>
           <p className="font-data-display text-xl lg:text-2xl text-primary-fixed-dim">{allEntries.length}</p>
@@ -180,6 +199,10 @@ export default function LegacyLogs() {
         <div className="glass-panel p-3 lg:p-4 text-center">
           <p className="font-label-caps text-[9px] text-on-surface-variant mb-1">TASKS COMPLETED</p>
           <p className="font-data-display text-xl lg:text-2xl text-primary-fixed-dim">{taskCompletedCount}</p>
+        </div>
+        <div className="glass-panel p-3 lg:p-4 text-center">
+          <p className="font-label-caps text-[9px] text-on-surface-variant mb-1">NOTES</p>
+          <p className="font-data-display text-xl lg:text-2xl text-primary-fixed-dim">{noteCreatedCount}</p>
         </div>
         <div className="glass-panel p-3 lg:p-4 text-center">
           <p className="font-label-caps text-[9px] text-on-surface-variant mb-1">TRACKING SINCE</p>
@@ -204,6 +227,10 @@ export default function LegacyLogs() {
           onClick={() => setTypeFilter('tasks')}
           className={`filter-pill ${typeFilter === 'tasks' ? 'active' : ''}`}
         >TASKS</button>
+        <button
+          onClick={() => setTypeFilter('notes')}
+          className={`filter-pill ${typeFilter === 'notes' ? 'active' : ''}`}
+        >NOTES</button>
 
         <div className="w-px h-4 bg-white/10 mx-1" />
 
@@ -294,7 +321,7 @@ export default function LegacyLogs() {
                     }`}
                   >
                     <span className={`material-symbols-outlined text-[16px] ${getEntryColor(entry.type)}`}
-                      style={entry.type === 'task_completed' || entry.type === 'habit_log' ? {fontVariationSettings: "'FILL' 1"} : undefined}
+                      style={entry.type === 'task_completed' || entry.type === 'habit_log' || entry.type === 'note_created' ? {fontVariationSettings: "'FILL' 1"} : undefined}
                     >
                       {entry.icon}
                     </span>

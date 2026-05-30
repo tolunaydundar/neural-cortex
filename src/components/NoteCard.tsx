@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { type Note, useNotes } from '../context/NoteContext';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface NoteCardProps {
   note: Note;
@@ -21,6 +23,22 @@ export default function NoteCard({ note, onClick }: NoteCardProps) {
     month: 'short',
     day: 'numeric',
   });
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: note.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 100 : (showMenu ? 50 : 0),
+  };
 
   const words = wordCount(note.content);
   const snippet = note.content.length > 140
@@ -51,8 +69,12 @@ export default function NoteCard({ note, onClick }: NoteCardProps) {
 
   return (
     <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
       onClick={() => onClick(note)}
-      className={`glass-panel p-4 flex flex-col gap-2.5 cursor-pointer group hover:border-primary-fixed-dim/50 transition-all duration-300 relative note-color-${note.color} ${showMenu ? 'z-50' : 'z-0'}`}
+      className={`glass-panel p-4 flex flex-col gap-2.5 cursor-pointer group hover:border-primary-fixed-dim/50 transition-all duration-300 relative note-color-${note.color}`}
     >
       {/* Header: title + menu */}
       <div className="flex justify-between items-start gap-2">

@@ -3,13 +3,28 @@ import { useNotes, type Note } from '../context/NoteContext';
 import NoteCard from '../components/NoteCard';
 import NoteEditorModal from '../components/NoteEditorModal';
 import FolderEditorModal from '../components/FolderEditorModal';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 
-type SortMode = 'updated' | 'created' | 'alpha';
+type SortMode = 'updated' | 'created' | 'alpha' | 'custom';
 type ViewMode = 'grid' | 'list';
 type SidebarFilter = 'all' | 'pinned' | { type: 'folder'; id: string } | { type: 'tag'; tag: string };
 
 export default function Notes() {
-  const { notes, folders, getAllTags } = useNotes();
+  const { notes, folders, getAllTags, reorderNotes } = useNotes();
 
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
@@ -42,6 +57,27 @@ export default function Notes() {
   const handleNewFolder = () => {
     setEditingFolderId(null);
     setIsFolderModalOpen(true);
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      if (sortMode !== 'custom') {
+        setSortMode('custom');
+      }
+      reorderNotes(active.id as string, over.id as string);
+    }
   };
 
   // ── Filtering ──
@@ -81,7 +117,10 @@ export default function Notes() {
       if (sortMode === 'created') {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       }
-      return a.title.localeCompare(b.title);
+      if (sortMode === 'alpha') {
+        return a.title.localeCompare(b.title);
+      }
+      return 0; // 'custom' mode
     });
 
     return result;
@@ -196,22 +235,19 @@ export default function Notes() {
 
   // ── Note Grid/List Rendering ──
   const renderNotes = (noteList: Note[]) => {
-    if (viewMode === 'grid') {
-      return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+    const strategy = viewMode === 'grid' ? rectSortingStrategy : verticalListSortingStrategy;
+    const containerClass = viewMode === 'grid' 
+      ? "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4" 
+      : "space-y-2";
+
+    return (
+      <SortableContext items={noteList.map(n => n.id)} strategy={strategy}>
+        <div className={containerClass}>
           {noteList.map(note => (
             <NoteCard key={note.id} note={note} onClick={handleOpenEditor} />
           ))}
         </div>
-      );
-    }
-    // List view
-    return (
-      <div className="space-y-2">
-        {noteList.map(note => (
-          <NoteCard key={note.id} note={note} onClick={handleOpenEditor} />
-        ))}
-      </div>
+      </SortableContext>
     );
   };
 
@@ -295,6 +331,7 @@ export default function Notes() {
                 onChange={(e) => setSortMode(e.target.value as SortMode)}
                 className="bg-surface-container-lowest border border-white/10 px-2 py-1 text-[10px] font-label-caps text-on-surface-variant focus:outline-none focus:border-primary-fixed-dim cursor-pointer rounded-sm"
               >
+                <option value="custom">SORT: CUSTOM</option>
                 <option value="updated">SORT: RECENT</option>
                 <option value="created">SORT: CREATED</option>
                 <option value="alpha">SORT: A-Z</option>
@@ -333,54 +370,56 @@ export default function Notes() {
           )}
 
           {/* Note Grid */}
-          {notes.length === 0 ? (
-            <div className="glass-panel p-12 flex flex-col items-center justify-center gap-4 text-center flex-grow">
-              <button
-                onClick={() => handleOpenEditor()}
-                className="material-symbols-outlined text-6xl text-primary-fixed-dim/20 hover:text-primary-fixed-dim transition-colors cursor-pointer outline-none focus:outline-none hover:scale-110 active:scale-95"
-              >
-                edit_document
-              </button>
-              <h3 className="font-headline-sm text-headline-sm text-on-surface-variant">NO NOTES ARCHIVED</h3>
-              <p className="text-sm text-on-surface-variant/60 max-w-md">
-                Initialize a new document in your knowledge base to start archiving your thoughts and ideas.
-              </p>
-            </div>
-          ) : filteredNotes.length === 0 ? (
-            <div className="text-center py-12 text-on-surface-variant/60 flex-grow">
-              <span className="material-symbols-outlined text-4xl mb-2 block">search_off</span>
-              <p className="font-label-caps text-sm">No notes match current criteria</p>
-            </div>
-          ) : (
-            <div className="space-y-6 pb-8">
-              {showPinnedSection && (
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="material-symbols-outlined text-primary-fixed-dim text-[16px]" style={{fontVariationSettings: "'FILL' 1"}}>push_pin</span>
-                    <h2 className="font-label-caps text-[10px] text-primary-fixed-dim tracking-widest">PINNED ({pinnedNotes.length})</h2>
-                  </div>
-                  {renderNotes(pinnedNotes)}
-                </div>
-              )}
-
-              {unpinnedNotes.length > 0 && (
-                <div>
-                  {showPinnedSection && (
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            {notes.length === 0 ? (
+              <div className="glass-panel p-12 flex flex-col items-center justify-center gap-4 text-center flex-grow">
+                <button
+                  onClick={() => handleOpenEditor()}
+                  className="material-symbols-outlined text-6xl text-primary-fixed-dim/20 hover:text-primary-fixed-dim transition-colors cursor-pointer outline-none focus:outline-none hover:scale-110 active:scale-95"
+                >
+                  edit_document
+                </button>
+                <h3 className="font-headline-sm text-headline-sm text-on-surface-variant">NO NOTES ARCHIVED</h3>
+                <p className="text-sm text-on-surface-variant/60 max-w-md">
+                  Initialize a new document in your knowledge base to start archiving your thoughts and ideas.
+                </p>
+              </div>
+            ) : filteredNotes.length === 0 ? (
+              <div className="text-center py-12 text-on-surface-variant/60 flex-grow">
+                <span className="material-symbols-outlined text-4xl mb-2 block">search_off</span>
+                <p className="font-label-caps text-sm">No notes match current criteria</p>
+              </div>
+            ) : (
+              <div className="space-y-6 pb-8">
+                {showPinnedSection && (
+                  <div>
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="material-symbols-outlined text-on-surface-variant text-[16px]">notes</span>
-                      <h2 className="font-label-caps text-[10px] text-on-surface-variant tracking-widest">NOTES ({unpinnedNotes.length})</h2>
+                      <span className="material-symbols-outlined text-primary-fixed-dim text-[16px]" style={{fontVariationSettings: "'FILL' 1"}}>push_pin</span>
+                      <h2 className="font-label-caps text-[10px] text-primary-fixed-dim tracking-widest">PINNED ({pinnedNotes.length})</h2>
                     </div>
-                  )}
-                  {renderNotes(unpinnedNotes)}
-                </div>
-              )}
+                    {renderNotes(pinnedNotes)}
+                  </div>
+                )}
 
-              {/* Show pinned notes in pinned filter */}
-              {sidebarFilter === 'pinned' && pinnedNotes.length > 0 && (
-                <div>{renderNotes(pinnedNotes)}</div>
-              )}
-            </div>
-          )}
+                {unpinnedNotes.length > 0 && (
+                  <div>
+                    {showPinnedSection && (
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="material-symbols-outlined text-on-surface-variant text-[16px]">notes</span>
+                        <h2 className="font-label-caps text-[10px] text-on-surface-variant tracking-widest">NOTES ({unpinnedNotes.length})</h2>
+                      </div>
+                    )}
+                    {renderNotes(unpinnedNotes)}
+                  </div>
+                )}
+
+                {/* Show pinned notes in pinned filter */}
+                {sidebarFilter === 'pinned' && pinnedNotes.length > 0 && (
+                  <div>{renderNotes(pinnedNotes)}</div>
+                )}
+              </div>
+            )}
+          </DndContext>
         </div>
       </div>
 

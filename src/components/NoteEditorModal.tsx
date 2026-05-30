@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNotes, type Note, type NoteColor } from '../context/NoteContext';
 import ConfirmModal from './ConfirmModal';
+import FolderEditorModal from './FolderEditorModal';
 
 interface NoteEditorModalProps {
   initialNote?: Note | null;
@@ -24,6 +25,7 @@ export default function NoteEditorModal({ initialNote, onClose }: NoteEditorModa
   const [pinned, setPinned] = useState(initialNote?.pinned || false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+  const [showNewFolderModal, setShowNewFolderModal] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -198,6 +200,13 @@ export default function NoteEditorModal({ initialNote, onClose }: NoteEditorModa
                   <option key={f.id} value={f.id}>{f.name}</option>
                 ))}
               </select>
+              <button
+                onClick={() => setShowNewFolderModal(true)}
+                className="material-symbols-outlined text-[16px] text-on-surface-variant/50 hover:text-primary-fixed-dim transition-colors cursor-pointer"
+                title="New Folder"
+              >
+                add_circle
+              </button>
             </div>
 
             {/* Color picker */}
@@ -311,6 +320,13 @@ export default function NoteEditorModal({ initialNote, onClose }: NoteEditorModa
           confirmLabel="DISCARD"
           onConfirm={onClose}
           onCancel={() => setShowDiscardConfirm(false)}
+        />
+      )}
+
+      {showNewFolderModal && (
+        <FolderEditorModal
+          folderId={null}
+          onClose={() => setShowNewFolderModal(false)}
         />
       )}
     </>
