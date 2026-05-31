@@ -2,8 +2,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { 
   type User, 
-  signInWithRedirect, 
-  getRedirectResult,
+  signInWithPopup, 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
   signOut,
@@ -31,11 +30,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Explicitly handle the redirect result to catch any errors and ensure processing
-    getRedirectResult(auth).catch((error) => {
-      console.error("Redirect auth error:", error);
-    });
-
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
       if (user) {
@@ -74,7 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const loginWithGoogle = async () => {
-    await signInWithRedirect(auth, googleProvider);
+    await signInWithPopup(auth, googleProvider);
   };
 
   const signupWithEmail = async (email: string, pass: string) => {
