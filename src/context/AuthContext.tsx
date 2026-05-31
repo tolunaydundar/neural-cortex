@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { 
   type User, 
   signInWithPopup,
+  browserPopupRedirectResolver,
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
   signOut,
@@ -68,14 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const loginWithGoogle = async () => {
-    try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (err: unknown) {
-      if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'auth/popup-blocked') {
-        throw new Error('Popup was blocked by your browser. Please allow popups for this site and try again.');
-      }
-      throw err;
-    }
+    await signInWithPopup(auth, googleProvider, browserPopupRedirectResolver);
   };
 
   const signupWithEmail = async (email: string, pass: string) => {

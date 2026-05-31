@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { signInWithPopup, browserPopupRedirectResolver } from 'firebase/auth';
+import { auth, googleProvider } from '../firebase';
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { loginWithEmail, signupWithEmail, loginWithGoogle } = useAuth();
+  const { loginWithEmail, signupWithEmail } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,17 +32,19 @@ const AuthPage = () => {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    try {
-      await loginWithGoogle();
-      navigate('/');
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('Failed to authenticate with Google');
-      }
-    }
+  const handleGoogleSignIn = () => {
+    setError('');
+    signInWithPopup(auth, googleProvider, browserPopupRedirectResolver)
+      .then(() => {
+        navigate('/');
+      })
+      .catch((err: unknown) => {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError('Failed to authenticate with Google');
+        }
+      });
   };
 
   return (
