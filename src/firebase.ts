@@ -7,7 +7,7 @@ const firebaseConfig = {
   appId: "1:580792319098:web:fa198f745733b537050fc3",
   storageBucket: "neural-cortex-app-2026.firebasestorage.app",
   apiKey: "AIzaSyBvdGpOGxwVLZgirp7pNTWb_zMAX5OdIBY",
-  authDomain: window.location.host,
+  authDomain: "neural-cortex-app-2026.firebaseapp.com",
   messagingSenderId: "580792319098",
 };
 

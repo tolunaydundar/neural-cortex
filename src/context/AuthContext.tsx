@@ -2,8 +2,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { 
   type User, 
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithPopup,
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
   signOut,
@@ -31,11 +30,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Handle return from redirect-based sign-in (fallback when popup is blocked)
-    getRedirectResult(auth).catch((error) => {
-      console.error("Redirect auth error:", error);
-    });
-
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
       if (user) {
@@ -74,7 +68,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const loginWithGoogle = async () => {
-    await signInWithRedirect(auth, googleProvider);
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch (err: unknown) {
+      if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'auth/popup-blocked') {
+        throw new Error('Popup was blocked by your browser. Please allow popups for this site and try again.');
+      }
+      throw err;
+    }
   };
 
   const signupWithEmail = async (email: string, pass: string) => {
