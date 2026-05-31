@@ -2,7 +2,7 @@ import { db } from '../firebase';
 import { collection, writeBatch, doc, query, where, limit, getDocs } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
 
-export async function importDataToCloud(currentUser: User, importedData: any): Promise<boolean> {
+export async function importDataToCloud(currentUser: User, importedData: Record<string, string>): Promise<boolean> {
   if (!importedData) {
     throw new Error("No data provided to import.");
   }
@@ -26,28 +26,28 @@ export async function importDataToCloud(currentUser: User, importedData: any): P
       return false;
     }
     
-    localHabits.forEach((habit: any) => {
-      const ref = doc(db, 'habits', habit.id);
+    localHabits.forEach((habit: Record<string, unknown>) => {
+      const ref = doc(db, 'habits', habit.id as string);
       batch.set(ref, { ...habit, userId: currentUser.uid });
     });
 
-    localLogs.forEach((log: any) => {
-      const ref = doc(db, 'habit_logs', log.id);
+    localLogs.forEach((log: Record<string, unknown>) => {
+      const ref = doc(db, 'habit_logs', log.id as string);
       batch.set(ref, { ...log, userId: currentUser.uid });
     });
 
-    localTasks.forEach((task: any) => {
-      const ref = doc(db, 'tasks', task.id);
+    localTasks.forEach((task: Record<string, unknown>) => {
+      const ref = doc(db, 'tasks', task.id as string);
       batch.set(ref, { ...task, userId: currentUser.uid });
     });
 
-    localNotes.forEach((note: any) => {
-      const ref = doc(db, 'notes', note.id);
+    localNotes.forEach((note: Record<string, unknown>) => {
+      const ref = doc(db, 'notes', note.id as string);
       batch.set(ref, { ...note, userId: currentUser.uid });
     });
 
-    localFolders.forEach((folder: any) => {
-      const ref = doc(db, 'folders', folder.id);
+    localFolders.forEach((folder: Record<string, unknown>) => {
+      const ref = doc(db, 'folders', folder.id as string);
       batch.set(ref, { ...folder, userId: currentUser.uid });
     });
 

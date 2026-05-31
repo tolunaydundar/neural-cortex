@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useHabits } from '../context/HabitContext';
 import { useTasks } from '../context/TaskContext';
 import { useAuth } from '../context/AuthContext';
@@ -14,9 +14,7 @@ export default function Settings() {
   const [showExportSuccess, setShowExportSuccess] = useState(false);
   const [showImportSuccess, setShowImportSuccess] = useState(false);
 
-  useEffect(() => {
-    setUserName(operatorName);
-  }, [operatorName]);
+
 
   const handleSaveName = async () => {
     await updateOperatorName(userName);

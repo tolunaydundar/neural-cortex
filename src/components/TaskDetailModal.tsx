@@ -30,7 +30,6 @@ export default function TaskDetailModal({ task, onClose }: TaskDetailModalProps)
   const [dueDate, setDueDate] = useState(task.due_date ? task.due_date.slice(0, 10) : '');
   const [newSubtask, setNewSubtask] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -40,13 +39,10 @@ export default function TaskDetailModal({ task, onClose }: TaskDetailModalProps)
     return () => document.removeEventListener('keydown', handleKey);
   }, [onClose]);
 
-  // Track changes
-  useEffect(() => {
-    const changed = title !== task.title || description !== task.description ||
-      priority !== task.priority || status !== task.status ||
-      category !== task.category || dueDate !== (task.due_date ? task.due_date.slice(0, 10) : '');
-    setHasChanges(changed);
-  }, [title, description, priority, status, category, dueDate, task]);
+  const hasChanges = 
+    title !== task.title || description !== task.description ||
+    priority !== task.priority || status !== task.status ||
+    category !== task.category || dueDate !== (task.due_date ? task.due_date.slice(0, 10) : '');
 
   const handleSave = () => {
     updateTask(task.id, {

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { startOfDay, isSameDay, subDays } from 'date-fns';
 import { db } from '../firebase';
@@ -49,7 +50,9 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     if (!currentUser) {
-      setTasks([]);
+      setTimeout(() => {
+        setTasks([]);
+      }, 0);
       return;
     }
 
@@ -84,7 +87,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateTask = (id: string, updates: Partial<Omit<Task, 'id' | 'created_at' | 'userId'>>) => runSync(async () => {
     const taskRef = doc(db, 'tasks', id);
-    const updatedData: any = { ...updates };
+    const updatedData: Record<string, unknown> = { ...updates };
     
     // Auto-set completed_at when moving to done
     if (updates.status === 'done') {

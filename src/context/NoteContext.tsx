@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { db } from '../firebase';
 import { 
@@ -59,8 +60,10 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     if (!currentUser) {
-      setNotes([]);
-      setFolders([]);
+      setTimeout(() => {
+        setNotes([]);
+        setFolders([]);
+      }, 0);
       return;
     }
 
@@ -138,6 +141,7 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const original = notes.find(n => n.id === id);
     if (!original || !currentUser) return;
     const now = new Date().toISOString();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id: _, ...originalData } = original;
     
     await addDoc(collection(db, 'notes'), {

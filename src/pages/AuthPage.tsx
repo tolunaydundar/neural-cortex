@@ -21,8 +21,12 @@ const AuthPage = () => {
         await signupWithEmail(email, password);
       }
       navigate('/');
-    } catch (err: any) {
-      setError(err.message || 'Failed to authenticate');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to authenticate');
+      }
     }
   };
 
@@ -30,8 +34,12 @@ const AuthPage = () => {
     try {
       await loginWithGoogle();
       navigate('/');
-    } catch (err: any) {
-      setError(err.message || 'Failed to authenticate with Google');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to authenticate with Google');
+      }
     }
   };
 

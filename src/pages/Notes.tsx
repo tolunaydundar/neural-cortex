@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNotes, type Note } from '../context/NoteContext';
 import NoteCard from '../components/NoteCard';
 import NoteEditorModal from '../components/NoteEditorModal';
@@ -83,7 +83,7 @@ export default function Notes() {
     })
   );
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
       if (sortMode !== 'custom') {
@@ -93,7 +93,7 @@ export default function Notes() {
       const activeNote = notes.find(n => n.id === active.id);
       if (!activeNote) return;
 
-      const list = activeNote.pinned ? pinnedNotes : unpinnedNotes;
+      const list = activeNote.pinned ? notes.filter(n => n.pinned) : notes.filter(n => !n.pinned);
       const oldIndex = list.findIndex(n => n.id === active.id);
       const newIndex = list.findIndex(n => n.id === over.id);
 
@@ -121,7 +121,7 @@ export default function Notes() {
         updateNote(active.id as string, { order: newOrder });
       }
     }
-  };
+  }, [sortMode, notes, updateNote]);
 
   // ── Filtering ──
 

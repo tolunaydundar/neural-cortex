@@ -26,7 +26,6 @@ export default function NoteEditorModal({ initialNote, onClose }: NoteEditorModa
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
   const [showNewFolderModal, setShowNewFolderModal] = useState(false);
-  const [hasChanges, setHasChanges] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Focus textarea on open for new notes
@@ -37,30 +36,20 @@ export default function NoteEditorModal({ initialNote, onClose }: NoteEditorModa
     }
   }, [initialNote]);
 
-  // Track changes
-  useEffect(() => {
-    const changed =
-      title !== (initialNote?.title || '') ||
-      content !== (initialNote?.content || '') ||
-      JSON.stringify(tags) !== JSON.stringify(initialNote?.tags || []) ||
-      folderId !== (initialNote?.folder_id ?? null) ||
-      color !== (initialNote?.color || 'default') ||
-      pinned !== (initialNote?.pinned || false);
-    setHasChanges(changed);
-  }, [title, content, tags, folderId, color, pinned, initialNote]);
-
-  // Ctrl+S save shortcut
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        handleSave();
-      }
-    };
-    document.addEventListener('keydown', handleKey);
-    return () => document.removeEventListener('keydown', handleKey);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [title, content, tags, folderId, color, pinned, initialNote]);
+  const hasChanges =
+    title !== (initialNote?.title || '') ||
+    content !== (initialNote?.content || '') ||
+    JSON.stringify(tags) !== JSON.stringify(initialNote?.tags || []) ||
+    folderId !== (initialNote?.folder_id ?? null) ||
+    color !== (initialNote?.color || 'default') ||
+    pinned !== (initialNote?.pinned || false);
+  const handleAttemptClose = useCallback(() => {
+    if (hasChanges) {
+      setShowDiscardConfirm(true);
+    } else {
+      onClose();
+    }
+  }, [hasChanges, onClose]);
 
   // Escape — with unsaved changes warning
   useEffect(() => {
@@ -72,18 +61,9 @@ export default function NoteEditorModal({ initialNote, onClose }: NoteEditorModa
     };
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasChanges]);
+  }, [handleAttemptClose]);
 
-  const handleAttemptClose = useCallback(() => {
-    if (hasChanges) {
-      setShowDiscardConfirm(true);
-    } else {
-      onClose();
-    }
-  }, [hasChanges, onClose]);
-
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     if (initialNote) {
       updateNote(initialNote.id, {
         title: title.trim(),
@@ -106,7 +86,19 @@ export default function NoteEditorModal({ initialNote, onClose }: NoteEditorModa
       }
     }
     onClose();
-  };
+  }, [initialNote, title, content, tags, folderId, color, pinned, updateNote, addNote, onClose]);
+
+  // Ctrl+S save shortcut
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        handleSave();
+      }
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [handleSave]);
 
   const handleAddTag = (e: React.FormEvent) => {
     e.preventDefault();

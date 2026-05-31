@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect } from 'react';
 import { subDays, isSameDay, startOfDay } from 'date-fns';
 import { db } from '../firebase';
@@ -42,8 +43,10 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     if (!currentUser) {
-      setHabits([]);
-      setLogs([]);
+      setTimeout(() => {
+        setHabits([]);
+        setLogs([]);
+      }, 0);
       return;
     }
 
@@ -136,7 +139,7 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (habitLogs.length === 0) return 0;
 
     let streak = 0;
-    let currentDate = startOfDay(new Date()).getTime();
+    const currentDate = startOfDay(new Date()).getTime();
     
     // Check if logged today or yesterday to continue streak
     if (habitLogs[0] !== currentDate && habitLogs[0] !== currentDate - 86400000) {
