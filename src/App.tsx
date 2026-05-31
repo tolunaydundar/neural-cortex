@@ -31,7 +31,7 @@ interface ToastState {
 
 // Layout component to wrap pages that share the sidebar and topbar
 function AppLayout() {
-  const { currentUser } = useAuth();
+  const { currentUser, updateOperatorName } = useAuth();
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
@@ -60,7 +60,7 @@ function AppLayout() {
   }, [currentUser]);
 
   const handleOnboardingComplete = async (name: string, wantsExampleData: boolean) => {
-    localStorage.setItem('nexus_username', name);
+    await updateOperatorName(name);
     
     if (wantsExampleData) {
       const now = new Date();
@@ -188,7 +188,6 @@ function AppLayout() {
 
     setShowOnboarding(false);
     setIsAddModalOpen(true);
-    window.dispatchEvent(new Event('username_updated'));
   };
 
   const { isDark } = useTheme();
