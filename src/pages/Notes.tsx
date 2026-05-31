@@ -17,6 +17,7 @@ import {
   sortableKeyboardCoordinates,
   rectSortingStrategy,
   verticalListSortingStrategy,
+  arrayMove,
 } from '@dnd-kit/sortable';
 
 type SortMode = 'updated' | 'created' | 'alpha' | 'custom';
@@ -24,7 +25,7 @@ type ViewMode = 'grid' | 'list';
 type SidebarFilter = 'all' | 'pinned' | { type: 'folder'; id: string } | { type: 'tag'; tag: string };
 
 export default function Notes() {
-  const { notes, folders, getAllTags } = useNotes();
+  const { notes, folders, getAllTags, updateNote } = useNotes();
 
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
@@ -88,8 +89,37 @@ export default function Notes() {
       if (sortMode !== 'custom') {
         setSortMode('custom');
       }
-      // reorderNotes(active.id as string, over.id as string); // Removed due to cloud sync
-      console.warn("Reordering is not supported with cloud sync yet");
+      
+      const activeNote = notes.find(n => n.id === active.id);
+      if (!activeNote) return;
+
+      const list = activeNote.pinned ? pinnedNotes : unpinnedNotes;
+      const oldIndex = list.findIndex(n => n.id === active.id);
+      const newIndex = list.findIndex(n => n.id === over.id);
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newArray = arrayMove(list, oldIndex, newIndex);
+        const prevNote = newArray[newIndex - 1];
+        const nextNote = newArray[newIndex + 1];
+
+        let newOrder: number;
+        if (!prevNote && !nextNote) {
+          newOrder = Date.now();
+        } else if (!prevNote) {
+          // Moved to the top
+          newOrder = (nextNote.order ?? new Date(nextNote.created_at).getTime()) + 10000;
+        } else if (!nextNote) {
+          // Moved to the bottom
+          newOrder = (prevNote.order ?? new Date(prevNote.created_at).getTime()) - 10000;
+        } else {
+          // Moved between two notes
+          const prevOrder = prevNote.order ?? new Date(prevNote.created_at).getTime();
+          const nextOrder = nextNote.order ?? new Date(nextNote.created_at).getTime();
+          newOrder = (prevOrder + nextOrder) / 2;
+        }
+
+        updateNote(active.id as string, { order: newOrder });
+      }
     }
   };
 

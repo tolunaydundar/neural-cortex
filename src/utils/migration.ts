@@ -2,14 +2,16 @@ import { db } from '../firebase';
 import { collection, writeBatch, doc, query, where, limit, getDocs } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
 
-export async function migrateDataToCloud(currentUser: User, importedData?: any): Promise<boolean> {
+export async function importDataToCloud(currentUser: User, importedData: any): Promise<boolean> {
+  if (!importedData) {
+    throw new Error("No data provided to import.");
+  }
+
   try {
     const batch = writeBatch(db);
     
-    // Use importedData if provided, otherwise fallback to localStorage
     const parse = (key: string) => {
-      if (importedData && importedData[key]) return JSON.parse(importedData[key]);
-      if (!importedData) return JSON.parse(localStorage.getItem(key) || '[]');
+      if (importedData[key]) return JSON.parse(importedData[key]);
       return [];
     };
 
@@ -50,17 +52,9 @@ export async function migrateDataToCloud(currentUser: User, importedData?: any):
     });
 
     await batch.commit();
-
-    // Always clear localStorage after a successful cloud migration (whether from import or local auto-migration)
-    localStorage.removeItem('nexus_habits');
-    localStorage.removeItem('nexus_logs');
-    localStorage.removeItem('nexus_tasks');
-    localStorage.removeItem('nexus_notes');
-    localStorage.removeItem('nexus_folders');
-    
     return true;
   } catch (err) {
-    console.error("Failed to migrate data to cloud:", err);
+    console.error("Failed to import data to cloud:", err);
     throw err;
   }
 }
@@ -87,11 +81,4 @@ export async function checkHasCloudData(currentUser: User): Promise<boolean> {
     console.error("Failed to check cloud data:", err);
     return false;
   }
-}
-
-export function checkHasLocalData(): boolean {
-  const localHabits = JSON.parse(localStorage.getItem('nexus_habits') || '[]');
-  const localTasks = JSON.parse(localStorage.getItem('nexus_tasks') || '[]');
-  const localNotes = JSON.parse(localStorage.getItem('nexus_notes') || '[]');
-  return localHabits.length > 0 || localTasks.length > 0 || localNotes.length > 0;
 }

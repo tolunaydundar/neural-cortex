@@ -3,7 +3,7 @@ import { useHabits } from '../context/HabitContext';
 import { useTasks } from '../context/TaskContext';
 import { useAuth } from '../context/AuthContext';
 
-import { migrateDataToCloud } from '../utils/migration';
+import { importDataToCloud } from '../utils/migration';
 
 export default function Settings() {
   const { habits, logs } = useHabits();
@@ -13,10 +13,6 @@ export default function Settings() {
   const [userName, setUserName] = useState(() => localStorage.getItem('nexus_username') || 'OPERATOR');
   const [showExportSuccess, setShowExportSuccess] = useState(false);
   const [showImportSuccess, setShowImportSuccess] = useState(false);
-  const [showClearConfirm, setShowClearConfirm] = useState(false);
-  
-  const [isMigrating, setIsMigrating] = useState(false);
-  const [showMigrateSuccess, setShowMigrateSuccess] = useState(false);
 
   const handleSaveName = () => {
     localStorage.setItem('nexus_username', userName);
@@ -56,20 +52,15 @@ export default function Settings() {
         try {
           const data = JSON.parse(ev.target?.result as string);
           if (currentUser) {
-            await migrateDataToCloud(currentUser, data);
+            await importDataToCloud(currentUser, data);
+            setShowImportSuccess(true);
+            setTimeout(() => {
+              setShowImportSuccess(false);
+              window.location.reload();
+            }, 1500);
           } else {
-            if (data.nexus_habits) localStorage.setItem('nexus_habits', data.nexus_habits);
-            if (data.nexus_logs) localStorage.setItem('nexus_logs', data.nexus_logs);
-            if (data.nexus_tasks) localStorage.setItem('nexus_tasks', data.nexus_tasks);
-            if (data.nexus_notes) localStorage.setItem('nexus_notes', data.nexus_notes);
-            if (data.nexus_folders) localStorage.setItem('nexus_folders', data.nexus_folders);
-            if (data.nexus_username) localStorage.setItem('nexus_username', data.nexus_username);
+            alert('You must be logged in to import data.');
           }
-          setShowImportSuccess(true);
-          setTimeout(() => {
-            setShowImportSuccess(false);
-            window.location.reload();
-          }, 1500);
         } catch (err) {
           console.error(err);
           alert('Invalid backup file format or import failed.');
@@ -80,39 +71,7 @@ export default function Settings() {
     input.click();
   };
 
-  const handleClearAll = () => {
-    localStorage.removeItem('nexus_habits');
-    localStorage.removeItem('nexus_logs');
-    localStorage.removeItem('nexus_tasks');
-    localStorage.removeItem('nexus_notes');
-    localStorage.removeItem('nexus_folders');
-    localStorage.removeItem('nexus_username');
-    setShowClearConfirm(false);
-    window.location.reload();
-  };
 
-  const handleMigrateToCloud = async () => {
-    if (!currentUser) {
-      alert("You must be logged in to migrate data to the cloud.");
-      return;
-    }
-    
-    setIsMigrating(true);
-    try {
-      const migrated = await migrateDataToCloud(currentUser);
-      if (migrated) {
-        setShowMigrateSuccess(true);
-        setTimeout(() => setShowMigrateSuccess(false), 3000);
-      } else {
-        alert("No local data found to migrate.");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error migrating data to cloud. See console.");
-    } finally {
-      setIsMigrating(false);
-    }
-  };
 
   return (
     <div className="flex-grow space-y-8">
@@ -155,20 +114,6 @@ export default function Settings() {
             <p className="font-label-caps text-[10px] text-on-surface-variant mb-6">BACKUP, RESTORE & PURGE</p>
             
             <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-surface-container/50 border border-white/5 hover:border-white/10 transition-colors">
-                <div>
-                  <p className="text-sm font-semibold text-primary-fixed-dim">Migrate to Cloud</p>
-                  <p className="text-xs text-on-surface-variant mt-1">Move your local data to Firebase Firestore</p>
-                </div>
-                <button
-                  onClick={handleMigrateToCloud}
-                  disabled={isMigrating}
-                  className="flex items-center justify-center gap-2 w-full sm:w-32 px-4 py-2 bg-primary-fixed-dim/20 border border-primary-fixed-dim/50 text-primary-fixed-dim font-label-caps text-[10px] hover:bg-primary-fixed-dim/30 transition-colors cursor-pointer disabled:opacity-50"
-                >
-                  <span className="material-symbols-outlined text-sm">cloud_upload</span>
-                  {isMigrating ? 'MIGRATING...' : 'MIGRATE'}
-                </button>
-              </div>
 
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-surface-container/50 border border-white/5 hover:border-white/10 transition-colors">
                 <div>
@@ -197,29 +142,8 @@ export default function Settings() {
                   IMPORT
                 </button>
               </div>
-
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-surface-container/50 border border-error/20 hover:border-error/40 transition-colors">
-                <div>
-                  <p className="text-sm font-semibold text-error">Purge All Data</p>
-                  <p className="text-xs text-on-surface-variant mt-1">Permanently delete all local data</p>
-                </div>
-                <button
-                  onClick={() => setShowClearConfirm(true)}
-                  className="flex items-center justify-center gap-2 w-full sm:w-32 px-4 py-2 border border-error/40 text-error font-label-caps text-[10px] hover:bg-error/10 transition-colors cursor-pointer"
-                >
-                  <span className="material-symbols-outlined text-sm">delete_forever</span>
-                  PURGE
-                </button>
-              </div>
             </div>
 
-            {/* Success toasts */}
-            {showMigrateSuccess && (
-              <div className="mt-4 p-3 bg-primary-fixed-dim/10 border border-primary-fixed-dim/30 text-primary-fixed-dim text-xs font-label-caps flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
-                DATA MIGRATED TO CLOUD SUCCESSFULLY
-              </div>
-            )}
             {showExportSuccess && (
               <div className="mt-4 p-3 bg-primary-fixed-dim/10 border border-primary-fixed-dim/30 text-primary-fixed-dim text-xs font-label-caps flex items-center gap-2">
                 <span className="material-symbols-outlined text-sm" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
@@ -257,12 +181,7 @@ export default function Settings() {
                 <span className="text-xs text-on-surface-variant">Completed Tasks</span>
                 <span className="font-data-display text-sm text-primary-fixed-dim">{tasks.filter(t => t.status === 'done').length}</span>
               </div>
-              <div className="flex justify-between items-center py-2 border-b border-white/5">
-                <span className="text-xs text-on-surface-variant">Local Storage Used</span>
-                <span className="font-data-display text-sm text-primary-fixed-dim">
-                  {((new Blob([JSON.stringify({ h: localStorage.getItem('nexus_habits'), l: localStorage.getItem('nexus_logs'), t: localStorage.getItem('nexus_tasks'), n: localStorage.getItem('nexus_notes'), f: localStorage.getItem('nexus_folders') })]).size) / 1024).toFixed(1)} KB
-                </span>
-              </div>
+
               <div className="flex justify-between items-center py-2">
                 <span className="text-xs text-on-surface-variant">Data Backend</span>
                 <span className="font-data-display text-sm text-on-surface-variant/70">
@@ -296,32 +215,6 @@ export default function Settings() {
           </div>
         </div>
       </div>
-
-      {/* Clear Confirmation Modal */}
-      {showClearConfirm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="glass-panel p-6 lg:p-8 w-full max-w-sm mx-4 rounded-lg border-error/30 shadow-[0_0_30px_rgba(255,75,75,0.1)]">
-            <h2 className="font-headline-md text-headline-md text-error mb-2">CONFIRM PURGE</h2>
-            <p className="text-sm text-on-surface-variant mb-6">
-              This will permanently delete all local data. This action cannot be undone.
-            </p>
-            <div className="flex gap-4">
-              <button
-                onClick={() => setShowClearConfirm(false)}
-                className="flex-1 py-3 border border-white/20 text-on-surface font-label-caps text-label-caps hover:bg-white/5 transition-colors cursor-pointer"
-              >
-                CANCEL
-              </button>
-              <button
-                onClick={handleClearAll}
-                className="flex-1 py-3 bg-error text-white font-label-caps text-label-caps hover:bg-red-500 transition-colors cursor-pointer"
-              >
-                PURGE ALL
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

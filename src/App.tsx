@@ -21,7 +21,7 @@ import AddTaskModal from './components/AddTaskModal';
 import Toast from './components/Toast';
 import OnboardingModal from './components/OnboardingModal';
 import { useState, useEffect, useCallback } from 'react';
-import { migrateDataToCloud, checkHasCloudData, checkHasLocalData } from './utils/migration';
+import { importDataToCloud, checkHasCloudData } from './utils/migration';
 
 interface ToastState {
   message: string;
@@ -51,18 +51,8 @@ function AppLayout() {
         setIsInitializingData(false);
         return;
       }
-      
-      const hasLocal = checkHasLocalData();
-      if (hasLocal) {
-        const migrated = await migrateDataToCloud(currentUser);
-        if (migrated) {
-          setToast({ message: 'LOCAL DATA SYNCED TO CLOUD', icon: 'cloud_sync' });
-        }
-        setShowOnboarding(false);
-      } else {
-        const hasCloud = await checkHasCloudData(currentUser);
-        setShowOnboarding(!hasCloud);
-      }
+      const hasCloud = await checkHasCloudData(currentUser);
+      setShowOnboarding(!hasCloud);
       setIsInitializingData(false);
     }
     initData();
@@ -181,12 +171,14 @@ function AppLayout() {
         },
       ];
 
-      localStorage.setItem('nexus_habits', JSON.stringify(dummyHabits));
-      localStorage.setItem('nexus_logs', JSON.stringify(dummyLogs));
-      localStorage.setItem('nexus_tasks', JSON.stringify(dummyTasks));
+      const dummyData = {
+        nexus_habits: JSON.stringify(dummyHabits),
+        nexus_logs: JSON.stringify(dummyLogs),
+        nexus_tasks: JSON.stringify(dummyTasks)
+      };
       
       if (currentUser) {
-        await migrateDataToCloud(currentUser);
+        await importDataToCloud(currentUser, dummyData);
       }
 
       window.location.reload();

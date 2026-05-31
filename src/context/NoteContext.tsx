@@ -15,6 +15,7 @@ export interface Note {
   folder_id: string | null;
   color: NoteColor;
   pinned: boolean;
+  order?: number;
   created_at: string;
   updated_at: string;
   userId: string;
@@ -71,8 +72,12 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       snapshot.forEach((doc) => {
         fetchedNotes.push({ id: doc.id, ...doc.data() } as Note);
       });
-      // Sort in memory since we didn't create a composite index for orderBy yet
-      fetchedNotes.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      // Sort in memory using order field (fallback to created_at)
+      fetchedNotes.sort((a, b) => {
+        const orderA = a.order ?? new Date(a.created_at).getTime();
+        const orderB = b.order ?? new Date(b.created_at).getTime();
+        return orderB - orderA;
+      });
       setNotes(fetchedNotes);
     });
 
@@ -102,6 +107,7 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const now = new Date().toISOString();
     await addDoc(collection(db, 'notes'), {
       ...note,
+      order: Date.now(),
       userId: currentUser.uid,
       created_at: now,
       updated_at: now,
@@ -136,6 +142,7 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ...originalData,
       title: `${original.title} (Copy)`,
       pinned: false,
+      order: Date.now(),
       created_at: now,
       updated_at: now,
     });
