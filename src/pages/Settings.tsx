@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useHabits } from '../context/HabitContext';
 import { useTasks } from '../context/TaskContext';
 import { useAuth } from '../context/AuthContext';
-import { db } from '../firebase';
-import { collection, writeBatch, doc } from 'firebase/firestore';
+
+import { migrateDataToCloud } from '../utils/migration';
 
 export default function Settings() {
   const { habits, logs } = useHabits();
@@ -52,22 +52,27 @@ export default function Settings() {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = (ev) => {
+      reader.onload = async (ev) => {
         try {
           const data = JSON.parse(ev.target?.result as string);
-          if (data.nexus_habits) localStorage.setItem('nexus_habits', data.nexus_habits);
-          if (data.nexus_logs) localStorage.setItem('nexus_logs', data.nexus_logs);
-          if (data.nexus_tasks) localStorage.setItem('nexus_tasks', data.nexus_tasks);
-          if (data.nexus_notes) localStorage.setItem('nexus_notes', data.nexus_notes);
-          if (data.nexus_folders) localStorage.setItem('nexus_folders', data.nexus_folders);
-          if (data.nexus_username) localStorage.setItem('nexus_username', data.nexus_username);
+          if (currentUser) {
+            await migrateDataToCloud(currentUser, data);
+          } else {
+            if (data.nexus_habits) localStorage.setItem('nexus_habits', data.nexus_habits);
+            if (data.nexus_logs) localStorage.setItem('nexus_logs', data.nexus_logs);
+            if (data.nexus_tasks) localStorage.setItem('nexus_tasks', data.nexus_tasks);
+            if (data.nexus_notes) localStorage.setItem('nexus_notes', data.nexus_notes);
+            if (data.nexus_folders) localStorage.setItem('nexus_folders', data.nexus_folders);
+            if (data.nexus_username) localStorage.setItem('nexus_username', data.nexus_username);
+          }
           setShowImportSuccess(true);
           setTimeout(() => {
             setShowImportSuccess(false);
             window.location.reload();
           }, 1500);
-        } catch {
-          alert('Invalid backup file format.');
+        } catch (err) {
+          console.error(err);
+          alert('Invalid backup file format or import failed.');
         }
       };
       reader.readAsText(file);
@@ -94,50 +99,13 @@ export default function Settings() {
     
     setIsMigrating(true);
     try {
-      const batch = writeBatch(db);
-      
-      const localHabits = JSON.parse(localStorage.getItem('nexus_habits') || '[]');
-      const localLogs = JSON.parse(localStorage.getItem('nexus_logs') || '[]');
-      const localTasks = JSON.parse(localStorage.getItem('nexus_tasks') || '[]');
-      const localNotes = JSON.parse(localStorage.getItem('nexus_notes') || '[]');
-      const localFolders = JSON.parse(localStorage.getItem('nexus_folders') || '[]');
-      
-      localHabits.forEach((habit: any) => {
-        const ref = doc(collection(db, 'habits'));
-        batch.set(ref, { ...habit, userId: currentUser.uid });
-      });
-
-      localLogs.forEach((log: any) => {
-        const ref = doc(collection(db, 'habit_logs'));
-        batch.set(ref, { ...log, userId: currentUser.uid });
-      });
-
-      localTasks.forEach((task: any) => {
-        const ref = doc(collection(db, 'tasks'));
-        batch.set(ref, { ...task, userId: currentUser.uid });
-      });
-
-      localNotes.forEach((note: any) => {
-        const ref = doc(collection(db, 'notes'));
-        batch.set(ref, { ...note, userId: currentUser.uid });
-      });
-
-      localFolders.forEach((folder: any) => {
-        const ref = doc(collection(db, 'folders'));
-        batch.set(ref, { ...folder, userId: currentUser.uid });
-      });
-
-      await batch.commit();
-
-      // Clear local storage data so it doesn't get migrated again
-      localStorage.removeItem('nexus_habits');
-      localStorage.removeItem('nexus_logs');
-      localStorage.removeItem('nexus_tasks');
-      localStorage.removeItem('nexus_notes');
-      localStorage.removeItem('nexus_folders');
-
-      setShowMigrateSuccess(true);
-      setTimeout(() => setShowMigrateSuccess(false), 3000);
+      const migrated = await migrateDataToCloud(currentUser);
+      if (migrated) {
+        setShowMigrateSuccess(true);
+        setTimeout(() => setShowMigrateSuccess(false), 3000);
+      } else {
+        alert("No local data found to migrate.");
+      }
     } catch (err) {
       console.error(err);
       alert("Error migrating data to cloud. See console.");

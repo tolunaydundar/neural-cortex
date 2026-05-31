@@ -21,6 +21,7 @@ import AddTaskModal from './components/AddTaskModal';
 import Toast from './components/Toast';
 import OnboardingModal from './components/OnboardingModal';
 import { useState, useEffect, useCallback } from 'react';
+import { migrateDataToCloud, checkHasCloudData, checkHasLocalData } from './utils/migration';
 
 interface ToastState {
   message: string;
@@ -29,21 +30,45 @@ interface ToastState {
 
 // Layout component to wrap pages that share the sidebar and topbar
 function AppLayout() {
+  const { currentUser } = useAuth();
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('nexus_username'));
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [isInitializingData, setIsInitializingData] = useState(true);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const location = useLocation();
 
-  // Close mobile menu on route change
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
 
-  const handleOnboardingComplete = (name: string, wantsExampleData: boolean) => {
+  useEffect(() => {
+    async function initData() {
+      if (!currentUser) {
+        setIsInitializingData(false);
+        return;
+      }
+      
+      const hasLocal = checkHasLocalData();
+      if (hasLocal) {
+        const migrated = await migrateDataToCloud(currentUser);
+        if (migrated) {
+          setToast({ message: 'LOCAL DATA SYNCED TO CLOUD', icon: 'cloud_sync' });
+        }
+        setShowOnboarding(false);
+      } else {
+        const hasCloud = await checkHasCloudData(currentUser);
+        setShowOnboarding(!hasCloud);
+      }
+      setIsInitializingData(false);
+    }
+    initData();
+  }, [currentUser]);
+
+  const handleOnboardingComplete = async (name: string, wantsExampleData: boolean) => {
     localStorage.setItem('nexus_username', name);
     
     if (wantsExampleData) {
@@ -160,6 +185,10 @@ function AppLayout() {
       localStorage.setItem('nexus_logs', JSON.stringify(dummyLogs));
       localStorage.setItem('nexus_tasks', JSON.stringify(dummyTasks));
       
+      if (currentUser) {
+        await migrateDataToCloud(currentUser);
+      }
+
       window.location.reload();
       return;
     }
@@ -188,6 +217,14 @@ function AppLayout() {
 
   const getMobileNavClass = (isActive: boolean) =>
     `mobile-nav-item ${isActive ? 'active text-primary-fixed-dim' : 'text-on-surface-variant'}`;
+
+  if (isInitializingData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-12 h-12 border-4 border-primary-fixed-dim border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <>
