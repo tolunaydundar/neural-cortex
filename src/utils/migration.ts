@@ -25,40 +25,38 @@ export async function migrateDataToCloud(currentUser: User, importedData?: any):
     }
     
     localHabits.forEach((habit: any) => {
-      const ref = doc(collection(db, 'habits'));
+      const ref = doc(db, 'habits', habit.id);
       batch.set(ref, { ...habit, userId: currentUser.uid });
     });
 
     localLogs.forEach((log: any) => {
-      const ref = doc(collection(db, 'habit_logs'));
+      const ref = doc(db, 'habit_logs', log.id);
       batch.set(ref, { ...log, userId: currentUser.uid });
     });
 
     localTasks.forEach((task: any) => {
-      const ref = doc(collection(db, 'tasks'));
+      const ref = doc(db, 'tasks', task.id);
       batch.set(ref, { ...task, userId: currentUser.uid });
     });
 
     localNotes.forEach((note: any) => {
-      const ref = doc(collection(db, 'notes'));
+      const ref = doc(db, 'notes', note.id);
       batch.set(ref, { ...note, userId: currentUser.uid });
     });
 
     localFolders.forEach((folder: any) => {
-      const ref = doc(collection(db, 'folders'));
+      const ref = doc(db, 'folders', folder.id);
       batch.set(ref, { ...folder, userId: currentUser.uid });
     });
 
     await batch.commit();
 
-    // If we migrated from localStorage, clear it
-    if (!importedData) {
-      localStorage.removeItem('nexus_habits');
-      localStorage.removeItem('nexus_logs');
-      localStorage.removeItem('nexus_tasks');
-      localStorage.removeItem('nexus_notes');
-      localStorage.removeItem('nexus_folders');
-    }
+    // Always clear localStorage after a successful cloud migration (whether from import or local auto-migration)
+    localStorage.removeItem('nexus_habits');
+    localStorage.removeItem('nexus_logs');
+    localStorage.removeItem('nexus_tasks');
+    localStorage.removeItem('nexus_notes');
+    localStorage.removeItem('nexus_folders');
     
     return true;
   } catch (err) {
@@ -78,8 +76,13 @@ export async function checkHasCloudData(currentUser: User): Promise<boolean> {
     const habitsRef = collection(db, 'habits');
     const qHabits = query(habitsRef, where('userId', '==', currentUser.uid), limit(1));
     const habitsSnap = await getDocs(qHabits);
+    if (!habitsSnap.empty) return true;
 
-    return !habitsSnap.empty;
+    const notesRef = collection(db, 'notes');
+    const qNotes = query(notesRef, where('userId', '==', currentUser.uid), limit(1));
+    const notesSnap = await getDocs(qNotes);
+
+    return !notesSnap.empty;
   } catch (err) {
     console.error("Failed to check cloud data:", err);
     return false;
