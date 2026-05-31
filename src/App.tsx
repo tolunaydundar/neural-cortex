@@ -310,8 +310,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
+    <AuthProvider>
+      <ThemeProvider>
         <SyncProvider>
           <HabitProvider>
             <TaskProvider>
@@ -335,8 +335,8 @@ function App() {
             </TaskProvider>
           </HabitProvider>
         </SyncProvider>
-      </AuthProvider>
-    </ThemeProvider>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 
