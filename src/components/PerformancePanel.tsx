@@ -25,7 +25,7 @@ export default function PerformancePanel({ consistency }: PerformancePanelProps)
     return Math.round((count / maxPossible) * 100);
   });
 
-  const isToday = (dayIndex: number) => isSameDay(weekDays[dayIndex], today);
+  const isToday = (dayIndex: number) => isSameDay(weekDays.at(dayIndex)!, today);
 
   // Dynamic recommendations
   const todayMissing = habits.filter(h =>
@@ -82,7 +82,7 @@ export default function PerformancePanel({ consistency }: PerformancePanelProps)
                       : 'bg-primary-fixed-dim/20 hover:bg-primary-fixed-dim/40'
                   }`}
                   style={{ height: `${Math.max(pct, 4)}%` }}
-                  title={`${dayLabels[i]}: ${pct}%`}
+                  title={`${dayLabels.at(i)}: ${pct}%`}
                 />
               ))}
             </div>

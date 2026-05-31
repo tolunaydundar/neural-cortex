@@ -53,8 +53,8 @@ export default function PerformanceAnalytics() {
     : 0;
 
   // Best/worst
-  const best = sortedByEfficiency[0];
-  const worst = sortedByEfficiency[sortedByEfficiency.length - 1];
+  const best = sortedByEfficiency.at(0);
+  const worst = sortedByEfficiency.at(-1);
 
   return (
     <div className="flex-grow space-y-8">
@@ -81,7 +81,7 @@ export default function PerformanceAnalytics() {
         <div className="glass-panel p-4 lg:p-6 text-center">
           <p className="font-label-caps text-[10px] text-on-surface-variant mb-2">TOP STREAK</p>
           <p className="font-data-display text-3xl text-primary-fixed-dim">
-            {sortedByStreak.length > 0 ? getStreak(sortedByStreak[0].id) : 0}
+            {sortedByStreak.length > 0 ? getStreak(sortedByStreak.at(0)!.id) : 0}
           </p>
         </div>
         <div className="glass-panel p-4 lg:p-6 text-center">

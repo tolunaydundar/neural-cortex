@@ -10,8 +10,16 @@ export async function importDataToCloud(currentUser: User, importedData: Record<
   try {
     const batch = writeBatch(db);
     
-    const parse = (key: string) => {
-      if (importedData[key]) return JSON.parse(importedData[key]);
+    const parse = (key: 'nexus_habits' | 'nexus_logs' | 'nexus_tasks' | 'nexus_notes' | 'nexus_folders') => {
+      let val: string | undefined;
+      switch (key) {
+        case 'nexus_habits': val = importedData.nexus_habits; break;
+        case 'nexus_logs': val = importedData.nexus_logs; break;
+        case 'nexus_tasks': val = importedData.nexus_tasks; break;
+        case 'nexus_notes': val = importedData.nexus_notes; break;
+        case 'nexus_folders': val = importedData.nexus_folders; break;
+      }
+      if (val) return JSON.parse(val);
       return [];
     };
 

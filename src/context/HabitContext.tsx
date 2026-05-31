@@ -142,14 +142,14 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const currentDate = startOfDay(new Date()).getTime();
     
     // Check if logged today or yesterday to continue streak
-    if (habitLogs[0] !== currentDate && habitLogs[0] !== currentDate - 86400000) {
+    if (habitLogs.at(0) !== currentDate && habitLogs.at(0) !== currentDate - 86400000) {
       return 0;
     }
 
-    let expectedDate = habitLogs[0];
+    let expectedDate = habitLogs.at(0)!;
     
     for (let i = 0; i < habitLogs.length; i++) {
-      if (habitLogs[i] === expectedDate) {
+      if (habitLogs.at(i) === expectedDate) {
         streak++;
         expectedDate -= 86400000; // Subtract one day
       } else {

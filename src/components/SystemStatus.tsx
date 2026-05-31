@@ -44,6 +44,18 @@ const STATUS_MAP: Record<StatusLevel, StatusConfig> = {
   },
 };
 
+function getStatusConfig(level: StatusLevel): StatusConfig {
+  switch (level) {
+    case 'on_track':
+      return STATUS_MAP.on_track;
+    case 'needs_focus':
+      return STATUS_MAP.needs_focus;
+    case 'off_track':
+      return STATUS_MAP.off_track;
+  }
+}
+
+
 export default function SystemStatus() {
   const { habits, getEfficiency } = useHabits();
   const { tasks, getOverdueTasks, getCompletionStats } = useTasks();
@@ -140,7 +152,7 @@ export default function SystemStatus() {
     return { score: normalizedScore, level };
   }, [metrics]);
 
-  const config = STATUS_MAP[level];
+  const config = getStatusConfig(level);
 
   return (
     <div className="relative">

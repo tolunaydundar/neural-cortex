@@ -99,22 +99,22 @@ export default function Notes() {
 
       if (oldIndex !== -1 && newIndex !== -1) {
         const newArray = arrayMove(list, oldIndex, newIndex);
-        const prevNote = newArray[newIndex - 1];
-        const nextNote = newArray[newIndex + 1];
+        const prevNote = newArray.at(newIndex - 1);
+        const nextNote = newArray.at(newIndex + 1);
 
         let newOrder: number;
         if (!prevNote && !nextNote) {
           newOrder = Date.now();
         } else if (!prevNote) {
           // Moved to the top
-          newOrder = (nextNote.order ?? new Date(nextNote.created_at).getTime()) + 10000;
+          newOrder = (nextNote!.order ?? new Date(nextNote!.created_at).getTime()) + 10000;
         } else if (!nextNote) {
           // Moved to the bottom
-          newOrder = (prevNote.order ?? new Date(prevNote.created_at).getTime()) - 10000;
+          newOrder = (prevNote!.order ?? new Date(prevNote!.created_at).getTime()) - 10000;
         } else {
           // Moved between two notes
-          const prevOrder = prevNote.order ?? new Date(prevNote.created_at).getTime();
-          const nextOrder = nextNote.order ?? new Date(nextNote.created_at).getTime();
+          const prevOrder = prevNote!.order ?? new Date(prevNote!.created_at).getTime();
+          const nextOrder = nextNote!.order ?? new Date(nextNote!.created_at).getTime();
           newOrder = (prevOrder + nextOrder) / 2;
         }
 

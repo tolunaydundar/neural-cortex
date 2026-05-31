@@ -7,12 +7,15 @@ import { useOutletContext } from 'react-router-dom';
 type StatusFilter = 'all' | 'active' | 'done';
 type SortMode = 'priority' | 'due_date' | 'created';
 
-const priorityOrder: Record<Task['priority'], number> = {
-  critical: 0,
-  high: 1,
-  medium: 2,
-  low: 3,
-};
+function getPriorityValue(priority: Task['priority']): number {
+  switch (priority) {
+    case 'critical': return 0;
+    case 'high': return 1;
+    case 'medium': return 2;
+    case 'low': return 3;
+  }
+}
+
 
 export default function Tasks() {
   const { tasks, moveStatus, getOverdueTasks, getCompletionStats } = useTasks();
@@ -58,7 +61,7 @@ export default function Tasks() {
     // Sort
     result.sort((a, b) => {
       if (sortMode === 'priority') {
-        return priorityOrder[a.priority] - priorityOrder[b.priority];
+        return getPriorityValue(a.priority) - getPriorityValue(b.priority);
       }
       if (sortMode === 'due_date') {
         if (!a.due_date && !b.due_date) return 0;

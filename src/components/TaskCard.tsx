@@ -7,12 +7,15 @@ interface TaskCardProps {
   onClick: (task: Task) => void;
 }
 
-const priorityLabels: Record<Task['priority'], string> = {
-  critical: 'CRITICAL',
-  high: 'HIGH',
-  medium: 'MEDIUM',
-  low: 'LOW',
-};
+function getPriorityLabel(priority: Task['priority']): string {
+  switch (priority) {
+    case 'critical': return 'CRITICAL';
+    case 'high': return 'HIGH';
+    case 'medium': return 'MEDIUM';
+    case 'low': return 'LOW';
+  }
+}
+
 
 export default function TaskCard({ task, onToggleComplete, onClick }: TaskCardProps) {
   const isDone = task.status === 'done';
@@ -59,7 +62,7 @@ export default function TaskCard({ task, onToggleComplete, onClick }: TaskCardPr
               {task.category && (
                 <span className="category-chip hidden sm:inline-flex">{task.category}</span>
               )}
-              <div className={`w-2 h-2 rounded-full priority-dot-${task.priority}`} title={priorityLabels[task.priority]} />
+              <div className={`w-2 h-2 rounded-full priority-dot-${task.priority}`} title={getPriorityLabel(task.priority)} />
             </div>
           </div>
 
