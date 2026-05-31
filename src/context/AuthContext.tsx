@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { 
   type User, 
-  signInWithPopup, 
+  signInWithRedirect, 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
   signOut,
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const loginWithGoogle = async () => {
-    await signInWithPopup(auth, googleProvider);
+    await signInWithRedirect(auth, googleProvider);
   };
 
   const signupWithEmail = async (email: string, pass: string) => {
