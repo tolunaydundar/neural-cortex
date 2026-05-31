@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useHabits } from '../context/HabitContext';
 import { useTasks } from '../context/TaskContext';
 import { useAuth } from '../context/AuthContext';
@@ -8,15 +8,18 @@ import { importDataToCloud } from '../utils/migration';
 export default function Settings() {
   const { habits, logs } = useHabits();
   const { tasks } = useTasks();
-  const { currentUser } = useAuth();
+  const { currentUser, operatorName, updateOperatorName } = useAuth();
   
-  const [userName, setUserName] = useState(() => localStorage.getItem('nexus_username') || 'OPERATOR');
+  const [userName, setUserName] = useState(operatorName);
   const [showExportSuccess, setShowExportSuccess] = useState(false);
   const [showImportSuccess, setShowImportSuccess] = useState(false);
 
-  const handleSaveName = () => {
-    localStorage.setItem('nexus_username', userName);
-    window.dispatchEvent(new Event('username_updated'));
+  useEffect(() => {
+    setUserName(operatorName);
+  }, [operatorName]);
+
+  const handleSaveName = async () => {
+    await updateOperatorName(userName);
   };
 
   const handleExport = () => {
@@ -26,7 +29,6 @@ export default function Settings() {
       nexus_tasks: localStorage.getItem('nexus_tasks'),
       nexus_notes: localStorage.getItem('nexus_notes'),
       nexus_folders: localStorage.getItem('nexus_folders'),
-      nexus_username: localStorage.getItem('nexus_username'),
       exported_at: new Date().toISOString(),
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });

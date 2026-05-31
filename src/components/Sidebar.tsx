@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+
 import { NavLink } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -10,17 +10,8 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ onLogActivity, isOpen = false, onClose }: SidebarProps) {
-  const [userName, setUserName] = useState(localStorage.getItem('nexus_username') || 'OPERATOR');
   const { toggleTheme, isDark } = useTheme();
-  const { logout } = useAuth();
-
-  useEffect(() => {
-    const handleUpdate = () => {
-      setUserName(localStorage.getItem('nexus_username') || 'OPERATOR');
-    };
-    window.addEventListener('username_updated', handleUpdate);
-    return () => window.removeEventListener('username_updated', handleUpdate);
-  }, []);
+  const { logout, operatorName } = useAuth();
 
   const getNavLinkClass = ({ isActive }: { isActive: boolean }) => {
     const base = "flex items-center gap-4 px-6 py-4";
@@ -108,7 +99,7 @@ export default function Sidebar({ onLogActivity, isOpen = false, onClose }: Side
         <div className="mt-6 border-t border-white/5 pt-4 flex flex-col gap-1">
           <span className="text-[10px] font-label-caps text-on-surface-variant tracking-widest">OPERATOR</span>
           <div className="flex items-center justify-between">
-            <span className="text-sm font-headline-sm font-bold text-primary-fixed-dim truncate">{userName}</span>
+            <span className="text-sm font-headline-sm font-bold text-primary-fixed-dim truncate">{operatorName}</span>
             <button 
               onClick={() => logout()}
               className="material-symbols-outlined text-[16px] text-on-surface-variant/50 hover:text-error transition-colors cursor-pointer"

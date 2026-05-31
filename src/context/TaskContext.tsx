@@ -3,6 +3,7 @@ import { startOfDay, isSameDay, subDays } from 'date-fns';
 import { db } from '../firebase';
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
+import { useSync } from './SyncContext';
 
 export interface Subtask {
   id: string;
@@ -43,6 +44,7 @@ const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
 export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { currentUser } = useAuth();
+  const { runSync } = useSync();
   const [tasks, setTasks] = useState<Task[]>([]);
 
   useEffect(() => {
@@ -69,7 +71,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => unsubscribe();
   }, [currentUser]);
 
-  const addTask = async (task: Omit<Task, 'id' | 'created_at' | 'completed_at' | 'userId'>) => {
+  const addTask = (task: Omit<Task, 'id' | 'created_at' | 'completed_at' | 'userId'>) => runSync(async () => {
     if (!currentUser) return;
     const now = new Date().toISOString();
     await addDoc(collection(db, 'tasks'), {
@@ -78,9 +80,9 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
       created_at: now,
       completed_at: null,
     });
-  };
+  });
 
-  const updateTask = async (id: string, updates: Partial<Omit<Task, 'id' | 'created_at' | 'userId'>>) => {
+  const updateTask = (id: string, updates: Partial<Omit<Task, 'id' | 'created_at' | 'userId'>>) => runSync(async () => {
     const taskRef = doc(db, 'tasks', id);
     const updatedData: any = { ...updates };
     
@@ -94,38 +96,38 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     await updateDoc(taskRef, updatedData);
-  };
+  });
 
-  const deleteTask = async (id: string) => {
+  const deleteTask = (id: string) => runSync(async () => {
     await deleteDoc(doc(db, 'tasks', id));
-  };
+  });
 
-  const toggleSubtask = async (taskId: string, subtaskId: string) => {
+  const toggleSubtask = (taskId: string, subtaskId: string) => runSync(async () => {
     const task = tasks.find(t => t.id === taskId);
     if (!task) return;
     const updatedSubtasks = task.subtasks.map(st => 
       st.id === subtaskId ? { ...st, done: !st.done } : st
     );
     await updateDoc(doc(db, 'tasks', taskId), { subtasks: updatedSubtasks });
-  };
+  });
 
-  const addSubtask = async (taskId: string, title: string) => {
+  const addSubtask = (taskId: string, title: string) => runSync(async () => {
     const task = tasks.find(t => t.id === taskId);
     if (!task) return;
     const newSubtask = { id: crypto.randomUUID(), title, done: false };
     await updateDoc(doc(db, 'tasks', taskId), { subtasks: [...task.subtasks, newSubtask] });
-  };
+  });
 
-  const removeSubtask = async (taskId: string, subtaskId: string) => {
+  const removeSubtask = (taskId: string, subtaskId: string) => runSync(async () => {
     const task = tasks.find(t => t.id === taskId);
     if (!task) return;
     const updatedSubtasks = task.subtasks.filter(st => st.id !== subtaskId);
     await updateDoc(doc(db, 'tasks', taskId), { subtasks: updatedSubtasks });
-  };
+  });
 
-  const moveStatus = async (id: string, status: Task['status']) => {
+  const moveStatus = (id: string, status: Task['status']) => runSync(async () => {
     await updateTask(id, { status });
-  };
+  });
 
   const getOverdueTasks = useCallback((): Task[] => {
     const now = startOfDay(new Date());

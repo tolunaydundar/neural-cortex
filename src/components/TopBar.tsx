@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SystemStatus from './SystemStatus';
+import { useSync } from '../context/SyncContext';
 
 interface TopBarProps {
   onAddHabit: () => void;
@@ -10,6 +11,7 @@ interface TopBarProps {
 export default function TopBar({ onAddHabit, onMenuToggle }: TopBarProps) {
   const [time, setTime] = useState("");
   const navigate = useNavigate();
+  const { isSaving, lastSaved } = useSync();
   
   useEffect(() => {
     const updateClock = () => {
@@ -47,6 +49,21 @@ export default function TopBar({ onAddHabit, onMenuToggle }: TopBarProps) {
         <span className="font-label-caps text-label-caps text-on-surface-variant hidden sm:inline">{time}</span>
       </div>
       <div className="flex items-center gap-3 sm:gap-8">
+        <div className="hidden md:flex items-center gap-2">
+          {isSaving ? (
+            <>
+              <span className="material-symbols-outlined text-[14px] text-primary-fixed-dim animate-spin">sync</span>
+              <span className="font-label-caps text-[9px] text-primary-fixed-dim tracking-wider">SAVING TO CLOUD...</span>
+            </>
+          ) : (
+            <>
+              <span className="material-symbols-outlined text-[14px] text-on-surface-variant">cloud_done</span>
+              <span className="font-label-caps text-[9px] text-on-surface-variant tracking-wider">
+                {lastSaved ? 'CLOUD SYNCED' : 'CLOUD READY'}
+              </span>
+            </>
+          )}
+        </div>
         <SystemStatus />
         <div className="flex items-center gap-4">
           <button 

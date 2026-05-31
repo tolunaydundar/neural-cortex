@@ -5,6 +5,7 @@ import { HabitProvider } from './context/HabitContext';
 import { TaskProvider } from './context/TaskContext';
 import { NoteProvider } from './context/NoteContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { SyncProvider } from './context/SyncContext';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
 import Dashboard from './pages/Dashboard';
@@ -312,27 +313,29 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <HabitProvider>
-          <TaskProvider>
-            <NoteProvider>
-              <Router>
-                <Routes>
-                  <Route path="/auth" element={<AuthPage />} />
-                  <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-                    <Route index element={<Dashboard />} />
-                  <Route path="habits" element={<Habits />} />
-                  <Route path="tasks" element={<Tasks />} />
-                  <Route path="notes" element={<Notes />} />
-                  <Route path="performance" element={<PerformanceAnalytics />} />
-                  <Route path="legacy" element={<LegacyLogs />} />
-                  <Route path="settings" element={<Settings />} />
-                  <Route path="habit/:id" element={<HabitDetails />} />
-                </Route>
-              </Routes>
-            </Router>
-          </NoteProvider>
-        </TaskProvider>
-      </HabitProvider>
+        <SyncProvider>
+          <HabitProvider>
+            <TaskProvider>
+              <NoteProvider>
+                <Router>
+                  <Routes>
+                    <Route path="/auth" element={<AuthPage />} />
+                    <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+                      <Route index element={<Dashboard />} />
+                      <Route path="habits" element={<Habits />} />
+                      <Route path="tasks" element={<Tasks />} />
+                      <Route path="notes" element={<Notes />} />
+                      <Route path="performance" element={<PerformanceAnalytics />} />
+                      <Route path="legacy" element={<LegacyLogs />} />
+                      <Route path="settings" element={<Settings />} />
+                      <Route path="habit/:id" element={<HabitDetails />} />
+                    </Route>
+                  </Routes>
+                </Router>
+              </NoteProvider>
+            </TaskProvider>
+          </HabitProvider>
+        </SyncProvider>
       </AuthProvider>
     </ThemeProvider>
   );

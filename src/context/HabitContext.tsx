@@ -3,6 +3,7 @@ import { subDays, isSameDay, startOfDay } from 'date-fns';
 import { db } from '../firebase';
 import { collection, onSnapshot, addDoc, deleteDoc, doc, query, where, getDocs, writeBatch } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
+import { useSync } from './SyncContext';
 
 export interface Habit {
   id: string;
@@ -35,6 +36,7 @@ const HabitContext = createContext<HabitContextType | undefined>(undefined);
 
 export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { currentUser } = useAuth();
+  const { runSync } = useSync();
   const [habits, setHabits] = useState<Habit[]>([]);
   const [logs, setLogs] = useState<HabitLog[]>([]);
 
@@ -79,16 +81,16 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   }, [currentUser]);
 
-  const addHabit = async (habit: Omit<Habit, 'id' | 'created_at' | 'userId'>) => {
+  const addHabit = (habit: Omit<Habit, 'id' | 'created_at' | 'userId'>) => runSync(async () => {
     if (!currentUser) return;
     await addDoc(collection(db, 'habits'), {
       ...habit,
       userId: currentUser.uid,
       created_at: new Date().toISOString()
     });
-  };
+  });
 
-  const logHabit = async (habitId: string, date: Date = new Date()) => {
+  const logHabit = (habitId: string, date: Date = new Date()) => runSync(async () => {
     if (!currentUser) return;
     
     // Prevent duplicate logs for the same day (client side check)
@@ -100,13 +102,13 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       userId: currentUser.uid,
       date: date.toISOString()
     });
-  };
+  });
 
-  const removeLog = async (logId: string) => {
+  const removeLog = (logId: string) => runSync(async () => {
     await deleteDoc(doc(db, 'habit_logs', logId));
-  };
+  });
 
-  const deleteHabit = async (habitId: string) => {
+  const deleteHabit = (habitId: string) => runSync(async () => {
     // Delete the habit document
     await deleteDoc(doc(db, 'habits', habitId));
     
@@ -123,7 +125,7 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       batch.delete(doc(db, 'habit_logs', logDoc.id));
     });
     await batch.commit();
-  };
+  });
 
   const getStreak = (habitId: string): number => {
     const habitLogs = logs
