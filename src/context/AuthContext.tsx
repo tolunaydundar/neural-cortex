@@ -2,7 +2,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { 
   type User, 
-  signInWithPopup, 
   signInWithRedirect,
   getRedirectResult,
   createUserWithEmailAndPassword, 
@@ -75,16 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const loginWithGoogle = async () => {
-    try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (err: unknown) {
-      // If popup was blocked, fall back to redirect
-      if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'auth/popup-blocked') {
-        await signInWithRedirect(auth, googleProvider);
-      } else {
-        throw err;
-      }
-    }
+    await signInWithRedirect(auth, googleProvider);
   };
 
   const signupWithEmail = async (email: string, pass: string) => {
