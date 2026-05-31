@@ -31,13 +31,13 @@ export default function FolderEditorModal({ folderId, onClose, onSuccess }: Fold
     return () => document.removeEventListener('keydown', handleKey);
   }, [onClose]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!name.trim()) return;
     if (existing) {
-      updateFolder(existing.id, { name: name.trim(), icon });
+      await updateFolder(existing.id, { name: name.trim(), icon });
       onSuccess?.(existing.id);
     } else {
-      const newId = addFolder(name.trim(), icon);
+      const newId = await addFolder(name.trim(), icon);
       onSuccess?.(newId);
     }
     onClose();

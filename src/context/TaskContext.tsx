@@ -1,5 +1,8 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { startOfDay, isSameDay, subDays } from 'date-fns';
+import { db } from '../firebase';
+import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
+import { useAuth } from './AuthContext';
 
 export interface Subtask {
   id: string;
@@ -18,17 +21,18 @@ export interface Task {
   created_at: string;
   completed_at: string | null;
   subtasks: Subtask[];
+  userId: string;
 }
 
 interface TaskContextType {
   tasks: Task[];
-  addTask: (task: Omit<Task, 'id' | 'created_at' | 'completed_at'>) => void;
-  updateTask: (id: string, updates: Partial<Omit<Task, 'id' | 'created_at'>>) => void;
-  deleteTask: (id: string) => void;
-  toggleSubtask: (taskId: string, subtaskId: string) => void;
-  addSubtask: (taskId: string, title: string) => void;
-  removeSubtask: (taskId: string, subtaskId: string) => void;
-  moveStatus: (id: string, status: Task['status']) => void;
+  addTask: (task: Omit<Task, 'id' | 'created_at' | 'completed_at' | 'userId'>) => Promise<void>;
+  updateTask: (id: string, updates: Partial<Omit<Task, 'id' | 'created_at' | 'userId'>>) => Promise<void>;
+  deleteTask: (id: string) => Promise<void>;
+  toggleSubtask: (taskId: string, subtaskId: string) => Promise<void>;
+  addSubtask: (taskId: string, title: string) => Promise<void>;
+  removeSubtask: (taskId: string, subtaskId: string) => Promise<void>;
+  moveStatus: (id: string, status: Task['status']) => Promise<void>;
   getOverdueTasks: () => Task[];
   getTodayTasks: () => Task[];
   getCompletionStats: (days: number) => { completed: number; total: number; rate: number };
@@ -38,79 +42,89 @@ interface TaskContextType {
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
 export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [tasks, setTasks] = useState<Task[]>(() => {
-    const saved = localStorage.getItem('nexus_tasks');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const { currentUser } = useAuth();
+  const [tasks, setTasks] = useState<Task[]>([]);
 
   useEffect(() => {
-    localStorage.setItem('nexus_tasks', JSON.stringify(tasks));
-  }, [tasks]);
+    if (!currentUser) {
+      setTasks([]);
+      return;
+    }
 
-  const addTask = (task: Omit<Task, 'id' | 'created_at' | 'completed_at'>) => {
-    const newTask: Task = {
+    const tasksQuery = query(
+      collection(db, 'tasks'),
+      where('userId', '==', currentUser.uid)
+    );
+
+    const unsubscribe = onSnapshot(tasksQuery, (snapshot) => {
+      const fetchedTasks: Task[] = [];
+      snapshot.forEach((doc) => {
+        fetchedTasks.push({ id: doc.id, ...doc.data() } as Task);
+      });
+      // Sort in memory by created_at ascending (or descending, depends on preference, let's keep original ordering which wasn't strictly enforced, but let's do descending)
+      fetchedTasks.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      setTasks(fetchedTasks);
+    });
+
+    return () => unsubscribe();
+  }, [currentUser]);
+
+  const addTask = async (task: Omit<Task, 'id' | 'created_at' | 'completed_at' | 'userId'>) => {
+    if (!currentUser) return;
+    const now = new Date().toISOString();
+    await addDoc(collection(db, 'tasks'), {
       ...task,
-      id: crypto.randomUUID(),
-      created_at: new Date().toISOString(),
+      userId: currentUser.uid,
+      created_at: now,
       completed_at: null,
-    };
-    setTasks(prev => [...prev, newTask]);
+    });
   };
 
-  const updateTask = (id: string, updates: Partial<Omit<Task, 'id' | 'created_at'>>) => {
-    setTasks(prev => prev.map(t => {
-      if (t.id !== id) return t;
-      const updated = { ...t, ...updates };
-      // Auto-set completed_at when moving to done
-      if (updates.status === 'done' && !t.completed_at) {
-        updated.completed_at = new Date().toISOString();
-      }
-      // Clear completed_at if moving back from done
-      if (updates.status && updates.status !== 'done') {
-        updated.completed_at = null;
-      }
-      return updated;
-    }));
+  const updateTask = async (id: string, updates: Partial<Omit<Task, 'id' | 'created_at' | 'userId'>>) => {
+    const taskRef = doc(db, 'tasks', id);
+    const updatedData: any = { ...updates };
+    
+    // Auto-set completed_at when moving to done
+    if (updates.status === 'done') {
+      updatedData.completed_at = new Date().toISOString();
+    }
+    // Clear completed_at if moving back from done
+    if (updates.status && updates.status !== 'done') {
+      updatedData.completed_at = null;
+    }
+
+    await updateDoc(taskRef, updatedData);
   };
 
-  const deleteTask = (id: string) => {
-    setTasks(prev => prev.filter(t => t.id !== id));
+  const deleteTask = async (id: string) => {
+    await deleteDoc(doc(db, 'tasks', id));
   };
 
-  const toggleSubtask = (taskId: string, subtaskId: string) => {
-    setTasks(prev => prev.map(t => {
-      if (t.id !== taskId) return t;
-      return {
-        ...t,
-        subtasks: t.subtasks.map(st =>
-          st.id === subtaskId ? { ...st, done: !st.done } : st
-        ),
-      };
-    }));
+  const toggleSubtask = async (taskId: string, subtaskId: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+    const updatedSubtasks = task.subtasks.map(st => 
+      st.id === subtaskId ? { ...st, done: !st.done } : st
+    );
+    await updateDoc(doc(db, 'tasks', taskId), { subtasks: updatedSubtasks });
   };
 
-  const addSubtask = (taskId: string, title: string) => {
-    setTasks(prev => prev.map(t => {
-      if (t.id !== taskId) return t;
-      return {
-        ...t,
-        subtasks: [...t.subtasks, { id: crypto.randomUUID(), title, done: false }],
-      };
-    }));
+  const addSubtask = async (taskId: string, title: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+    const newSubtask = { id: crypto.randomUUID(), title, done: false };
+    await updateDoc(doc(db, 'tasks', taskId), { subtasks: [...task.subtasks, newSubtask] });
   };
 
-  const removeSubtask = (taskId: string, subtaskId: string) => {
-    setTasks(prev => prev.map(t => {
-      if (t.id !== taskId) return t;
-      return {
-        ...t,
-        subtasks: t.subtasks.filter(st => st.id !== subtaskId),
-      };
-    }));
+  const removeSubtask = async (taskId: string, subtaskId: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+    const updatedSubtasks = task.subtasks.filter(st => st.id !== subtaskId);
+    await updateDoc(doc(db, 'tasks', taskId), { subtasks: updatedSubtasks });
   };
 
-  const moveStatus = (id: string, status: Task['status']) => {
-    updateTask(id, { status });
+  const moveStatus = async (id: string, status: Task['status']) => {
+    await updateTask(id, { status });
   };
 
   const getOverdueTasks = useCallback((): Task[] => {

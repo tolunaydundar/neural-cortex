@@ -1,14 +1,22 @@
 import { useState } from 'react';
 import { useHabits } from '../context/HabitContext';
 import { useTasks } from '../context/TaskContext';
+import { useAuth } from '../context/AuthContext';
+import { db } from '../firebase';
+import { collection, writeBatch, doc } from 'firebase/firestore';
 
 export default function Settings() {
   const { habits, logs } = useHabits();
   const { tasks } = useTasks();
+  const { currentUser } = useAuth();
+  
   const [userName, setUserName] = useState(() => localStorage.getItem('nexus_username') || 'OPERATOR');
   const [showExportSuccess, setShowExportSuccess] = useState(false);
   const [showImportSuccess, setShowImportSuccess] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  
+  const [isMigrating, setIsMigrating] = useState(false);
+  const [showMigrateSuccess, setShowMigrateSuccess] = useState(false);
 
   const handleSaveName = () => {
     localStorage.setItem('nexus_username', userName);
@@ -78,6 +86,66 @@ export default function Settings() {
     window.location.reload();
   };
 
+  const handleMigrateToCloud = async () => {
+    if (!currentUser) {
+      alert("You must be logged in to migrate data to the cloud.");
+      return;
+    }
+    
+    setIsMigrating(true);
+    try {
+      const batch = writeBatch(db);
+      
+      const localHabits = JSON.parse(localStorage.getItem('nexus_habits') || '[]');
+      const localLogs = JSON.parse(localStorage.getItem('nexus_logs') || '[]');
+      const localTasks = JSON.parse(localStorage.getItem('nexus_tasks') || '[]');
+      const localNotes = JSON.parse(localStorage.getItem('nexus_notes') || '[]');
+      const localFolders = JSON.parse(localStorage.getItem('nexus_folders') || '[]');
+      
+      localHabits.forEach((habit: any) => {
+        const ref = doc(collection(db, 'habits'));
+        batch.set(ref, { ...habit, userId: currentUser.uid });
+      });
+
+      localLogs.forEach((log: any) => {
+        const ref = doc(collection(db, 'habit_logs'));
+        batch.set(ref, { ...log, userId: currentUser.uid });
+      });
+
+      localTasks.forEach((task: any) => {
+        const ref = doc(collection(db, 'tasks'));
+        batch.set(ref, { ...task, userId: currentUser.uid });
+      });
+
+      localNotes.forEach((note: any) => {
+        const ref = doc(collection(db, 'notes'));
+        batch.set(ref, { ...note, userId: currentUser.uid });
+      });
+
+      localFolders.forEach((folder: any) => {
+        const ref = doc(collection(db, 'folders'));
+        batch.set(ref, { ...folder, userId: currentUser.uid });
+      });
+
+      await batch.commit();
+
+      // Clear local storage data so it doesn't get migrated again
+      localStorage.removeItem('nexus_habits');
+      localStorage.removeItem('nexus_logs');
+      localStorage.removeItem('nexus_tasks');
+      localStorage.removeItem('nexus_notes');
+      localStorage.removeItem('nexus_folders');
+
+      setShowMigrateSuccess(true);
+      setTimeout(() => setShowMigrateSuccess(false), 3000);
+    } catch (err) {
+      console.error(err);
+      alert("Error migrating data to cloud. See console.");
+    } finally {
+      setIsMigrating(false);
+    }
+  };
+
   return (
     <div className="flex-grow space-y-8">
       {/* Header */}
@@ -121,6 +189,21 @@ export default function Settings() {
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-surface-container/50 border border-white/5 hover:border-white/10 transition-colors">
                 <div>
+                  <p className="text-sm font-semibold text-primary-fixed-dim">Migrate to Cloud</p>
+                  <p className="text-xs text-on-surface-variant mt-1">Move your local data to Firebase Firestore</p>
+                </div>
+                <button
+                  onClick={handleMigrateToCloud}
+                  disabled={isMigrating}
+                  className="flex items-center justify-center gap-2 w-full sm:w-32 px-4 py-2 bg-primary-fixed-dim/20 border border-primary-fixed-dim/50 text-primary-fixed-dim font-label-caps text-[10px] hover:bg-primary-fixed-dim/30 transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  <span className="material-symbols-outlined text-sm">cloud_upload</span>
+                  {isMigrating ? 'MIGRATING...' : 'MIGRATE'}
+                </button>
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-surface-container/50 border border-white/5 hover:border-white/10 transition-colors">
+                <div>
                   <p className="text-sm font-semibold">Export Backup</p>
                   <p className="text-xs text-on-surface-variant mt-1">Download all habits and logs as JSON</p>
                 </div>
@@ -150,7 +233,7 @@ export default function Settings() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-surface-container/50 border border-error/20 hover:border-error/40 transition-colors">
                 <div>
                   <p className="text-sm font-semibold text-error">Purge All Data</p>
-                  <p className="text-xs text-on-surface-variant mt-1">Permanently delete all habits, logs, and settings</p>
+                  <p className="text-xs text-on-surface-variant mt-1">Permanently delete all local data</p>
                 </div>
                 <button
                   onClick={() => setShowClearConfirm(true)}
@@ -163,6 +246,12 @@ export default function Settings() {
             </div>
 
             {/* Success toasts */}
+            {showMigrateSuccess && (
+              <div className="mt-4 p-3 bg-primary-fixed-dim/10 border border-primary-fixed-dim/30 text-primary-fixed-dim text-xs font-label-caps flex items-center gap-2">
+                <span className="material-symbols-outlined text-sm" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
+                DATA MIGRATED TO CLOUD SUCCESSFULLY
+              </div>
+            )}
             {showExportSuccess && (
               <div className="mt-4 p-3 bg-primary-fixed-dim/10 border border-primary-fixed-dim/30 text-primary-fixed-dim text-xs font-label-caps flex items-center gap-2">
                 <span className="material-symbols-outlined text-sm" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
@@ -201,14 +290,16 @@ export default function Settings() {
                 <span className="font-data-display text-sm text-primary-fixed-dim">{tasks.filter(t => t.status === 'done').length}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-white/5">
-                <span className="text-xs text-on-surface-variant">Storage Used</span>
+                <span className="text-xs text-on-surface-variant">Local Storage Used</span>
                 <span className="font-data-display text-sm text-primary-fixed-dim">
-                  {((new Blob([JSON.stringify({ h: habits, l: logs, t: tasks, n: localStorage.getItem('nexus_notes'), f: localStorage.getItem('nexus_folders') })]).size) / 1024).toFixed(1)} KB
+                  {((new Blob([JSON.stringify({ h: localStorage.getItem('nexus_habits'), l: localStorage.getItem('nexus_logs'), t: localStorage.getItem('nexus_tasks'), n: localStorage.getItem('nexus_notes'), f: localStorage.getItem('nexus_folders') })]).size) / 1024).toFixed(1)} KB
                 </span>
               </div>
               <div className="flex justify-between items-center py-2">
                 <span className="text-xs text-on-surface-variant">Data Backend</span>
-                <span className="font-data-display text-sm text-on-surface-variant/70">localStorage</span>
+                <span className="font-data-display text-sm text-on-surface-variant/70">
+                  {currentUser ? 'Firebase Firestore' : 'localStorage'}
+                </span>
               </div>
             </div>
           </div>
@@ -244,7 +335,7 @@ export default function Settings() {
           <div className="glass-panel p-6 lg:p-8 w-full max-w-sm mx-4 rounded-lg border-error/30 shadow-[0_0_30px_rgba(255,75,75,0.1)]">
             <h2 className="font-headline-md text-headline-md text-error mb-2">CONFIRM PURGE</h2>
             <p className="text-sm text-on-surface-variant mb-6">
-              This will permanently delete all habits, logs, and settings. This action cannot be undone.
+              This will permanently delete all local data. This action cannot be undone.
             </p>
             <div className="flex gap-4">
               <button

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 
 interface SidebarProps {
   onLogActivity: () => void;
@@ -11,6 +12,7 @@ interface SidebarProps {
 export default function Sidebar({ onLogActivity, isOpen = false, onClose }: SidebarProps) {
   const [userName, setUserName] = useState(localStorage.getItem('nexus_username') || 'OPERATOR');
   const { toggleTheme, isDark } = useTheme();
+  const { logout } = useAuth();
 
   useEffect(() => {
     const handleUpdate = () => {
@@ -105,7 +107,16 @@ export default function Sidebar({ onLogActivity, isOpen = false, onClose }: Side
         </div>
         <div className="mt-6 border-t border-white/5 pt-4 flex flex-col gap-1">
           <span className="text-[10px] font-label-caps text-on-surface-variant tracking-widest">OPERATOR</span>
-          <span className="text-sm font-headline-sm font-bold text-primary-fixed-dim truncate">{userName}</span>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-headline-sm font-bold text-primary-fixed-dim truncate">{userName}</span>
+            <button 
+              onClick={() => logout()}
+              className="material-symbols-outlined text-[16px] text-on-surface-variant/50 hover:text-error transition-colors cursor-pointer"
+              title="Log Out"
+            >
+              logout
+            </button>
+          </div>
         </div>
       </div>
     </>

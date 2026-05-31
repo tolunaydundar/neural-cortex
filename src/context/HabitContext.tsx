@@ -1,26 +1,31 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { subDays, isSameDay, startOfDay } from 'date-fns';
+import { db } from '../firebase';
+import { collection, onSnapshot, addDoc, deleteDoc, doc, query, where, getDocs, writeBatch } from 'firebase/firestore';
+import { useAuth } from './AuthContext';
 
 export interface Habit {
   id: string;
   title: string;
   icon: string;
   created_at: string;
+  userId: string;
 }
 
 export interface HabitLog {
   id: string;
   habitId: string;
   date: string; // ISO string
+  userId: string;
 }
 
 interface HabitContextType {
   habits: Habit[];
   logs: HabitLog[];
-  addHabit: (habit: Omit<Habit, 'id' | 'created_at'>) => void;
-  logHabit: (habitId: string, date?: Date) => void;
-  removeLog: (logId: string) => void;
-  deleteHabit: (habitId: string) => void;
+  addHabit: (habit: Omit<Habit, 'id' | 'created_at' | 'userId'>) => Promise<void>;
+  logHabit: (habitId: string, date?: Date) => Promise<void>;
+  removeLog: (logId: string) => Promise<void>;
+  deleteHabit: (habitId: string) => Promise<void>;
   getStreak: (habitId: string) => number;
   getEfficiency: (habitId: string, days?: number) => number;
   getPattern: (habitId: string, days?: number) => boolean[];
@@ -28,56 +33,96 @@ interface HabitContextType {
 
 const HabitContext = createContext<HabitContextType | undefined>(undefined);
 
-const DEFAULT_HABITS: Habit[] = [];
-
 export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [habits, setHabits] = useState<Habit[]>(() => {
-    const saved = localStorage.getItem('nexus_habits');
-    return saved ? JSON.parse(saved) : DEFAULT_HABITS;
-  });
-
-  const [logs, setLogs] = useState<HabitLog[]>(() => {
-    const saved = localStorage.getItem('nexus_logs');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const { currentUser } = useAuth();
+  const [habits, setHabits] = useState<Habit[]>([]);
+  const [logs, setLogs] = useState<HabitLog[]>([]);
 
   useEffect(() => {
-    localStorage.setItem('nexus_habits', JSON.stringify(habits));
-  }, [habits]);
+    if (!currentUser) {
+      setHabits([]);
+      setLogs([]);
+      return;
+    }
 
-  useEffect(() => {
-    localStorage.setItem('nexus_logs', JSON.stringify(logs));
-  }, [logs]);
+    const habitsQuery = query(
+      collection(db, 'habits'),
+      where('userId', '==', currentUser.uid)
+    );
+    
+    const unsubscribeHabits = onSnapshot(habitsQuery, (snapshot) => {
+      const fetchedHabits: Habit[] = [];
+      snapshot.forEach((doc) => {
+        fetchedHabits.push({ id: doc.id, ...doc.data() } as Habit);
+      });
+      // Sort by created_at ascending
+      fetchedHabits.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      setHabits(fetchedHabits);
+    });
 
-  const addHabit = (habit: Omit<Habit, 'id' | 'created_at'>) => {
-    const newHabit = {
-      ...habit,
-      id: crypto.randomUUID(),
-      created_at: new Date().toISOString()
+    const logsQuery = query(
+      collection(db, 'habit_logs'),
+      where('userId', '==', currentUser.uid)
+    );
+
+    const unsubscribeLogs = onSnapshot(logsQuery, (snapshot) => {
+      const fetchedLogs: HabitLog[] = [];
+      snapshot.forEach((doc) => {
+        fetchedLogs.push({ id: doc.id, ...doc.data() } as HabitLog);
+      });
+      setLogs(fetchedLogs);
+    });
+
+    return () => {
+      unsubscribeHabits();
+      unsubscribeLogs();
     };
-    setHabits(prev => [...prev, newHabit]);
+  }, [currentUser]);
+
+  const addHabit = async (habit: Omit<Habit, 'id' | 'created_at' | 'userId'>) => {
+    if (!currentUser) return;
+    await addDoc(collection(db, 'habits'), {
+      ...habit,
+      userId: currentUser.uid,
+      created_at: new Date().toISOString()
+    });
   };
 
-  const logHabit = (habitId: string, date: Date = new Date()) => {
-    // Prevent duplicate logs for the same day
+  const logHabit = async (habitId: string, date: Date = new Date()) => {
+    if (!currentUser) return;
+    
+    // Prevent duplicate logs for the same day (client side check)
     const existingLog = logs.find(log => log.habitId === habitId && isSameDay(new Date(log.date), date));
     if (existingLog) return;
 
-    const newLog: HabitLog = {
-      id: crypto.randomUUID(),
+    await addDoc(collection(db, 'habit_logs'), {
       habitId,
+      userId: currentUser.uid,
       date: date.toISOString()
-    };
-    setLogs(prev => [...prev, newLog]);
+    });
   };
 
-  const removeLog = (logId: string) => {
-    setLogs(prev => prev.filter(log => log.id !== logId));
+  const removeLog = async (logId: string) => {
+    await deleteDoc(doc(db, 'habit_logs', logId));
   };
 
-  const deleteHabit = (habitId: string) => {
-    setHabits(prev => prev.filter(h => h.id !== habitId));
-    setLogs(prev => prev.filter(l => l.habitId !== habitId));
+  const deleteHabit = async (habitId: string) => {
+    // Delete the habit document
+    await deleteDoc(doc(db, 'habits', habitId));
+    
+    // Query and delete all associated logs
+    const logsQuery = query(
+      collection(db, 'habit_logs'),
+      where('habitId', '==', habitId)
+    );
+    const logsSnapshot = await getDocs(logsQuery);
+    
+    // Use a batch to delete all related logs efficiently
+    const batch = writeBatch(db);
+    logsSnapshot.forEach((logDoc) => {
+      batch.delete(doc(db, 'habit_logs', logDoc.id));
+    });
+    await batch.commit();
   };
 
   const getStreak = (habitId: string): number => {

@@ -1,4 +1,6 @@
-import { BrowserRouter as Router, Routes, Route, Outlet, NavLink, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Outlet, NavLink, useLocation, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import AuthPage from './pages/AuthPage';
 import { HabitProvider } from './context/HabitContext';
 import { TaskProvider } from './context/TaskContext';
 import { NoteProvider } from './context/NoteContext';
@@ -268,17 +270,27 @@ function AppLayout() {
 }
 
 
+// Protected Route Component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { currentUser } = useAuth();
+  if (!currentUser) {
+    return <Navigate to="/auth" replace />;
+  }
+  return <>{children}</>;
+};
 
 function App() {
   return (
     <ThemeProvider>
-      <HabitProvider>
-        <TaskProvider>
-          <NoteProvider>
-            <Router>
-              <Routes>
-                <Route path="/" element={<AppLayout />}>
-                  <Route index element={<Dashboard />} />
+      <AuthProvider>
+        <HabitProvider>
+          <TaskProvider>
+            <NoteProvider>
+              <Router>
+                <Routes>
+                  <Route path="/auth" element={<AuthPage />} />
+                  <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+                    <Route index element={<Dashboard />} />
                   <Route path="habits" element={<Habits />} />
                   <Route path="tasks" element={<Tasks />} />
                   <Route path="notes" element={<Notes />} />
@@ -292,6 +304,7 @@ function App() {
           </NoteProvider>
         </TaskProvider>
       </HabitProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

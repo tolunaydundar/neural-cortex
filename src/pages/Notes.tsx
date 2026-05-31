@@ -24,7 +24,7 @@ type ViewMode = 'grid' | 'list';
 type SidebarFilter = 'all' | 'pinned' | { type: 'folder'; id: string } | { type: 'tag'; tag: string };
 
 export default function Notes() {
-  const { notes, folders, getAllTags, reorderNotes } = useNotes();
+  const { notes, folders, getAllTags } = useNotes();
 
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
@@ -88,7 +88,8 @@ export default function Notes() {
       if (sortMode !== 'custom') {
         setSortMode('custom');
       }
-      reorderNotes(active.id as string, over.id as string);
+      // reorderNotes(active.id as string, over.id as string); // Removed due to cloud sync
+      console.warn("Reordering is not supported with cloud sync yet");
     }
   };
 

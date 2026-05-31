@@ -1,8 +1,9 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-
-// ═══════════════════════════════════════════════════════
-//  Types
-// ═══════════════════════════════════════════════════════
+import { db } from '../firebase';
+import { 
+  collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query, where 
+} from 'firebase/firestore';
+import { useAuth } from './AuthContext';
 
 export type NoteColor = 'default' | 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'purple';
 
@@ -16,6 +17,7 @@ export interface Note {
   pinned: boolean;
   created_at: string;
   updated_at: string;
+  userId: string;
 }
 
 export interface Folder {
@@ -23,26 +25,23 @@ export interface Folder {
   name: string;
   icon: string;
   created_at: string;
+  userId: string;
 }
 
 interface NoteContextType {
-  // Notes
   notes: Note[];
-  addNote: (note: Omit<Note, 'id' | 'created_at' | 'updated_at'>) => void;
-  updateNote: (id: string, updates: Partial<Omit<Note, 'id' | 'created_at'>>) => void;
-  deleteNote: (id: string) => void;
-  togglePin: (id: string) => void;
-  duplicateNote: (id: string) => void;
-  moveToFolder: (noteId: string, folderId: string | null) => void;
-  reorderNotes: (activeId: string, overId: string) => void;
-
-  // Folders
+  addNote: (note: Omit<Note, 'id' | 'created_at' | 'updated_at' | 'userId'>) => Promise<void>;
+  updateNote: (id: string, updates: Partial<Omit<Note, 'id' | 'created_at' | 'userId'>>) => Promise<void>;
+  deleteNote: (id: string) => Promise<void>;
+  togglePin: (id: string) => Promise<void>;
+  duplicateNote: (id: string) => Promise<void>;
+  moveToFolder: (noteId: string, folderId: string | null) => Promise<void>;
+  
   folders: Folder[];
-  addFolder: (name: string, icon: string) => string;
-  updateFolder: (id: string, updates: Partial<Omit<Folder, 'id' | 'created_at'>>) => void;
-  deleteFolder: (id: string) => void;
+  addFolder: (name: string, icon: string) => Promise<string>;
+  updateFolder: (id: string, updates: Partial<Omit<Folder, 'id' | 'created_at' | 'userId'>>) => Promise<void>;
+  deleteFolder: (id: string) => Promise<void>;
 
-  // Derived
   getAllTags: () => string[];
   getNotesByFolder: (folderId: string | null) => Note[];
   getNotesCount: () => number;
@@ -50,167 +49,134 @@ interface NoteContextType {
 
 const NoteContext = createContext<NoteContextType | undefined>(undefined);
 
-// ═══════════════════════════════════════════════════════
-//  Data Migration — handle legacy notes with `category`
-// ═══════════════════════════════════════════════════════
-
-interface LegacyNote {
-  id: string;
-  title: string;
-  content: string;
-  category?: string;
-  tags?: string[];
-  folder_id?: string | null;
-  color?: NoteColor;
-  pinned: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-function migrateNotes(raw: LegacyNote[]): Note[] {
-  return raw.map(n => ({
-    id: n.id,
-    title: n.title,
-    content: n.content,
-    tags: n.tags ?? (n.category ? [n.category] : []),
-    folder_id: n.folder_id ?? null,
-    color: n.color ?? 'default',
-    pinned: n.pinned,
-    created_at: n.created_at,
-    updated_at: n.updated_at,
-  }));
-}
-
-// ═══════════════════════════════════════════════════════
-//  Provider
-// ═══════════════════════════════════════════════════════
-
 export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [notes, setNotes] = useState<Note[]>(() => {
-    const saved = localStorage.getItem('nexus_notes');
-    if (!saved) return [];
-    try {
-      return migrateNotes(JSON.parse(saved));
-    } catch {
-      return [];
-    }
-  });
-
-  const [folders, setFolders] = useState<Folder[]>(() => {
-    const saved = localStorage.getItem('nexus_folders');
-    if (!saved) return [];
-    try {
-      return JSON.parse(saved);
-    } catch {
-      return [];
-    }
-  });
+  const { currentUser } = useAuth();
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [folders, setFolders] = useState<Folder[]>([]);
 
   useEffect(() => {
-    localStorage.setItem('nexus_notes', JSON.stringify(notes));
-  }, [notes]);
+    if (!currentUser) {
+      setNotes([]);
+      setFolders([]);
+      return;
+    }
 
-  useEffect(() => {
-    localStorage.setItem('nexus_folders', JSON.stringify(folders));
-  }, [folders]);
+    // Subscribe to notes
+    const notesQuery = query(
+      collection(db, 'notes'), 
+      where('userId', '==', currentUser.uid)
+    );
+    const unsubscribeNotes = onSnapshot(notesQuery, (snapshot) => {
+      const fetchedNotes: Note[] = [];
+      snapshot.forEach((doc) => {
+        fetchedNotes.push({ id: doc.id, ...doc.data() } as Note);
+      });
+      // Sort in memory since we didn't create a composite index for orderBy yet
+      fetchedNotes.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      setNotes(fetchedNotes);
+    });
+
+    // Subscribe to folders
+    const foldersQuery = query(
+      collection(db, 'folders'),
+      where('userId', '==', currentUser.uid)
+    );
+    const unsubscribeFolders = onSnapshot(foldersQuery, (snapshot) => {
+      const fetchedFolders: Folder[] = [];
+      snapshot.forEach((doc) => {
+        fetchedFolders.push({ id: doc.id, ...doc.data() } as Folder);
+      });
+      setFolders(fetchedFolders);
+    });
+
+    return () => {
+      unsubscribeNotes();
+      unsubscribeFolders();
+    };
+  }, [currentUser]);
 
   // ── Note CRUD ──
 
-  const addNote = (note: Omit<Note, 'id' | 'created_at' | 'updated_at'>) => {
+  const addNote = async (note: Omit<Note, 'id' | 'created_at' | 'updated_at' | 'userId'>) => {
+    if (!currentUser) return;
     const now = new Date().toISOString();
-    const newNote: Note = {
+    await addDoc(collection(db, 'notes'), {
       ...note,
-      id: crypto.randomUUID(),
+      userId: currentUser.uid,
       created_at: now,
       updated_at: now,
-    };
-    setNotes(prev => [newNote, ...prev]);
+    });
   };
 
-  const updateNote = (id: string, updates: Partial<Omit<Note, 'id' | 'created_at'>>) => {
-    setNotes(prev => prev.map(n => {
-      if (n.id !== id) return n;
-      return { ...n, ...updates, updated_at: new Date().toISOString() };
-    }));
+  const updateNote = async (id: string, updates: Partial<Omit<Note, 'id' | 'created_at' | 'userId'>>) => {
+    const noteRef = doc(db, 'notes', id);
+    await updateDoc(noteRef, { ...updates, updated_at: new Date().toISOString() });
   };
 
-  const deleteNote = (id: string) => {
-    setNotes(prev => prev.filter(n => n.id !== id));
+  const deleteNote = async (id: string) => {
+    await deleteDoc(doc(db, 'notes', id));
   };
 
-  const togglePin = (id: string) => {
-    setNotes(prev => prev.map(n => {
-      if (n.id !== id) return n;
-      return { ...n, pinned: !n.pinned, updated_at: new Date().toISOString() };
-    }));
+  const togglePin = async (id: string) => {
+    const note = notes.find(n => n.id === id);
+    if (!note) return;
+    await updateDoc(doc(db, 'notes', id), { 
+      pinned: !note.pinned, 
+      updated_at: new Date().toISOString() 
+    });
   };
 
-  const duplicateNote = (id: string) => {
+  const duplicateNote = async (id: string) => {
     const original = notes.find(n => n.id === id);
-    if (!original) return;
+    if (!original || !currentUser) return;
     const now = new Date().toISOString();
-    const copy: Note = {
-      ...original,
-      id: crypto.randomUUID(),
+    const { id: _, ...originalData } = original;
+    
+    await addDoc(collection(db, 'notes'), {
+      ...originalData,
       title: `${original.title} (Copy)`,
       pinned: false,
       created_at: now,
       updated_at: now,
-    };
-    setNotes(prev => [copy, ...prev]);
-  };
-
-  const moveToFolder = (noteId: string, folderId: string | null) => {
-    updateNote(noteId, { folder_id: folderId });
-  };
-
-  const reorderNotes = (activeId: string, overId: string) => {
-    setNotes(prev => {
-      const oldIndex = prev.findIndex(n => n.id === activeId);
-      const newIndex = prev.findIndex(n => n.id === overId);
-      if (oldIndex !== -1 && newIndex !== -1) {
-        const newNotes = [...prev];
-        const [removed] = newNotes.splice(oldIndex, 1);
-        newNotes.splice(newIndex, 0, removed);
-        return newNotes;
-      }
-      return prev;
     });
+  };
+
+  const moveToFolder = async (noteId: string, folderId: string | null) => {
+    await updateNote(noteId, { folder_id: folderId });
   };
 
   // ── Folder CRUD ──
 
-  const addFolder = (name: string, icon: string) => {
-    const newFolder: Folder = {
-      id: crypto.randomUUID(),
+  const addFolder = async (name: string, icon: string): Promise<string> => {
+    if (!currentUser) return '';
+    const newFolder = {
       name,
       icon: icon || 'folder',
+      userId: currentUser.uid,
       created_at: new Date().toISOString(),
     };
-    setFolders(prev => [...prev, newFolder]);
-    return newFolder.id;
+    const docRef = await addDoc(collection(db, 'folders'), newFolder);
+    return docRef.id;
   };
 
-  const updateFolder = (id: string, updates: Partial<Omit<Folder, 'id' | 'created_at'>>) => {
-    setFolders(prev => prev.map(f => {
-      if (f.id !== id) return f;
-      return { ...f, ...updates };
-    }));
+  const updateFolder = async (id: string, updates: Partial<Omit<Folder, 'id' | 'created_at' | 'userId'>>) => {
+    await updateDoc(doc(db, 'folders', id), updates);
   };
 
-  const deleteFolder = (id: string) => {
-    setFolders(prev => prev.filter(f => f.id !== id));
+  const deleteFolder = async (id: string) => {
+    await deleteDoc(doc(db, 'folders', id));
     // Move orphaned notes to uncategorized
-    setNotes(prev => prev.map(n =>
-      n.folder_id === id ? { ...n, folder_id: null } : n
-    ));
+    const orphanedNotes = notes.filter(n => n.folder_id === id);
+    for (const note of orphanedNotes) {
+      await updateDoc(doc(db, 'notes', note.id), { folder_id: null });
+    }
   };
 
   // ── Derived ──
 
   const getAllTags = useCallback((): string[] => {
     const tagSet = new Set<string>();
-    notes.forEach(n => n.tags.forEach(t => tagSet.add(t)));
+    notes.forEach(n => n.tags?.forEach(t => tagSet.add(t)));
     return Array.from(tagSet).sort();
   }, [notes]);
 
@@ -222,7 +188,7 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <NoteContext.Provider value={{
-      notes, addNote, updateNote, deleteNote, togglePin, duplicateNote, moveToFolder, reorderNotes,
+      notes, addNote, updateNote, deleteNote, togglePin, duplicateNote, moveToFolder,
       folders, addFolder, updateFolder, deleteFolder,
       getAllTags, getNotesByFolder, getNotesCount,
     }}>
