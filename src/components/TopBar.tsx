@@ -71,7 +71,7 @@ export default function TopBar({ onAddHabit, onMenuToggle }: TopBarProps) {
             className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-primary-fixed-dim text-background font-label-caps text-xs hover:bg-[#6ff6ff] transition-colors cursor-pointer shadow-[0_0_15px_rgba(0,220,230,0.4)] hover:shadow-[0_0_20px_rgba(0,220,230,0.6)] rounded-sm"
           >
             <span className="material-symbols-outlined text-sm">add</span>
-            <span className="hidden sm:inline">NEW PROTOCOL</span>
+            <span className="hidden sm:inline">NEW HABIT</span>
           </button>
           <button
             onClick={() => navigate('/settings')}

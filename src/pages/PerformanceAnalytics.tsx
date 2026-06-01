@@ -67,7 +67,7 @@ export default function PerformanceAnalytics() {
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4">
         <div className="glass-panel p-4 lg:p-6 text-center">
-          <p className="font-label-caps text-[10px] text-on-surface-variant mb-2">ACTIVE PROTOCOLS</p>
+          <p className="font-label-caps text-[10px] text-on-surface-variant mb-2">ACTIVE HABITS</p>
           <p className="font-data-display text-3xl text-primary-fixed-dim">{totalActive}</p>
         </div>
         <div className="glass-panel p-4 lg:p-6 text-center">
@@ -95,16 +95,16 @@ export default function PerformanceAnalytics() {
         {/* Weekly Breakdown Table */}
         <div className="lg:col-span-8 glass-panel p-4 lg:p-6">
           <h2 className="font-headline-sm text-headline-sm text-primary-fixed-dim mb-1">WEEKLY TELEMETRY</h2>
-          <p className="font-label-caps text-[10px] text-on-surface-variant mb-6">EFFICIENCY BY PROTOCOL — LAST 4 WEEKS</p>
+          <p className="font-label-caps text-[10px] text-on-surface-variant mb-6">EFFICIENCY BY HABIT — LAST 4 WEEKS</p>
           
           {habits.length === 0 ? (
-            <p className="text-on-surface-variant text-sm py-8 text-center">No protocols initialized yet.</p>
+            <p className="text-on-surface-variant text-sm py-8 text-center">No habits initialized yet.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead className="border-b border-white/10">
                   <tr>
-                    <th className="pb-3 font-label-caps text-[10px] text-on-surface-variant">PROTOCOL</th>
+                    <th className="pb-3 font-label-caps text-[10px] text-on-surface-variant">HABIT</th>
                     {weeks.map(w => (
                       <th key={w.label} className="pb-3 font-label-caps text-[10px] text-on-surface-variant text-center">{w.label}</th>
                     ))}

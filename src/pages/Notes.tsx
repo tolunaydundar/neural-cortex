@@ -20,12 +20,14 @@ import {
   verticalListSortingStrategy,
   arrayMove,
 } from '@dnd-kit/sortable';
+import { usePageTitle } from '../utils/usePageTitle';
 
 type SortMode = 'updated' | 'created' | 'alpha' | 'custom';
 type ViewMode = 'grid' | 'list';
 type SidebarFilter = 'all' | 'pinned' | { type: 'folder'; id: string } | { type: 'tag'; tag: string };
 
 export default function Notes() {
+  usePageTitle('Notes');
   const { notes, folders, getAllTags, updateNote } = useNotes();
   const { userPreferences, updateUserPreferences } = useAuth();
 

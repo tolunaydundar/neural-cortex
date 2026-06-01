@@ -6,6 +6,7 @@ import { useOutletContext } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { DndContext, DragOverlay, closestCorners, PointerSensor, useSensor, useSensors, useDraggable, useDroppable } from '@dnd-kit/core';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import { usePageTitle } from '../utils/usePageTitle';
 
 type StatusFilter = 'all' | 'active' | 'done';
 type SortMode = 'priority' | 'due_date' | 'created';
@@ -61,6 +62,7 @@ function DroppableColumn({ id, title, icon, tasks, onToggleComplete, onClick }: 
 }
 
 export default function Tasks() {
+  usePageTitle('Tasks');
   const { tasks, moveStatus, getOverdueTasks, getCompletionStats } = useTasks();
   const { openAddTaskModal } = useOutletContext<{ openAddTaskModal: () => void; openAddModal: () => void }>();
   const { t } = useTranslation();

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { usePageTitle } from '../utils/usePageTitle';
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -95,7 +96,7 @@ const LandingPage = () => {
             initial="hidden" animate="visible" variants={fadeIn} transition={{ delay: 0.2 }}
             className="text-on-surface-variant text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed"
           >
-            A unified command center for habits, tasks, and insights. Track momentum, surface bottlenecks, and keep every protocol in motion with real-time cloud sync.
+            A unified command center for habits, tasks, and insights. Track momentum, surface bottlenecks, and keep every habit in motion with real-time cloud sync.
           </motion.p>
           
           <motion.div 
@@ -103,7 +104,7 @@ const LandingPage = () => {
             className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto"
           >
             <Link to="/auth?mode=signup" className="w-full sm:w-auto px-8 py-4 rounded-full bg-primary-fixed-dim text-background font-label-caps text-sm tracking-widest font-bold hover:bg-[#6ff6ff] hover:shadow-[0_0_30px_rgba(0,220,230,0.4)] hover:-translate-y-1 transition-all">
-              INITIALIZE PROTOCOL
+              INITIALIZE HABIT
             </Link>
             <a href="#features" className="w-full sm:w-auto px-8 py-4 rounded-full border border-outline/20 glass-panel text-on-surface font-label-caps text-sm tracking-widest hover:bg-surface-container-highest hover:border-outline/40 transition-all">
               EXPLORE FEATURES
@@ -167,7 +168,7 @@ const LandingPage = () => {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,220,230,0.05)_0%,transparent_50%)]" />
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn} className="relative z-10 max-w-3xl mx-auto">
             <h2 className="font-headline-lg text-4xl md:text-6xl mb-6">Ready to optimize?</h2>
-            <p className="text-xl text-on-surface-variant mb-10">Join the protocol and take control of your daily execution.</p>
+            <p className="text-xl text-on-surface-variant mb-10">Join the system and take control of your daily execution.</p>
             <Link to="/auth?mode=signup" className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-on-surface text-surface font-label-caps text-sm tracking-widest font-bold hover:bg-primary-fixed-dim hover:shadow-[0_0_30px_rgba(0,220,230,0.4)] transition-all hover:scale-105">
               START YOUR JOURNEY <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </Link>

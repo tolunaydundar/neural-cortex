@@ -4,6 +4,7 @@ import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { signInWithPopup, browserPopupRedirectResolver } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
 import { motion } from 'framer-motion';
+import { usePageTitle } from '../utils/usePageTitle';
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -18,6 +19,8 @@ const AuthPage = () => {
   const [error, setError] = useState('');
   const { loginWithEmail, signupWithEmail } = useAuth();
   const navigate = useNavigate();
+
+  usePageTitle(isLogin ? 'Sign In' : 'Sign Up');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,7 +118,7 @@ const AuthPage = () => {
             </div>
             <div className="flex items-center gap-2 opacity-70">
               <span className="w-1.5 h-1.5 rounded-full bg-primary-fixed-dim animate-pulse" style={{ animationDelay: '0.2s' }}></span>
-              <p>&gt; SYNC PROTOCOLS ONLINE</p>
+              <p>&gt; SYNC HABITS ONLINE</p>
             </div>
             <div className="flex items-center gap-2 opacity-40">
               <span className="w-1.5 h-1.5 rounded-full bg-primary-fixed-dim animate-pulse" style={{ animationDelay: '0.4s' }}></span>
@@ -154,7 +157,7 @@ const AuthPage = () => {
               {isLogin ? 'Welcome back' : 'Create profile'}
             </h2>
             <p className="text-on-surface-variant text-sm">
-              {isLogin ? 'Enter your credentials to access the system.' : 'Initialize your operator protocol.'}
+              {isLogin ? 'Enter your credentials to access the system.' : 'Initialize your operator habit.'}
             </p>
           </div>
 

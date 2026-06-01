@@ -3,8 +3,10 @@ import { useTheme } from '../context/ThemeContext';
 import { startOfDay, subDays, isSameDay } from 'date-fns';
 import HabitCard from '../components/HabitCard';
 import { useOutletContext } from 'react-router-dom';
+import { usePageTitle } from '../utils/usePageTitle';
 
 export default function Habits() {
+  usePageTitle('Habits');
   const { habits, logs, getStreak, getEfficiency, getPattern } = useHabits();
   const { isDark } = useTheme();
   const { openAddModal } = useOutletContext<{ openAddModal: () => void }>();
@@ -33,7 +35,7 @@ export default function Habits() {
           className="flex items-center gap-2 px-4 py-2 bg-primary-fixed-dim text-background font-label-caps text-xs hover:bg-[#6ff6ff] transition-colors cursor-pointer shadow-[0_0_15px_rgba(0,220,230,0.4)] hover:shadow-[0_0_20px_rgba(0,220,230,0.6)] rounded-sm w-fit"
         >
           <span className="material-symbols-outlined text-sm">add</span>
-          <span>NEW PROTOCOL</span>
+          <span>NEW HABIT</span>
         </button>
       </div>
 
@@ -98,9 +100,9 @@ export default function Habits() {
           >
             add_circle
           </button>
-          <h3 className="font-headline-sm text-headline-sm text-on-surface-variant">NO PROTOCOLS INITIALIZED</h3>
+          <h3 className="font-headline-sm text-headline-sm text-on-surface-variant">NO HABITS INITIALIZED</h3>
           <p className="text-sm text-on-surface-variant/60 max-w-md">
-            Click the <span className="text-primary-fixed-dim font-semibold">+</span> button above to create your first habit protocol and start tracking.
+            Click the <span className="text-primary-fixed-dim font-semibold">+</span> button above to create your first habit and start tracking.
           </p>
         </div>
       ) : (

@@ -4,10 +4,12 @@ import { useTasks } from '../context/TaskContext';
 import { useNotes } from '../context/NoteContext';
 import { useAuth } from '../context/AuthContext';
 import PurgeModal from '../components/PurgeModal';
+import { usePageTitle } from '../utils/usePageTitle';
 
 import { importDataToCloud } from '../utils/migration';
 
 export default function Settings() {
+  usePageTitle('Settings');
   const { habits, logs } = useHabits();
   const { tasks } = useTasks();
   const { notes, folders } = useNotes();
@@ -104,7 +106,7 @@ export default function Settings() {
     <div className="flex-grow space-y-8">
       {/* Header */}
       <div>
-        <h1 className="font-headline-lg text-headline-lg-mobile lg:text-headline-lg text-primary-fixed-dim">System Protocols</h1>
+        <h1 className="font-headline-lg text-headline-lg-mobile lg:text-headline-lg text-primary-fixed-dim">System Settings</h1>
         <p className="text-on-surface-variant font-label-caps text-[10px] mt-1">CONFIGURATION & DATA MANAGEMENT</p>
       </div>
 
@@ -213,7 +215,7 @@ export default function Settings() {
             <h3 className="font-label-caps text-[10px] text-on-surface-variant mb-4">SYSTEM STATISTICS</h3>
             <div className="space-y-3">
               <div className="flex justify-between items-center py-2 border-b border-white/5">
-                <span className="text-xs text-on-surface-variant">Active Protocols</span>
+                <span className="text-xs text-on-surface-variant">Active Habits</span>
                 <span className="font-data-display text-sm text-primary-fixed-dim">{habits.length}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-white/5">

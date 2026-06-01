@@ -190,7 +190,6 @@ function AppLayout() {
     }
 
     setShowOnboarding(false);
-    setIsAddModalOpen(true);
   };
 
   const { isDark } = useTheme();
@@ -317,7 +316,7 @@ function AppLayout() {
       {isAddModalOpen && (
         <AddHabitModal
           onClose={() => setIsAddModalOpen(false)}
-          onSuccess={() => setToast({ message: 'PROTOCOL INITIALIZED', icon: 'add_task' })}
+          onSuccess={() => setToast({ message: 'HABIT INITIALIZED', icon: 'add_task' })}
         />
       )}
       {isAddTaskModalOpen && (

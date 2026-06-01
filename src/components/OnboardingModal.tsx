@@ -56,7 +56,7 @@ export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
             disabled={!name.trim()}
             className="w-full py-4 bg-primary-fixed-dim text-background font-label-caps text-label-caps hover:bg-[#6ff6ff] disabled:opacity-50 disabled:cursor-not-allowed transition-colors tracking-widest cursor-pointer"
           >
-            INITIALIZE PROTOCOL
+            INITIALIZE SYSTEM
           </button>
         </form>
       </div>

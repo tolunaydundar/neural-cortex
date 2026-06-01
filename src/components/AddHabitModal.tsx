@@ -66,12 +66,12 @@ export default function AddHabitModal({ onClose, onSuccess }: AddHabitModalProps
           <span className="material-symbols-outlined">close</span>
         </button>
 
-        <h2 id={titleId} className="font-headline-md text-headline-md text-primary-fixed-dim mb-2">NEW PROTOCOL</h2>
+        <h2 id={titleId} className="font-headline-md text-headline-md text-primary-fixed-dim mb-2">NEW HABIT</h2>
         <p id={descriptionId} className="font-label-caps text-[10px] text-on-surface-variant mb-6">INITIALIZE A NEW HABIT TO TRACK</p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">
-            <label className="font-label-caps text-xs text-on-surface">PROTOCOL NAME</label>
+            <label className="font-label-caps text-xs text-on-surface">HABIT NAME</label>
             <input
               type="text"
               value={title}
@@ -107,7 +107,7 @@ export default function AddHabitModal({ onClose, onSuccess }: AddHabitModalProps
             disabled={!title.trim()}
             className="w-full py-4 mt-2 bg-primary-fixed-dim text-background font-label-caps text-label-caps hover:bg-[#6ff6ff] transition-colors disabled:opacity-50 disabled:cursor-not-allowed tracking-widest cursor-pointer"
           >
-            INITIALIZE PROTOCOL
+            INITIALIZE HABIT
           </button>
         </form>
       </div>

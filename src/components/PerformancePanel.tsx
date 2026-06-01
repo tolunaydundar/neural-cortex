@@ -99,10 +99,10 @@ export default function PerformancePanel({ consistency }: PerformancePanelProps)
             <p className="font-label-caps text-[10px] text-on-surface-variant">SYSTEM STATUS</p>
             <p className="text-xs mt-1 leading-relaxed">
               {consistencyLevel === 'high'
-                ? 'All systems nominal. Current performance exceeds baseline. Maintain protocol adherence for continued optimization.'
+                ? 'All systems nominal. Current performance exceeds baseline. Maintain habit adherence for continued optimization.'
                 : consistencyLevel === 'medium'
-                  ? 'System performance degraded. Recommend increasing protocol execution frequency to restore optimal efficiency.'
-                  : 'Critical performance deficit detected. Immediate protocol re-engagement required to prevent further atrophy.'
+                  ? 'System performance degraded. Recommend increasing habit execution frequency to restore optimal efficiency.'
+                  : 'Critical performance deficit detected. Immediate habit re-engagement required to prevent further atrophy.'
               }
             </p>
           </div>
@@ -112,7 +112,7 @@ export default function PerformancePanel({ consistency }: PerformancePanelProps)
               <p className="text-xs mt-1 leading-relaxed">
                 {todayMissing.length === 1
                   ? `${todayMissing[0].title} not logged today.`
-                  : `${todayMissing.length} protocols not logged today: ${todayMissing.map(h => h.title).join(', ')}.`
+                  : `${todayMissing.length} habits not logged today: ${todayMissing.map(h => h.title).join(', ')}.`
                 }
               </p>
             </div>
@@ -120,7 +120,7 @@ export default function PerformancePanel({ consistency }: PerformancePanelProps)
           {todayMissing.length === 0 && habits.length > 0 && (
             <div className="p-4 bg-surface-container/50 border-l-2 border-primary-fixed-dim/50">
               <p className="font-label-caps text-[10px] text-primary-fixed-dim">ALL CLEAR</p>
-              <p className="text-xs mt-1 leading-relaxed">All protocols executed for today. Outstanding operational status.</p>
+              <p className="text-xs mt-1 leading-relaxed">All habits executed for today. Outstanding operational status.</p>
             </div>
           )}
         </div>

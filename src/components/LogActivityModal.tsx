@@ -52,12 +52,12 @@ export default function LogActivityModal({ onClose, onSuccess }: LogActivityModa
         </button>
 
         <h2 id={titleId} className="font-headline-md text-headline-md text-primary-fixed-dim mb-2">LOG ACTIVITY</h2>
-        <p id={descriptionId} className="font-label-caps text-[10px] text-on-surface-variant mb-6">SELECT PROTOCOL TO MARK AS COMPLETED</p>
+        <p id={descriptionId} className="font-label-caps text-[10px] text-on-surface-variant mb-6">SELECT HABIT TO MARK AS COMPLETED</p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">
             {habits.length === 0 ? (
-              <p className="text-on-surface-variant text-sm py-4 text-center">No protocols available. Create one first.</p>
+              <p className="text-on-surface-variant text-sm py-4 text-center">No habits available. Create one first.</p>
             ) : (
               habits.map(habit => (
                 <label

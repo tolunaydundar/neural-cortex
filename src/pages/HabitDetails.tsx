@@ -14,7 +14,7 @@ export default function HabitDetails() {
   if (!habit) return (
     <div className="flex-grow flex flex-col items-center justify-center gap-4">
       <span className="material-symbols-outlined text-6xl text-error/40">error</span>
-      <p className="font-headline-sm text-error">PROTOCOL NOT FOUND</p>
+      <p className="font-headline-sm text-error">HABIT NOT FOUND</p>
       <button onClick={() => navigate('/habits')} className="text-primary-fixed-dim font-label-caps hover:underline cursor-pointer">
         RETURN TO CORE
       </button>
@@ -141,7 +141,7 @@ export default function HabitDetails() {
 
       {showDeleteConfirm && (
         <ConfirmModal
-          title="DELETE PROTOCOL"
+          title="DELETE HABIT"
           message={`Permanently delete "${habit.title}" and all associated logs? This action cannot be undone.`}
           confirmLabel="DELETE"
           onConfirm={() => {

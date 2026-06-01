@@ -275,12 +275,12 @@ export default function Dashboard() {
             <h3 className="font-label-caps text-[10px] text-on-surface-variant mb-4">SYSTEM STATUS</h3>
             <div className="space-y-3">
               <div className="p-3 bg-surface-container/50 border-l-2 border-primary-fixed-dim">
-                <p className="text-xs leading-relaxed">
+                  <p className="text-xs leading-relaxed">
                   {consistencyLevel === 'high'
-                    ? 'All systems nominal. Performance exceeds baseline. Maintain protocol adherence.'
+                    ? 'All systems nominal. Performance exceeds baseline. Maintain habit adherence.'
                     : consistencyLevel === 'medium'
-                      ? 'Performance degraded. Increase protocol execution frequency.'
-                      : 'Critical deficit detected. Immediate protocol re-engagement required.'
+                      ? 'Performance degraded. Increase habit execution frequency.'
+                      : 'Critical deficit detected. Immediate habit re-engagement required.'
                   }
                 </p>
               </div>
