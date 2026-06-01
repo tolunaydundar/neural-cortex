@@ -24,6 +24,7 @@ export default function FolderEditorModal({ folderId, onClose, onSuccess }: Fold
 
   const [name, setName] = useState(existing?.name || '');
   const [icon, setIcon] = useState(existing?.icon || 'folder');
+  const [parentId, setParentId] = useState<string | null>(existing?.parent_id || null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
@@ -39,10 +40,10 @@ export default function FolderEditorModal({ folderId, onClose, onSuccess }: Fold
   const handleSave = async () => {
     if (!name.trim()) return;
     if (existing) {
-      await updateFolder(existing.id, { name: name.trim(), icon });
+      await updateFolder(existing.id, { name: name.trim(), icon, parent_id: parentId });
       onSuccess?.(existing.id);
     } else {
-      const newId = await addFolder(name.trim(), icon);
+      const newId = await addFolder(name.trim(), icon, parentId);
       onSuccess?.(newId);
     }
     onClose();
@@ -74,6 +75,21 @@ export default function FolderEditorModal({ folderId, onClose, onSuccess }: Fold
               autoFocus
               className="w-full bg-surface-container-lowest border border-white/10 p-3 font-body-md text-sm text-on-surface focus:outline-none focus:border-primary-fixed-dim transition-all rounded-sm"
             />
+          </div>
+
+          {/* Parent Folder input */}
+          <div className="mb-5">
+            <label className="font-label-caps text-[10px] text-on-surface-variant block mb-2">PARENT FOLDER</label>
+            <select
+              value={parentId || ''}
+              onChange={(e) => setParentId(e.target.value || null)}
+              className="w-full bg-surface-container-lowest border border-white/10 p-3 font-body-md text-sm text-on-surface focus:outline-none focus:border-primary-fixed-dim transition-all rounded-sm cursor-pointer"
+            >
+              <option value="">None (Top Level)</option>
+              {folders.filter(f => f.id !== existing?.id).map(f => (
+                <option key={f.id} value={f.id}>{f.name}</option>
+              ))}
+            </select>
           </div>
 
           {/* Icon picker */}

@@ -15,11 +15,13 @@ import { useSync } from './SyncContext';
 export interface UserPreferences {
   notesSortMode: string;
   notesViewMode: string;
+  notesEditorMode: 'full' | 'modal';
 }
 
 const DEFAULT_PREFERENCES: UserPreferences = {
   notesSortMode: 'updated',
   notesViewMode: 'grid',
+  notesEditorMode: 'full',
 };
 
 interface AuthContextType {
@@ -82,6 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setUserPreferences({
               notesSortMode: data.notesSortMode || DEFAULT_PREFERENCES.notesSortMode,
               notesViewMode: data.notesViewMode || DEFAULT_PREFERENCES.notesViewMode,
+              notesEditorMode: data.notesEditorMode || DEFAULT_PREFERENCES.notesEditorMode,
             });
           } else {
             // First login — create profile doc

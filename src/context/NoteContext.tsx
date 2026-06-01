@@ -15,25 +15,32 @@ export interface Note {
   content: string;
   tags: string[];
   folder_id: string | null;
+  parent_id?: string | null;
+  cover_image?: string | null;
+  icon?: string | null;
+  format?: 'markdown' | 'html';
   color: NoteColor;
   pinned: boolean;
   order?: number;
   created_at: string;
   updated_at: string;
   userId: string;
+  is_deleted?: boolean;
 }
 
 export interface Folder {
   id: string;
   name: string;
   icon: string;
+  parent_id?: string | null;
   created_at: string;
   userId: string;
+  is_deleted?: boolean;
 }
 
 interface NoteContextType {
   notes: Note[];
-  addNote: (note: Omit<Note, 'id' | 'created_at' | 'updated_at' | 'userId'>) => Promise<void>;
+  addNote: (note: Omit<Note, 'id' | 'created_at' | 'updated_at' | 'userId'>) => Promise<string>;
   updateNote: (id: string, updates: Partial<Omit<Note, 'id' | 'created_at' | 'userId'>>) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;
   togglePin: (id: string) => Promise<void>;
@@ -41,7 +48,7 @@ interface NoteContextType {
   moveToFolder: (noteId: string, folderId: string | null) => Promise<void>;
   
   folders: Folder[];
-  addFolder: (name: string, icon: string) => Promise<string>;
+  addFolder: (name: string, icon: string, parent_id?: string | null) => Promise<string>;
   updateFolder: (id: string, updates: Partial<Omit<Folder, 'id' | 'created_at' | 'userId'>>) => Promise<void>;
   deleteFolder: (id: string) => Promise<void>;
 
@@ -107,16 +114,17 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // ── Note CRUD ──
 
-  const addNote = (note: Omit<Note, 'id' | 'created_at' | 'updated_at' | 'userId'>) => runSync(async () => {
-    if (!currentUser) return;
+  const addNote = (note: Omit<Note, 'id' | 'created_at' | 'updated_at' | 'userId'>): Promise<string> => runSync(async () => {
+    if (!currentUser) return '';
     const now = new Date().toISOString();
-    await addDoc(collection(db, 'notes'), {
+    const docRef = await addDoc(collection(db, 'notes'), {
       ...note,
       order: Date.now(),
       userId: currentUser.uid,
       created_at: now,
       updated_at: now,
     });
+    return docRef.id;
   });
 
   const updateNote = (id: string, updates: Partial<Omit<Note, 'id' | 'created_at' | 'userId'>>) => runSync(async () => {
@@ -160,11 +168,12 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // ── Folder CRUD ──
 
-  const addFolder = (name: string, icon: string): Promise<string> => runSync(async () => {
+  const addFolder = (name: string, icon: string, parent_id: string | null = null): Promise<string> => runSync(async () => {
     if (!currentUser) return '';
     const newFolder = {
       name,
       icon: icon || 'folder',
+      parent_id,
       userId: currentUser.uid,
       created_at: new Date().toISOString(),
     };

@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard';
 import Habits from './pages/Habits';
 import Tasks from './pages/Tasks';
 import Notes from './pages/Notes';
+import NoteDetail from './pages/NoteDetail';
 import PerformanceAnalytics from './pages/PerformanceAnalytics';
 import LegacyLogs from './pages/LegacyLogs';
 import Settings from './pages/Settings';
@@ -378,6 +379,7 @@ function App() {
                       <Route path="habits" element={<Habits />} />
                       <Route path="tasks" element={<Tasks />} />
                       <Route path="notes" element={<Notes />} />
+                      <Route path="notes/:id" element={<NoteDetail />} />
                       <Route path="performance" element={<PerformanceAnalytics />} />
                       <Route path="legacy" element={<LegacyLogs />} />
                       <Route path="settings" element={<Settings />} />

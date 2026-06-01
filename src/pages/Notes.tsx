@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import NoteCard from '../components/NoteCard';
 import NoteEditorModal from '../components/NoteEditorModal';
 import FolderEditorModal from '../components/FolderEditorModal';
+import FolderTree from '../components/FolderTree';
 import {
   DndContext,
   closestCenter,
@@ -21,13 +22,15 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable';
 import { usePageTitle } from '../utils/usePageTitle';
+import { useNavigate } from 'react-router-dom';
 
 type SortMode = 'updated' | 'created' | 'alpha' | 'custom';
-type ViewMode = 'grid' | 'list';
+type ViewMode = 'grid' | 'list' | 'table';
 type SidebarFilter = 'all' | 'pinned' | { type: 'folder'; id: string } | { type: 'tag'; tag: string };
 
 export default function Notes() {
   usePageTitle('Notes');
+  const navigate = useNavigate();
   const { notes, folders, getAllTags, updateNote } = useNotes();
   const { userPreferences, updateUserPreferences } = useAuth();
 
@@ -70,8 +73,16 @@ export default function Notes() {
   const pinnedCount = notes.filter(n => n.pinned).length;
 
   const handleOpenEditor = (note?: Note) => {
-    setSelectedNote(note || null);
-    setIsEditorOpen(true);
+    if (userPreferences.notesEditorMode === 'modal') {
+      setSelectedNote(note || null);
+      setIsEditorOpen(true);
+    } else {
+      if (note) {
+        navigate(`/notes/${note.id}`);
+      } else {
+        navigate(`/notes/new`);
+      }
+    }
   };
 
   const handleCloseEditor = () => {
@@ -226,7 +237,7 @@ export default function Notes() {
       </button>
 
       {/* Folders */}
-      <div className="note-sidebar-section-title flex items-center justify-between">
+      <div className="note-sidebar-section-title flex items-center justify-between mt-2">
         <span>Folders</span>
         <button
           onClick={handleNewFolder}
@@ -242,29 +253,16 @@ export default function Notes() {
           <p className="text-[10px] text-on-surface-variant/40 italic">No folders yet</p>
         </div>
       ) : (
-        folders.map(f => {
-          const count = notes.filter(n => n.folder_id === f.id).length;
-          const isActive = typeof sidebarFilter === 'object' && sidebarFilter.type === 'folder' && sidebarFilter.id === f.id;
-          return (
-            <div key={f.id} className="group flex items-center">
-              <button
-                onClick={() => { setSidebarFilter({ type: 'folder', id: f.id }); setMobileSidebarOpen(false); }}
-                className={`note-sidebar-item flex-grow ${isActive ? 'active' : ''}`}
-              >
-                <span className="material-symbols-outlined text-[18px]">{f.icon}</span>
-                <span className="flex-grow truncate">{f.name}</span>
-                <span className="font-data-display text-[11px] opacity-50">{count}</span>
-              </button>
-              <button
-                onClick={() => handleEditFolder(f.id)}
-                className="material-symbols-outlined text-[14px] text-on-surface-variant/20 hover:text-primary-fixed-dim transition-colors cursor-pointer pr-3 opacity-0 group-hover:opacity-100"
-                title="Edit folder"
-              >
-                edit
-              </button>
-            </div>
-          );
-        })
+        <div className="py-1">
+          <FolderTree
+            folders={folders}
+            parentId={null}
+            activeFilter={sidebarFilter}
+            onSelect={(id) => { setSidebarFilter({ type: 'folder', id }); setMobileSidebarOpen(false); }}
+            onEdit={handleEditFolder}
+            getNoteCount={(folderId) => notes.filter(n => n.folder_id === folderId).length}
+          />
+        </div>
       )}
 
       {/* Tags */}
@@ -415,6 +413,13 @@ export default function Notes() {
                 >
                   <span className="material-symbols-outlined text-[16px]">view_list</span>
                 </button>
+                <button
+                  onClick={() => setViewMode('table')}
+                  className={`p-1.5 transition-colors cursor-pointer ${viewMode === 'table' ? 'bg-primary-fixed-dim/15 text-primary-fixed-dim' : 'text-on-surface-variant/50 hover:text-on-surface-variant'}`}
+                  title="Table view"
+                >
+                  <span className="material-symbols-outlined text-[16px]">table_rows</span>
+                </button>
               </div>
             </div>
           </div>
@@ -451,6 +456,70 @@ export default function Notes() {
               <div className="text-center py-12 text-on-surface-variant/60 flex-grow">
                 <span className="material-symbols-outlined text-4xl mb-2 block">search_off</span>
                 <p className="font-label-caps text-sm">No notes match current criteria</p>
+              </div>
+            ) : viewMode === 'table' ? (
+              <div className="w-full overflow-x-auto">
+                <table className="w-full text-left border-collapse min-w-[600px]">
+                  <thead>
+                    <tr className="border-b border-white/10 font-label-caps text-[10px] text-on-surface-variant">
+                      <th className="py-3 px-4 font-normal">Title</th>
+                      <th className="py-3 px-4 font-normal">Folder</th>
+                      <th className="py-3 px-4 font-normal">Tags</th>
+                      <th className="py-3 px-4 font-normal text-right">Updated</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredNotes.map(note => {
+                      const folder = folders.find(f => f.id === note.folder_id);
+                      return (
+                        <tr 
+                          key={note.id}
+                          onClick={() => handleOpenEditor(note)}
+                          className={`border-b border-white/5 hover:bg-white/5 cursor-pointer transition-colors group note-color-${note.color}`}
+                        >
+                          <td className="py-3 px-4">
+                            <div className="flex items-center gap-3">
+                              {note.icon ? (
+                                <span className="text-[16px]">{note.icon}</span>
+                              ) : (
+                                <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">description</span>
+                              )}
+                              <span className="font-body-md text-sm text-on-surface group-hover:text-primary-fixed-dim transition-colors">
+                                {note.title || 'Untitled Note'}
+                              </span>
+                              {note.pinned && <span className="material-symbols-outlined text-[12px] text-primary-fixed-dim" style={{fontVariationSettings: "'FILL' 1"}}>push_pin</span>}
+                            </div>
+                          </td>
+                          <td className="py-3 px-4">
+                            {folder ? (
+                              <div className="flex items-center gap-1 text-xs text-on-surface-variant">
+                                <span className="material-symbols-outlined text-[14px]">{folder.icon}</span>
+                                {folder.name}
+                              </div>
+                            ) : (
+                              <span className="text-xs text-on-surface-variant/40 italic">None</span>
+                            )}
+                          </td>
+                          <td className="py-3 px-4">
+                            <div className="flex flex-wrap gap-1">
+                              {note.tags.slice(0, 3).map(t => (
+                                <span key={t} className="px-1.5 py-0.5 rounded-sm bg-white/5 text-[10px] text-on-surface-variant whitespace-nowrap">#{t}</span>
+                              ))}
+                              {note.tags.length > 3 && (
+                                <span className="px-1.5 py-0.5 rounded-sm bg-white/5 text-[10px] text-on-surface-variant whitespace-nowrap">+{note.tags.length - 3}</span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 text-right">
+                            <span className="text-[11px] text-on-surface-variant font-data-display">
+                              {new Date(note.updated_at).toLocaleDateString()}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             ) : (
               <div className="space-y-6 pb-8">
