@@ -21,6 +21,9 @@ const app = initializeApp(firebaseConfig);
 // Initialize Authentication
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({
+  prompt: 'select_account'
+});
 
 // Initialize Firestore with offline persistence
 export const db = initializeFirestore(app, {
