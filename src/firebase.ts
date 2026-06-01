@@ -7,7 +7,11 @@ const firebaseConfig = {
   appId: "1:109936735660:web:105ca3fdc192ae35b1f609",
   storageBucket: "neural-cortex.firebasestorage.app",
   apiKey: "AIzaSyCV8LbYxuWXA2jWGXPcyA67pjGwpuwIaHg",
-  authDomain: "neural-cortex.firebaseapp.com",
+  // Use the current domain in production to force first-party cookies for auth
+  // This bypasses aggressive tracking blockers (Safari/Brave) that block redirects.
+  authDomain: typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
+    ? window.location.hostname 
+    : "neural-cortex.firebaseapp.com",
   messagingSenderId: "109936735660",
 };
 

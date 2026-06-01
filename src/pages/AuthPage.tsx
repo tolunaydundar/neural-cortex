@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
-import { signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { signInWithPopup, browserPopupRedirectResolver } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
 import { motion } from 'framer-motion';
 import { usePageTitle } from '../utils/usePageTitle';
@@ -21,22 +21,6 @@ const AuthPage = () => {
   const navigate = useNavigate();
 
   usePageTitle(isLogin ? 'Sign In' : 'Sign Up');
-
-  useEffect(() => {
-    getRedirectResult(auth)
-      .then((result) => {
-        if (result && result.user) {
-          navigate('/');
-        }
-      })
-      .catch((err: unknown) => {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError('Failed to authenticate after redirect');
-        }
-      });
-  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,7 +44,10 @@ const AuthPage = () => {
 
   const handleGoogleSignIn = () => {
     setError('');
-    signInWithRedirect(auth, googleProvider)
+    signInWithPopup(auth, googleProvider, browserPopupRedirectResolver)
+      .then(() => {
+        navigate('/');
+      })
       .catch((err: unknown) => {
         if (err instanceof Error) {
           setError(err.message);

@@ -2,7 +2,8 @@
 import { createContext, useContext, useEffect, useState, useMemo, useCallback, type ReactNode } from 'react';
 import { 
   type User, 
-  signInWithRedirect,
+  signInWithPopup,
+  browserPopupRedirectResolver,
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
   signOut,
@@ -155,7 +156,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }), [currentUser, runSync]);
 
   const loginWithGoogle = async () => {
-    await signInWithRedirect(auth, googleProvider);
+    await signInWithPopup(auth, googleProvider, browserPopupRedirectResolver);
   };
 
   const signupWithEmail = async (email: string, pass: string) => {
