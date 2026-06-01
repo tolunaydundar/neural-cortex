@@ -400,7 +400,7 @@ export default function Notes() {
 
               <select
                 value={userPreferences.notesEditorMode || 'modal'}
-                onChange={(e) => updateUserPreferences({ notesEditorMode: e.target.value })}
+                onChange={(e) => updateUserPreferences({ notesEditorMode: e.target.value as 'full' | 'modal' })}
                 className="bg-surface-container-lowest border border-white/10 px-2 py-1 text-[10px] font-label-caps text-on-surface-variant focus:outline-none focus:border-primary-fixed-dim cursor-pointer rounded-sm"
               >
                 <option value="modal">MODE: MODAL</option>
