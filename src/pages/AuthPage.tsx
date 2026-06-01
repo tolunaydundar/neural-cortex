@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
-import { signInWithPopup, browserPopupRedirectResolver } from 'firebase/auth';
+import { signInWithRedirect } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
 import { motion } from 'framer-motion';
 import { usePageTitle } from '../utils/usePageTitle';
@@ -44,10 +44,7 @@ const AuthPage = () => {
 
   const handleGoogleSignIn = () => {
     setError('');
-    signInWithPopup(auth, googleProvider, browserPopupRedirectResolver)
-      .then(() => {
-        navigate('/');
-      })
+    signInWithRedirect(auth, googleProvider)
       .catch((err: unknown) => {
         if (err instanceof Error) {
           setError(err.message);
