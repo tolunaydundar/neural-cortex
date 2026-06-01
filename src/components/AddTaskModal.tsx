@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTasks, type Task } from '../context/TaskContext';
+import { useFocusTrap } from '../utils/useFocusTrap';
 
 interface AddTaskModalProps {
   onClose: () => void;
@@ -14,6 +15,9 @@ const priorities: { value: Task['priority']; label: string; icon: string }[] = [
 ];
 
 export default function AddTaskModal({ onClose, onSuccess }: AddTaskModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const titleId = 'add-task-title';
+  const descriptionId = 'add-task-description';
   const { addTask, getCategories } = useTasks();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -23,6 +27,8 @@ export default function AddTaskModal({ onClose, onSuccess }: AddTaskModalProps) 
   const [showCategorySuggestions, setShowCategorySuggestions] = useState(false);
 
   const existingCategories = getCategories();
+
+  useFocusTrap(modalRef);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -54,8 +60,16 @@ export default function AddTaskModal({ onClose, onSuccess }: AddTaskModalProps) 
   );
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div className="glass-panel p-6 lg:p-8 w-full max-w-md mx-4 relative rounded-lg border-primary-fixed-dim/30 shadow-[0_0_30px_rgba(0,220,230,0.1)] max-h-[90vh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}>
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={descriptionId}
+        className="glass-panel p-6 lg:p-8 w-full max-w-md mx-4 relative rounded-lg border-primary-fixed-dim/30 shadow-[0_0_30px_rgba(0,220,230,0.1)] max-h-[90vh] overflow-y-auto custom-scrollbar"
+        onClick={e => e.stopPropagation()}
+      >
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-on-surface-variant hover:text-primary-fixed-dim transition-colors cursor-pointer"
@@ -63,8 +77,8 @@ export default function AddTaskModal({ onClose, onSuccess }: AddTaskModalProps) 
           <span className="material-symbols-outlined">close</span>
         </button>
 
-        <h2 className="font-headline-md text-headline-md text-primary-fixed-dim mb-2">NEW TASK</h2>
-        <p className="font-label-caps text-[10px] text-on-surface-variant mb-6">DEPLOY A NEW OBJECTIVE TO THE QUEUE</p>
+        <h2 id={titleId} className="font-headline-md text-headline-md text-primary-fixed-dim mb-2">NEW TASK</h2>
+        <p id={descriptionId} className="font-label-caps text-[10px] text-on-surface-variant mb-6">DEPLOY A NEW OBJECTIVE TO THE QUEUE</p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           {/* Title */}

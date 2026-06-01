@@ -2,7 +2,7 @@
 import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { subDays, isSameDay, startOfDay } from 'date-fns';
 import { db } from '../firebase';
-import { collection, onSnapshot, addDoc, deleteDoc, doc, query, where, getDocs, writeBatch } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, deleteDoc, doc, query, where, getDocs, writeBatch, setDoc } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
 import { useSync } from './SyncContext';
 
@@ -54,7 +54,7 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       collection(db, 'habits'),
       where('userId', '==', currentUser.uid)
     );
-    
+
     const unsubscribeHabits = onSnapshot(habitsQuery, (snapshot) => {
       const fetchedHabits: Habit[] = [];
       snapshot.forEach((doc) => {
@@ -95,15 +95,19 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const logHabit = (habitId: string, date: Date = new Date()) => runSync(async () => {
     if (!currentUser) return;
-    
+
     // Prevent duplicate logs for the same day (client side check)
     const existingLog = logs.find(log => log.habitId === habitId && isSameDay(new Date(log.date), date));
     if (existingLog) return;
 
-    await addDoc(collection(db, 'habit_logs'), {
+    const day = startOfDay(date);
+    const dateKey = day.toISOString().slice(0, 10);
+    const logId = `${currentUser.uid}_${habitId}_${dateKey}`;
+
+    await setDoc(doc(db, 'habit_logs', logId), {
       habitId,
       userId: currentUser.uid,
-      date: date.toISOString()
+      date: day.toISOString(),
     });
   });
 
@@ -114,14 +118,14 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const deleteHabit = (habitId: string) => runSync(async () => {
     // Delete the habit document
     await deleteDoc(doc(db, 'habits', habitId));
-    
+
     // Query and delete all associated logs
     const logsQuery = query(
       collection(db, 'habit_logs'),
       where('habitId', '==', habitId)
     );
     const logsSnapshot = await getDocs(logsQuery);
-    
+
     // Use a batch to delete all related logs efficiently
     const batch = writeBatch(db);
     logsSnapshot.forEach((logDoc) => {
@@ -141,14 +145,14 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     let streak = 0;
     const currentDate = startOfDay(new Date()).getTime();
-    
+
     // Check if logged today or yesterday to continue streak
     if (uniqueLogDates[0] !== currentDate && uniqueLogDates[0] !== currentDate - 86400000) {
       return 0;
     }
 
     let expectedDate = uniqueLogDates[0];
-    
+
     for (const date of uniqueLogDates) {
       if (date === expectedDate) {
         streak++;
@@ -164,7 +168,7 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const getPattern = useCallback((habitId: string, days: number = 30): boolean[] => {
     const pattern = [];
     const today = startOfDay(new Date());
-    
+
     for (let i = days - 1; i >= 0; i--) {
       const dateToCheck = subDays(today, i);
       const isLogged = logs.some(l => l.habitId === habitId && isSameDay(new Date(l.date), dateToCheck));

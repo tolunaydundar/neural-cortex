@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTasks, type Task } from '../context/TaskContext';
 import ConfirmModal from './ConfirmModal';
+import { useFocusTrap } from '../utils/useFocusTrap';
 
 interface TaskDetailModalProps {
   task: Task;
@@ -21,6 +22,8 @@ const statuses: { value: Task['status']; label: string; icon: string }[] = [
 ];
 
 export default function TaskDetailModal({ task, onClose }: TaskDetailModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const titleId = 'task-detail-title';
   const { updateTask, deleteTask, toggleSubtask, addSubtask, removeSubtask } = useTasks();
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description);
@@ -39,7 +42,9 @@ export default function TaskDetailModal({ task, onClose }: TaskDetailModalProps)
     return () => document.removeEventListener('keydown', handleKey);
   }, [onClose]);
 
-  const hasChanges = 
+  useFocusTrap(modalRef);
+
+  const hasChanges =
     title !== task.title || description !== task.description ||
     priority !== task.priority || status !== task.status ||
     category !== task.category || dueDate !== (task.due_date ? task.due_date.slice(0, 10) : '');
@@ -76,7 +81,14 @@ export default function TaskDetailModal({ task, onClose }: TaskDetailModalProps)
   return (
     <>
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
-        <div className="glass-panel p-6 lg:p-8 w-full max-w-lg mx-4 relative rounded-lg border-primary-fixed-dim/30 shadow-[0_0_30px_rgba(0,220,230,0.1)] max-h-[90vh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}>
+        <div
+          ref={modalRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={titleId}
+          className="glass-panel p-6 lg:p-8 w-full max-w-lg mx-4 relative rounded-lg border-primary-fixed-dim/30 shadow-[0_0_30px_rgba(0,220,230,0.1)] max-h-[90vh] overflow-y-auto custom-scrollbar"
+          onClick={e => e.stopPropagation()}
+        >
           <button
             onClick={onClose}
             className="absolute top-4 right-4 text-on-surface-variant hover:text-primary-fixed-dim transition-colors cursor-pointer"
@@ -86,6 +98,7 @@ export default function TaskDetailModal({ task, onClose }: TaskDetailModalProps)
 
           {/* Title */}
           <input
+            id={titleId}
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}

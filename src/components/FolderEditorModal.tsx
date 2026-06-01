@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNotes } from '../context/NoteContext';
 import ConfirmModal from './ConfirmModal';
+import { useFocusTrap } from '../utils/useFocusTrap';
 
 interface FolderEditorModalProps {
   folderId?: string | null;
@@ -16,6 +17,8 @@ const FOLDER_ICONS = [
 ];
 
 export default function FolderEditorModal({ folderId, onClose, onSuccess }: FolderEditorModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const titleId = 'folder-editor-title';
   const { folders, addFolder, updateFolder, deleteFolder } = useNotes();
   const existing = folderId ? folders.find(f => f.id === folderId) : null;
 
@@ -30,6 +33,8 @@ export default function FolderEditorModal({ folderId, onClose, onSuccess }: Fold
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
   }, [onClose]);
+
+  useFocusTrap(modalRef);
 
   const handleSave = async () => {
     if (!name.trim()) return;
@@ -46,8 +51,15 @@ export default function FolderEditorModal({ folderId, onClose, onSuccess }: Fold
   return (
     <>
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
-        <div className="glass-panel p-6 lg:p-8 w-full max-w-md mx-4 rounded-lg border-primary-fixed-dim/30 shadow-[0_0_30px_rgba(0,220,230,0.1)]" onClick={e => e.stopPropagation()}>
-          <h2 className="font-headline-md text-headline-sm text-primary-fixed-dim mb-6">
+        <div
+          ref={modalRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={titleId}
+          className="glass-panel p-6 lg:p-8 w-full max-w-md mx-4 rounded-lg border-primary-fixed-dim/30 shadow-[0_0_30px_rgba(0,220,230,0.1)]"
+          onClick={e => e.stopPropagation()}
+        >
+          <h2 id={titleId} className="font-headline-md text-headline-sm text-primary-fixed-dim mb-6">
             {existing ? 'Edit Folder' : 'New Folder'}
           </h2>
 

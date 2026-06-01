@@ -2,24 +2,25 @@ import { db } from '../firebase';
 import { collection, writeBatch, doc, query, where, limit, getDocs } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
 
-export async function importDataToCloud(currentUser: User, importedData: Record<string, string>): Promise<boolean> {
+export async function importDataToCloud(currentUser: User, importedData: Record<string, unknown>): Promise<boolean> {
   if (!importedData) {
     throw new Error("No data provided to import.");
   }
 
   try {
     const batch = writeBatch(db);
-    
+
     const parse = (key: 'nexus_habits' | 'nexus_logs' | 'nexus_tasks' | 'nexus_notes' | 'nexus_folders') => {
-      let val: string | undefined;
-      switch (key) {
-        case 'nexus_habits': val = importedData.nexus_habits; break;
-        case 'nexus_logs': val = importedData.nexus_logs; break;
-        case 'nexus_tasks': val = importedData.nexus_tasks; break;
-        case 'nexus_notes': val = importedData.nexus_notes; break;
-        case 'nexus_folders': val = importedData.nexus_folders; break;
+      const raw = importedData[key];
+      if (!raw) return [];
+      if (Array.isArray(raw)) return raw;
+      if (typeof raw === 'string') {
+        try {
+          return JSON.parse(raw);
+        } catch {
+          return [];
+        }
       }
-      if (val) return JSON.parse(val);
       return [];
     };
 
@@ -28,12 +29,12 @@ export async function importDataToCloud(currentUser: User, importedData: Record<
     const localTasks = parse('nexus_tasks');
     const localNotes = parse('nexus_notes');
     const localFolders = parse('nexus_folders');
-    
+
     // If there is no data to migrate, just return false
     if (!localHabits.length && !localLogs.length && !localTasks.length && !localNotes.length && !localFolders.length) {
       return false;
     }
-    
+
     localHabits.forEach((habit: Record<string, unknown>) => {
       const ref = doc(db, 'habits', habit.id as string);
       batch.set(ref, { ...habit, userId: currentUser.uid });
@@ -72,7 +73,7 @@ export async function checkHasCloudData(currentUser: User): Promise<boolean> {
     const tasksRef = collection(db, 'tasks');
     const qTasks = query(tasksRef, where('userId', '==', currentUser.uid), limit(1));
     const tasksSnap = await getDocs(qTasks);
-    
+
     if (!tasksSnap.empty) return true;
 
     const habitsRef = collection(db, 'habits');

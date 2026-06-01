@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useTheme } from '../context/ThemeContext';
+import { useFocusTrap } from '../utils/useFocusTrap';
 
 interface OnboardingModalProps {
   onComplete: (name: string, wantsExampleData: boolean) => void;
@@ -8,9 +9,13 @@ interface OnboardingModalProps {
 type Step = 'NAME' | 'THEME' | 'DATA';
 
 export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const titleId = 'onboarding-title';
   const [step, setStep] = useState<Step>('NAME');
   const [name, setName] = useState('');
   const { theme, setTheme } = useTheme();
+
+  useFocusTrap(modalRef);
 
   const handleNameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,15 +35,21 @@ export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="glass-panel p-6 lg:p-8 w-full max-w-md mx-4 rounded-lg shadow-[0_0_30px_rgba(0,220,230,0.1)]">
-        
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        className="glass-panel p-6 lg:p-8 w-full max-w-md mx-4 rounded-lg shadow-[0_0_30px_rgba(0,220,230,0.1)]"
+      >
+
         {step === 'NAME' && (
           <>
             <div className="text-center mb-8">
               <span className="material-symbols-outlined text-4xl text-primary-fixed-dim mb-4 drop-shadow-[0_0_8px_rgba(0,220,230,0.5)]">
                 psychology
               </span>
-              <h2 className="font-headline-md text-headline-md text-primary-fixed-dim tracking-tight">SYSTEM INITIALIZATION</h2>
+              <h2 id={titleId} className="font-headline-md text-headline-md text-primary-fixed-dim tracking-tight">SYSTEM INITIALIZATION</h2>
               <p className="font-label-caps text-[10px] text-on-surface-variant mt-2 tracking-widest">ENTER OPERATOR CREDENTIALS</p>
             </div>
 
@@ -73,7 +84,7 @@ export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
               <span className="material-symbols-outlined text-4xl text-primary-fixed-dim mb-4 drop-shadow-[0_0_8px_rgba(0,220,230,0.5)]">
                 palette
               </span>
-              <h2 className="font-headline-md text-headline-md text-primary-fixed-dim tracking-tight">VISUAL PREFERENCE</h2>
+              <h2 id={titleId} className="font-headline-md text-headline-md text-primary-fixed-dim tracking-tight">VISUAL PREFERENCE</h2>
               <p className="font-label-caps text-[10px] text-on-surface-variant mt-2 tracking-widest">SELECT INTERFACE THEME</p>
             </div>
 
@@ -102,7 +113,7 @@ export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
               <span className="material-symbols-outlined text-4xl text-primary-fixed-dim mb-4 drop-shadow-[0_0_8px_rgba(0,220,230,0.5)]">
                 database
               </span>
-              <h2 className="font-headline-md text-headline-md text-primary-fixed-dim tracking-tight">DATA INITIALIZATION</h2>
+              <h2 id={titleId} className="font-headline-md text-headline-md text-primary-fixed-dim tracking-tight">DATA INITIALIZATION</h2>
               <p className="font-label-caps text-[10px] text-on-surface-variant mt-2 tracking-widest">CHOOSE STARTING DATA</p>
             </div>
 
@@ -122,7 +133,7 @@ export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
                 <span className="text-[10px] text-background/70 lowercase tracking-normal">Explore with 2 weeks of pre-filled data</span>
               </button>
             </div>
-            
+
             <p className="text-center text-xs text-on-surface-variant mt-6">
               Note: You can easily purge all data later in the settings page.
             </p>

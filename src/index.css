@@ -180,6 +180,11 @@ body {
     transition: background-color 0.15s ease-out, color 0.15s ease-out;
 }
 
+:focus-visible {
+    outline: 2px solid var(--color-primary-fixed-dim);
+    outline-offset: 2px;
+}
+
 [data-theme="light"] body {
     background-color: #f5f1f6;
     color: #1c1b1f;
@@ -1159,4 +1164,3 @@ body {
 [data-theme="light"] .note-context-menu-divider {
     background: rgba(0, 0, 0, 0.06);
 }
-

@@ -3,6 +3,7 @@ import { useNotes, type Note, type NoteColor } from '../context/NoteContext';
 import ConfirmModal from './ConfirmModal';
 import FolderEditorModal from './FolderEditorModal';
 import ReactMarkdown from 'react-markdown';
+import { useFocusTrap } from '../utils/useFocusTrap';
 
 interface NoteEditorModalProps {
   initialNote?: Note | null;
@@ -16,6 +17,8 @@ function wordCount(text: string): number {
 }
 
 export default function NoteEditorModal({ initialNote, onClose }: NoteEditorModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const titleId = 'note-editor-title';
   const { addNote, updateNote, deleteNote, duplicateNote, folders } = useNotes();
   const [title, setTitle] = useState(initialNote?.title || '');
   const [content, setContent] = useState(initialNote?.content || '');
@@ -29,6 +32,8 @@ export default function NoteEditorModal({ initialNote, onClose }: NoteEditorModa
   const [showNewFolderModal, setShowNewFolderModal] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useFocusTrap(modalRef);
 
   // Focus textarea on open for new notes
   useEffect(() => {
@@ -136,9 +141,14 @@ export default function NoteEditorModal({ initialNote, onClose }: NoteEditorModa
     <>
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 lg:p-8" onClick={handleAttemptClose}>
         <div
+          ref={modalRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={titleId}
           className={`glass-panel p-6 lg:p-8 w-full max-w-5xl h-full lg:h-auto lg:max-h-[90vh] flex flex-col relative rounded-lg border-primary-fixed-dim/30 shadow-[0_0_30px_rgba(0,220,230,0.1)] overflow-hidden note-color-${color}`}
           onClick={e => e.stopPropagation()}
         >
+          <h2 id={titleId} className="sr-only">Note editor</h2>
           {/* Header: Title + Actions */}
           <div className="flex items-center justify-between mb-3 flex-shrink-0 gap-4">
             <input
@@ -243,7 +253,7 @@ export default function NoteEditorModal({ initialNote, onClose }: NoteEditorModa
           {/* Content area */}
           <div className="flex-grow flex flex-col min-h-0 relative mb-4">
             <div className="flex justify-end mb-2">
-              <button 
+              <button
                 onClick={() => setIsPreview(!isPreview)}
                 className="text-xs font-label-caps text-primary-fixed-dim hover:text-[#6ff6ff] transition-colors"
               >
@@ -251,7 +261,7 @@ export default function NoteEditorModal({ initialNote, onClose }: NoteEditorModa
               </button>
             </div>
             {isPreview ? (
-              <div 
+              <div
                 className="w-full h-full min-h-[300px] overflow-y-auto bg-surface-container-lowest border border-white/10 p-4 font-body-md text-sm lg:text-base text-on-surface rounded-sm custom-scrollbar markdown-preview prose prose-invert prose-p:my-2 prose-headings:my-4 prose-a:text-primary-fixed-dim prose-code:text-primary-fixed-dim max-w-none"
               >
                 <ReactMarkdown>{content}</ReactMarkdown>

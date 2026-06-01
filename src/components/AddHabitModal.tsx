@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useHabits } from '../context/HabitContext';
+import { useFocusTrap } from '../utils/useFocusTrap';
 
 interface AddHabitModalProps {
   onClose: () => void;
@@ -7,6 +8,9 @@ interface AddHabitModalProps {
 }
 
 export default function AddHabitModal({ onClose, onSuccess }: AddHabitModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const titleId = 'add-habit-title';
+  const descriptionId = 'add-habit-description';
   const { addHabit } = useHabits();
   const [title, setTitle] = useState('');
   const [icon, setIcon] = useState('psychology');
@@ -33,6 +37,8 @@ export default function AddHabitModal({ onClose, onSuccess }: AddHabitModalProps
     return () => document.removeEventListener('keydown', handleKey);
   }, [onClose]);
 
+  useFocusTrap(modalRef);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim()) {
@@ -43,23 +49,31 @@ export default function AddHabitModal({ onClose, onSuccess }: AddHabitModalProps
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div className="glass-panel p-6 lg:p-8 w-full max-w-md mx-4 relative rounded-lg border-primary-fixed-dim/30 shadow-[0_0_30px_rgba(0,220,230,0.1)]" onClick={e => e.stopPropagation()}>
-        <button 
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={descriptionId}
+        className="glass-panel p-6 lg:p-8 w-full max-w-md mx-4 relative rounded-lg border-primary-fixed-dim/30 shadow-[0_0_30px_rgba(0,220,230,0.1)]"
+        onClick={e => e.stopPropagation()}
+      >
+        <button
           onClick={onClose}
           className="absolute top-4 right-4 text-on-surface-variant hover:text-primary-fixed-dim transition-colors cursor-pointer"
         >
           <span className="material-symbols-outlined">close</span>
         </button>
-        
-        <h2 className="font-headline-md text-headline-md text-primary-fixed-dim mb-2">NEW PROTOCOL</h2>
-        <p className="font-label-caps text-[10px] text-on-surface-variant mb-6">INITIALIZE A NEW HABIT TO TRACK</p>
-        
+
+        <h2 id={titleId} className="font-headline-md text-headline-md text-primary-fixed-dim mb-2">NEW PROTOCOL</h2>
+        <p id={descriptionId} className="font-label-caps text-[10px] text-on-surface-variant mb-6">INITIALIZE A NEW HABIT TO TRACK</p>
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">
             <label className="font-label-caps text-xs text-on-surface">PROTOCOL NAME</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Study Feynman diagrams"
@@ -77,8 +91,8 @@ export default function AddHabitModal({ onClose, onSuccess }: AddHabitModalProps
                   type="button"
                   onClick={() => setIcon(ic)}
                   className={`p-3 border rounded-sm flex items-center justify-center transition-all cursor-pointer ${
-                    icon === ic 
-                      ? 'border-primary-fixed-dim bg-primary-fixed-dim/10 text-primary-fixed-dim' 
+                    icon === ic
+                      ? 'border-primary-fixed-dim bg-primary-fixed-dim/10 text-primary-fixed-dim'
                       : 'border-white/10 hover:border-white/30 text-on-surface-variant hover:text-on-surface'
                   }`}
                 >
@@ -87,9 +101,9 @@ export default function AddHabitModal({ onClose, onSuccess }: AddHabitModalProps
               ))}
             </div>
           </div>
-          
-          <button 
-            type="submit" 
+
+          <button
+            type="submit"
             disabled={!title.trim()}
             className="w-full py-4 mt-2 bg-primary-fixed-dim text-background font-label-caps text-label-caps hover:bg-[#6ff6ff] transition-colors disabled:opacity-50 disabled:cursor-not-allowed tracking-widest cursor-pointer"
           >

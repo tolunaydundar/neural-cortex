@@ -63,7 +63,7 @@ function AppLayout() {
 
   const handleOnboardingComplete = async (name: string, wantsExampleData: boolean) => {
     await updateOperatorName(name);
-    
+
     if (wantsExampleData) {
       const now = new Date();
       const habit1Id = crypto.randomUUID();
@@ -179,7 +179,7 @@ function AppLayout() {
         nexus_logs: JSON.stringify(dummyLogs),
         nexus_tasks: JSON.stringify(dummyTasks)
       };
-      
+
       if (currentUser) {
         await importDataToCloud(currentUser, dummyData);
       }
@@ -195,16 +195,40 @@ function AppLayout() {
   const { isDark } = useTheme();
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const x = e.clientX / window.innerWidth;
-      const y = e.clientY / window.innerHeight;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      document.body.style.backgroundImage = '';
+      return;
+    }
+
+    let rafId: number | null = null;
+    let latestX = 0;
+    let latestY = 0;
+
+    const updateBackground = () => {
+      rafId = null;
       const color = isDark
         ? 'rgba(0, 220, 230, 0.03)'
         : 'rgba(0, 105, 111, 0.03)';
-      document.body.style.backgroundImage = `radial-gradient(circle at ${x * 100}% ${y * 100}%, ${color} 0%, transparent 50%)`;
+      document.body.style.backgroundImage = `radial-gradient(circle at ${latestX * 100}% ${latestY * 100}%, ${color} 0%, transparent 50%)`;
     };
-    document.addEventListener('mousemove', handleMouseMove);
-    return () => document.removeEventListener('mousemove', handleMouseMove);
+
+    const handlePointerMove = (e: PointerEvent) => {
+      latestX = e.clientX / window.innerWidth;
+      latestY = e.clientY / window.innerHeight;
+      if (rafId === null) {
+        rafId = window.requestAnimationFrame(updateBackground);
+      }
+    };
+
+    document.addEventListener('pointermove', handlePointerMove, { passive: true });
+    return () => {
+      if (rafId !== null) {
+        window.cancelAnimationFrame(rafId);
+      }
+      document.body.style.backgroundImage = '';
+      document.removeEventListener('pointermove', handlePointerMove);
+    };
   }, [isDark]);
 
   const handleToastDone = useCallback(() => setToast(null), []);

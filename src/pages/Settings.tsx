@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useHabits } from '../context/HabitContext';
 import { useTasks } from '../context/TaskContext';
+import { useNotes } from '../context/NoteContext';
 import { useAuth } from '../context/AuthContext';
 
 import { importDataToCloud } from '../utils/migration';
@@ -8,25 +9,35 @@ import { importDataToCloud } from '../utils/migration';
 export default function Settings() {
   const { habits, logs } = useHabits();
   const { tasks } = useTasks();
+  const { notes, folders } = useNotes();
   const { currentUser, operatorName, updateOperatorName } = useAuth();
-  
+
   const [userName, setUserName] = useState(operatorName);
   const [showExportSuccess, setShowExportSuccess] = useState(false);
   const [showImportSuccess, setShowImportSuccess] = useState(false);
 
 
 
+  useEffect(() => {
+    setUserName(operatorName);
+  }, [operatorName]);
+
   const handleSaveName = async () => {
-    await updateOperatorName(userName);
+    await updateOperatorName(userName.trim() || 'OPERATOR');
   };
 
   const handleExport = () => {
+    if (!currentUser) {
+      alert('Please sign in to export your cloud data.');
+      return;
+    }
     const data = {
-      nexus_habits: localStorage.getItem('nexus_habits'),
-      nexus_logs: localStorage.getItem('nexus_logs'),
-      nexus_tasks: localStorage.getItem('nexus_tasks'),
-      nexus_notes: localStorage.getItem('nexus_notes'),
-      nexus_folders: localStorage.getItem('nexus_folders'),
+      schema_version: 2,
+      nexus_habits: JSON.stringify(habits),
+      nexus_logs: JSON.stringify(logs),
+      nexus_tasks: JSON.stringify(tasks),
+      nexus_notes: JSON.stringify(notes),
+      nexus_folders: JSON.stringify(folders),
       exported_at: new Date().toISOString(),
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -88,7 +99,7 @@ export default function Settings() {
           <div className="glass-panel p-4 lg:p-6">
             <h2 className="font-headline-sm text-headline-sm text-primary-fixed-dim mb-1">OPERATOR PROFILE</h2>
             <p className="font-label-caps text-[10px] text-on-surface-variant mb-6">IDENTITY CONFIGURATION</p>
-            
+
             <div className="flex flex-col sm:flex-row sm:items-end gap-4">
               <div className="flex-grow">
                 <label className="font-label-caps text-xs text-on-surface block mb-2">OPERATOR NAME</label>
@@ -112,7 +123,7 @@ export default function Settings() {
           <div className="glass-panel p-4 lg:p-6">
             <h2 className="font-headline-sm text-headline-sm text-primary-fixed-dim mb-1">DATA MANAGEMENT</h2>
             <p className="font-label-caps text-[10px] text-on-surface-variant mb-6">BACKUP, RESTORE & PURGE</p>
-            
+
             <div className="space-y-4">
 
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-surface-container/50 border border-white/5 hover:border-white/10 transition-colors">
@@ -185,7 +196,7 @@ export default function Settings() {
               <div className="flex justify-between items-center py-2">
                 <span className="text-xs text-on-surface-variant">Data Backend</span>
                 <span className="font-data-display text-sm text-on-surface-variant/70">
-                  {currentUser ? 'Firebase Firestore' : 'localStorage'}
+                  {currentUser ? 'Firebase Firestore' : 'Signed out'}
                 </span>
               </div>
             </div>
