@@ -73,7 +73,7 @@ export default function Notes() {
   const pinnedCount = notes.filter(n => n.pinned).length;
 
   const handleOpenEditor = (note?: Note) => {
-    if (userPreferences.notesEditorMode === 'fullpage') {
+    if (userPreferences.notesEditorMode === 'full') {
       if (note) {
         navigate(`/notes/${note.id}`);
       } else {

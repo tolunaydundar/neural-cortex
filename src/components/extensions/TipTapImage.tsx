@@ -1,5 +1,5 @@
 import Image from '@tiptap/extension-image';
-import { ReactNodeViewRenderer, NodeViewWrapper, NodeViewProps } from '@tiptap/react';
+import { ReactNodeViewRenderer, NodeViewWrapper, type NodeViewProps } from '@tiptap/react';
 
 const TipTapImageNodeView = ({ node }: NodeViewProps) => {
   const handleDownload = async (e: React.MouseEvent) => {
