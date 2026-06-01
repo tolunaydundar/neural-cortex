@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { usePageTitle } from '../utils/usePageTitle';
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
