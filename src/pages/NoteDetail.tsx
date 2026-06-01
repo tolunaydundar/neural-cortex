@@ -1,9 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useNotes, type Note, type NoteColor } from '../context/NoteContext';
+import { useNotes, type NoteColor } from '../context/NoteContext';
 import TipTapEditor from '../components/TipTapEditor';
-import ConfirmModal from '../components/ConfirmModal';
-import FolderEditorModal from '../components/FolderEditorModal';
 import { uploadFile } from '../utils/storage';
 import { useAuth } from '../context/AuthContext';
 
@@ -17,7 +15,7 @@ function wordCount(text: string): number {
 export default function NoteDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { notes, folders, updateNote, deleteNote, addNote } = useNotes();
+  const { notes, folders, updateNote, addNote } = useNotes();
   const { currentUser } = useAuth();
   
   const isNew = id === 'new';
@@ -33,8 +31,7 @@ export default function NoteDetail() {
   const [icon, setIcon] = useState<string | null>(null);
   const [coverImage, setCoverImage] = useState<string | null>(null);
   
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showNewFolderModal, setShowNewFolderModal] = useState(false);
+
   const [isUploading, setIsUploading] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
@@ -103,7 +100,7 @@ export default function NoteDetail() {
         navigate('/notes');
         return;
       }
-      const newId = await addNote({
+      await addNote({
         title: cleanTitle,
         content,
         tags,

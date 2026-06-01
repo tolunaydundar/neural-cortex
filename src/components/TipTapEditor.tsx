@@ -10,7 +10,6 @@ import { useEffect } from 'react';
 interface TipTapEditorProps {
   content: string;
   onChange: (content: string) => void;
-  format?: 'markdown' | 'html';
   placeholder?: string;
   readOnly?: boolean;
 }
@@ -123,7 +122,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
   );
 };
 
-export default function TipTapEditor({ content, onChange, format = 'html', placeholder = 'Start typing...', readOnly = false }: TipTapEditorProps) {
+export default function TipTapEditor({ content, onChange, placeholder = 'Start typing...', readOnly = false }: TipTapEditorProps) {
   // We parse existing markdown using a basic strategy if needed, but since we're using tiptap,
   // TipTap handles HTML out of the box. For markdown, we'll just treat it as text if it's not HTML,
   // or use a markdown parser if we want to be fancy. For now, TipTap's StarterKit handles basic HTML.
@@ -163,7 +162,7 @@ export default function TipTapEditor({ content, onChange, format = 'html', place
       // So only set content if the editor is completely empty, or if we strictly need to sync
       // TipTap's `content` option handles initial content, but for dynamic updates:
       if (!editor.isFocused) {
-        editor.commands.setContent(content, false);
+        editor.commands.setContent(content, { emitUpdate: false });
       }
     }
   }, [content, editor]);
