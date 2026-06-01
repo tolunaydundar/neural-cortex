@@ -3,9 +3,11 @@ import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
-import Image from '@tiptap/extension-image';
+import { CustomImage as Image } from './extensions/TipTapImage';
 import Link from '@tiptap/extension-link';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { uploadFile } from '../utils/storage';
 
 interface TipTapEditorProps {
   content: string;
@@ -15,6 +17,9 @@ interface TipTapEditorProps {
 }
 
 const MenuBar = ({ editor }: { editor: any }) => {
+  const { currentUser } = useAuth();
+  const [isUploading, setIsUploading] = useState(false);
+
   if (!editor) {
     return null;
   }
@@ -106,18 +111,42 @@ const MenuBar = ({ editor }: { editor: any }) => {
 
       <div className="w-px h-4 bg-white/10 mx-1" />
 
-      <button
-        onClick={() => {
-          const url = window.prompt('URL');
-          if (url) {
-            editor.chain().focus().setImage({ src: url }).run();
-          }
-        }}
-        className="p-1.5 rounded transition-colors text-on-surface-variant hover:bg-white/5"
-        title="Add Image URL"
+      <label
+        className={`p-1.5 rounded transition-colors text-on-surface-variant hover:bg-white/5 cursor-pointer flex items-center justify-center ${isUploading ? 'opacity-50' : ''}`}
+        title="Upload Image"
       >
-        <span className="material-symbols-outlined text-[18px]">image</span>
-      </button>
+        <span className="material-symbols-outlined text-[18px]">
+          {isUploading ? 'hourglass_empty' : 'image'}
+        </span>
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          disabled={isUploading}
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (!file || !currentUser) {
+              if (!currentUser) {
+                // Fallback to URL if not logged in
+                const url = window.prompt('URL');
+                if (url) editor.chain().focus().setImage({ src: url }).run();
+              }
+              return;
+            }
+            setIsUploading(true);
+            try {
+              const path = `users/${currentUser.uid}/images/${Date.now()}_${file.name}`;
+              const url = await uploadFile(file, path);
+              editor.chain().focus().setImage({ src: url }).run();
+            } catch (err) {
+              console.error('Upload failed', err);
+            } finally {
+              setIsUploading(false);
+              e.target.value = '';
+            }
+          }}
+        />
+      </label>
     </div>
   );
 };

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useNotes, type NoteColor } from '../context/NoteContext';
 import TipTapEditor from '../components/TipTapEditor';
+import FolderEditorModal from '../components/FolderEditorModal';
 import { uploadFile } from '../utils/storage';
 import { useAuth } from '../context/AuthContext';
 
@@ -34,6 +35,7 @@ export default function NoteDetail() {
 
   const [isUploading, setIsUploading] = useState(false);
   const [initialized, setInitialized] = useState(false);
+  const [showNewFolderModal, setShowNewFolderModal] = useState(false);
 
   // Initialize state from note
   useEffect(() => {
@@ -182,6 +184,13 @@ export default function NoteDetail() {
                 <option key={f.id} value={f.id}>{f.name}</option>
               ))}
             </select>
+            <button
+              onClick={() => setShowNewFolderModal(true)}
+              className="material-symbols-outlined text-[14px] text-on-surface-variant hover:text-primary-fixed-dim transition-colors cursor-pointer"
+              title="New Folder"
+            >
+              add_circle
+            </button>
           </div>
         </div>
 
@@ -320,6 +329,14 @@ export default function NoteDetail() {
           </span>
         </div>
       </div>
+
+      {showNewFolderModal && (
+        <FolderEditorModal
+          folderId={null}
+          onClose={() => setShowNewFolderModal(false)}
+          onSuccess={(newId) => setFolderId(newId)}
+        />
+      )}
     </div>
   );
 }

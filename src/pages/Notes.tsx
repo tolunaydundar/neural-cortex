@@ -73,15 +73,15 @@ export default function Notes() {
   const pinnedCount = notes.filter(n => n.pinned).length;
 
   const handleOpenEditor = (note?: Note) => {
-    if (userPreferences.notesEditorMode === 'modal') {
-      setSelectedNote(note || null);
-      setIsEditorOpen(true);
-    } else {
+    if (userPreferences.notesEditorMode === 'fullpage') {
       if (note) {
         navigate(`/notes/${note.id}`);
       } else {
         navigate(`/notes/new`);
       }
+    } else {
+      setSelectedNote(note || null);
+      setIsEditorOpen(true);
     }
   };
 

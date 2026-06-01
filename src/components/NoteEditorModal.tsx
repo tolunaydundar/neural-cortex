@@ -2,8 +2,9 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNotes, type Note, type NoteColor } from '../context/NoteContext';
 import ConfirmModal from './ConfirmModal';
 import FolderEditorModal from './FolderEditorModal';
-import ReactMarkdown from 'react-markdown';
 import { useFocusTrap } from '../utils/useFocusTrap';
+import TipTapEditor from './TipTapEditor';
+import { useNavigate } from 'react-router-dom';
 
 interface NoteEditorModalProps {
   initialNote?: Note | null;
@@ -18,6 +19,7 @@ function wordCount(text: string): number {
 
 export default function NoteEditorModal({ initialNote, onClose }: NoteEditorModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
   const titleId = 'note-editor-title';
   const { addNote, updateNote, deleteNote, duplicateNote, folders } = useNotes();
   const [title, setTitle] = useState(initialNote?.title || '');
@@ -30,17 +32,12 @@ export default function NoteEditorModal({ initialNote, onClose }: NoteEditorModa
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
   const [showNewFolderModal, setShowNewFolderModal] = useState(false);
-  const [isPreview, setIsPreview] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useFocusTrap(modalRef);
 
-  // Focus textarea on open for new notes
+  // Focus textarea on open for new notes (handled by TipTap if needed, or we just rely on its autofocus)
   useEffect(() => {
-    if (!initialNote && textareaRef.current) {
-      // small delay so the modal animates in first
-      setTimeout(() => textareaRef.current?.focus(), 100);
-    }
+    // Focus can be handled by TipTap autofocus if desired
   }, [initialNote]);
 
   const hasChanges =
@@ -134,8 +131,21 @@ export default function NoteEditorModal({ initialNote, onClose }: NoteEditorModa
     }
   };
 
-  const words = wordCount(content);
-  const chars = content.length;
+  const words = wordCount(content.replace(/(<([^>]+)>)/gi, ""));
+  const chars = content.replace(/(<([^>]+)>)/gi, "").length;
+
+  const handleOpenFullpage = () => {
+    // Save current changes to the note if any before navigating
+    // Or we could just discard and navigate. Let's auto-save if it has changes and we have an ID, or create it.
+    handleSave();
+    if (initialNote) {
+      navigate(`/notes/${initialNote.id}`);
+    } else {
+      // In a real app we'd need the new ID, but handleSave just adds it.
+      // We can just navigate to /notes/new with some state, but for now navigate there.
+      navigate('/notes/new');
+    }
+  };
 
   return (
     <>
@@ -252,29 +262,11 @@ export default function NoteEditorModal({ initialNote, onClose }: NoteEditorModa
 
           {/* Content area */}
           <div className="flex-grow flex flex-col min-h-0 relative mb-4">
-            <div className="flex justify-end mb-2">
-              <button
-                onClick={() => setIsPreview(!isPreview)}
-                className="text-xs font-label-caps text-primary-fixed-dim hover:text-[#6ff6ff] transition-colors"
-              >
-                {isPreview ? 'EDIT MARKDOWN' : 'PREVIEW'}
-              </button>
-            </div>
-            {isPreview ? (
-              <div
-                className="w-full h-full min-h-[300px] overflow-y-auto bg-surface-container-lowest border border-white/10 p-4 font-body-md text-sm lg:text-base text-on-surface rounded-sm custom-scrollbar markdown-preview prose prose-invert prose-p:my-2 prose-headings:my-4 prose-a:text-primary-fixed-dim prose-code:text-primary-fixed-dim max-w-none"
-              >
-                <ReactMarkdown>{content}</ReactMarkdown>
-              </div>
-            ) : (
-              <textarea
-                ref={textareaRef}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Start typing your note here (Markdown supported)..."
-                className="w-full h-full min-h-[300px] bg-surface-container-lowest border border-white/10 p-4 font-body-md text-sm lg:text-base text-on-surface focus:outline-none focus:border-primary-fixed-dim transition-all resize-none rounded-sm custom-scrollbar leading-relaxed"
-              />
-            )}
+            <TipTapEditor 
+              content={content} 
+              onChange={setContent} 
+              placeholder="Start typing your note here (Markdown supported)..."
+            />
           </div>
 
           {/* Footer: Stats + Actions */}
@@ -291,6 +283,14 @@ export default function NoteEditorModal({ initialNote, onClose }: NoteEditorModa
             </div>
 
             {/* Action buttons */}
+            <button
+              onClick={handleOpenFullpage}
+              className="flex items-center gap-1.5 px-3 py-2 border border-white/10 text-on-surface-variant font-label-caps text-[10px] hover:bg-white/5 hover:text-primary-fixed-dim transition-colors cursor-pointer mr-auto"
+              title="Open fullpage"
+            >
+              <span className="material-symbols-outlined text-sm">open_in_new</span>
+              FULLPAGE
+            </button>
             {initialNote && (
               <>
                 <button
