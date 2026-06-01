@@ -10,7 +10,7 @@ export default function Settings() {
   const { habits, logs } = useHabits();
   const { tasks } = useTasks();
   const { notes, folders } = useNotes();
-  const { currentUser, operatorName, updateOperatorName } = useAuth();
+  const { currentUser, operatorName, theme, userPreferences, updateOperatorName } = useAuth();
 
   const [userName, setUserName] = useState(operatorName);
   const [showExportSuccess, setShowExportSuccess] = useState(false);
@@ -32,12 +32,18 @@ export default function Settings() {
       return;
     }
     const data = {
-      schema_version: 2,
+      schema_version: 3,
       nexus_habits: JSON.stringify(habits),
       nexus_logs: JSON.stringify(logs),
       nexus_tasks: JSON.stringify(tasks),
       nexus_notes: JSON.stringify(notes),
       nexus_folders: JSON.stringify(folders),
+      nexus_preferences: JSON.stringify({
+        operatorName,
+        theme,
+        notesSortMode: userPreferences.notesSortMode,
+        notesViewMode: userPreferences.notesViewMode,
+      }),
       exported_at: new Date().toISOString(),
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });

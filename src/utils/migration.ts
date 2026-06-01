@@ -1,5 +1,5 @@
 import { db } from '../firebase';
-import { collection, writeBatch, doc, query, where, limit, getDocs } from 'firebase/firestore';
+import { collection, writeBatch, doc, query, where, limit, getDocs, updateDoc } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
 
 export async function importDataToCloud(currentUser: User, importedData: Record<string, unknown>): Promise<boolean> {
@@ -30,8 +30,25 @@ export async function importDataToCloud(currentUser: User, importedData: Record<
     const localNotes = parse('nexus_notes');
     const localFolders = parse('nexus_folders');
 
-    // If there is no data to migrate, just return false
-    if (!localHabits.length && !localLogs.length && !localTasks.length && !localNotes.length && !localFolders.length) {
+    // Parse user preferences if present
+    let preferences: Record<string, unknown> | null = null;
+    const rawPrefs = importedData['nexus_preferences'];
+    if (rawPrefs) {
+      if (typeof rawPrefs === 'string') {
+        try {
+          preferences = JSON.parse(rawPrefs);
+        } catch {
+          preferences = null;
+        }
+      } else if (typeof rawPrefs === 'object' && !Array.isArray(rawPrefs)) {
+        preferences = rawPrefs as Record<string, unknown>;
+      }
+    }
+
+    const hasCollectionData = localHabits.length || localLogs.length || localTasks.length || localNotes.length || localFolders.length;
+
+    // If there is no data to migrate at all, just return false
+    if (!hasCollectionData && !preferences) {
       return false;
     }
 
@@ -61,6 +78,21 @@ export async function importDataToCloud(currentUser: User, importedData: Record<
     });
 
     await batch.commit();
+
+    // Restore user preferences to the user profile doc (outside batch since it's a different pattern)
+    if (preferences) {
+      const userRef = doc(db, 'users', currentUser.uid);
+      const prefsUpdate: Record<string, unknown> = {};
+      if (preferences.operatorName) prefsUpdate.operatorName = preferences.operatorName;
+      if (preferences.theme === 'dark' || preferences.theme === 'light') prefsUpdate.theme = preferences.theme;
+      if (preferences.notesSortMode) prefsUpdate.notesSortMode = preferences.notesSortMode;
+      if (preferences.notesViewMode) prefsUpdate.notesViewMode = preferences.notesViewMode;
+
+      if (Object.keys(prefsUpdate).length > 0) {
+        await updateDoc(userRef, prefsUpdate);
+      }
+    }
+
     return true;
   } catch (err) {
     console.error("Failed to import data to cloud:", err);

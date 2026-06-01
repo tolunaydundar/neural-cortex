@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNotes, type Note } from '../context/NoteContext';
+import { useAuth } from '../context/AuthContext';
 import NoteCard from '../components/NoteCard';
 import NoteEditorModal from '../components/NoteEditorModal';
 import FolderEditorModal from '../components/FolderEditorModal';
@@ -26,23 +27,37 @@ type SidebarFilter = 'all' | 'pinned' | { type: 'folder'; id: string } | { type:
 
 export default function Notes() {
   const { notes, folders, getAllTags, updateNote } = useNotes();
+  const { userPreferences, updateUserPreferences } = useAuth();
 
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
-  const [sortMode, setSortMode] = useState<SortMode>(() => {
-    return (localStorage.getItem('nexus_notes_sort_mode') as SortMode) || 'updated';
-  });
-  const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    return (localStorage.getItem('nexus_notes_view_mode') as ViewMode) || 'grid';
-  });
+  const [sortMode, setSortModeLocal] = useState<SortMode>(
+    (userPreferences.notesSortMode as SortMode) || 'updated'
+  );
+  const [viewMode, setViewModeLocal] = useState<ViewMode>(
+    (userPreferences.notesViewMode as ViewMode) || 'grid'
+  );
 
+  // Sync from cloud when preferences update (e.g. from another device)
   useEffect(() => {
-    localStorage.setItem('nexus_notes_sort_mode', sortMode);
-  }, [sortMode]);
+    if (userPreferences.notesSortMode) {
+      setSortModeLocal(userPreferences.notesSortMode as SortMode);
+    }
+    if (userPreferences.notesViewMode) {
+      setViewModeLocal(userPreferences.notesViewMode as ViewMode);
+    }
+  }, [userPreferences.notesSortMode, userPreferences.notesViewMode]);
 
-  useEffect(() => {
-    localStorage.setItem('nexus_notes_view_mode', viewMode);
-  }, [viewMode]);
+  // Wrapped setters that sync to cloud
+  const setSortMode = useCallback((mode: SortMode) => {
+    setSortModeLocal(mode);
+    updateUserPreferences({ notesSortMode: mode });
+  }, [updateUserPreferences]);
+
+  const setViewMode = useCallback((mode: ViewMode) => {
+    setViewModeLocal(mode);
+    updateUserPreferences({ notesViewMode: mode });
+  }, [updateUserPreferences]);
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarFilter, setSidebarFilter] = useState<SidebarFilter>('all');
   const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);

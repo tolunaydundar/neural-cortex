@@ -1,8 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useEffect, useCallback } from 'react';
 import { useAuth } from './AuthContext';
-import { db } from '../firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 type Theme = 'dark' | 'light';
 
@@ -16,52 +14,23 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { currentUser } = useAuth();
-  const [theme, setThemeState] = useState<Theme>(() => {
-    const saved = localStorage.getItem('nexus_theme');
-    return (saved === 'light' || saved === 'dark') ? saved : 'light';
-  });
+  const { theme, updateTheme } = useAuth();
 
-  // Load theme from Firestore on login
-  useEffect(() => {
-    async function loadTheme() {
-      if (currentUser) {
-        try {
-          const userSnap = await getDoc(doc(db, 'users', currentUser.uid));
-          if (userSnap.exists() && userSnap.data().theme) {
-            const dbTheme = userSnap.data().theme;
-            if (dbTheme === 'light' || dbTheme === 'dark') {
-              setThemeState(dbTheme);
-            }
-          }
-        } catch (err) {
-          console.error("Error fetching theme", err);
-        }
-      }
-    }
-    loadTheme();
-  }, [currentUser]);
-
-  // Apply theme to DOM and save to cloud/local
+  // Apply theme to DOM whenever it changes (driven by real-time Firestore listener in AuthContext)
   useEffect(() => {
     const root = document.documentElement;
     root.setAttribute('data-theme', theme);
+    // Also cache in localStorage for fast initial paint on next load
     localStorage.setItem('nexus_theme', theme);
-    
-    if (currentUser) {
-      updateDoc(doc(db, 'users', currentUser.uid), { theme }).catch(err => {
-        console.error("Failed to sync theme", err);
-      });
-    }
-  }, [theme, currentUser]);
+  }, [theme]);
 
   const toggleTheme = useCallback(() => {
-    setThemeState(prev => (prev === 'dark' ? 'light' : 'dark'));
-  }, []);
+    updateTheme(theme === 'dark' ? 'light' : 'dark');
+  }, [theme, updateTheme]);
 
   const setTheme = useCallback((newTheme: Theme) => {
-    setThemeState(newTheme);
-  }, []);
+    updateTheme(newTheme);
+  }, [updateTheme]);
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme, isDark: theme === 'dark' }}>
