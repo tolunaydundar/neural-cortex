@@ -1,5 +1,5 @@
 import { db } from '../firebase';
-import { collection, writeBatch, doc, query, where, limit, getDocs, updateDoc } from 'firebase/firestore';
+import { collection, writeBatch, doc, query, where, limit, getDocs, getDoc, updateDoc } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
 
 export async function importDataToCloud(currentUser: User, importedData: Record<string, unknown>): Promise<boolean> {
@@ -102,6 +102,12 @@ export async function importDataToCloud(currentUser: User, importedData: Record<
 
 export async function checkHasCloudData(currentUser: User): Promise<boolean> {
   try {
+    const userRef = doc(db, 'users', currentUser.uid);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists() && userSnap.data().hasOnboarded) {
+      return true;
+    }
+
     const tasksRef = collection(db, 'tasks');
     const qTasks = query(tasksRef, where('userId', '==', currentUser.uid), limit(1));
     const tasksSnap = await getDocs(qTasks);
@@ -139,6 +145,11 @@ export async function purgeCloudData(currentUser: User): Promise<void> {
   ]);
 
   const allPaths = results.flat();
+  
+  // Also reset the user profile flag so they see the onboarding modal again
+  const userRef = doc(db, 'users', currentUser.uid);
+  await updateDoc(userRef, { hasOnboarded: false, operatorName: 'OPERATOR' }).catch(() => {});
+
   if (allPaths.length === 0) return;
 
   // Chunk array into sizes of 500

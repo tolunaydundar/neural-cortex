@@ -119,7 +119,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setOperatorName(name);
     if (currentUser) {
       const userRef = doc(db, 'users', currentUser.uid);
-      await updateDoc(userRef, { operatorName: name });
+      await updateDoc(userRef, { operatorName: name, hasOnboarded: true });
     }
   }), [currentUser, runSync]);
 
