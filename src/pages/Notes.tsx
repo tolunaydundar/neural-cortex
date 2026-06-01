@@ -398,6 +398,15 @@ export default function Notes() {
                 <option value="alpha">SORT: A-Z</option>
               </select>
 
+              <select
+                value={userPreferences.notesEditorMode || 'modal'}
+                onChange={(e) => updateUserPreferences({ notesEditorMode: e.target.value })}
+                className="bg-surface-container-lowest border border-white/10 px-2 py-1 text-[10px] font-label-caps text-on-surface-variant focus:outline-none focus:border-primary-fixed-dim cursor-pointer rounded-sm"
+              >
+                <option value="modal">MODE: MODAL</option>
+                <option value="full">MODE: FULLPAGE</option>
+              </select>
+
               <div className="flex border border-white/10 rounded-sm overflow-hidden">
                 <button
                   onClick={() => setViewMode('grid')}

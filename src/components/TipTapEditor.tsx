@@ -29,7 +29,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <button
         onClick={() => editor.chain().focus().toggleBold().run()}
         disabled={!editor.can().chain().focus().toggleBold().run()}
-        className={`p-1.5 rounded transition-colors ${editor.isActive('bold') ? 'bg-primary-fixed-dim/20 text-primary-fixed-dim' : 'text-on-surface-variant hover:bg-white/5'}`}
+        className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${editor.isActive('bold') ? 'bg-primary-fixed-dim/20 text-primary-fixed-dim' : 'text-on-surface-variant hover:bg-white/5'}`}
         title="Bold"
       >
         <span className="material-symbols-outlined text-[18px]">format_bold</span>
@@ -37,7 +37,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <button
         onClick={() => editor.chain().focus().toggleItalic().run()}
         disabled={!editor.can().chain().focus().toggleItalic().run()}
-        className={`p-1.5 rounded transition-colors ${editor.isActive('italic') ? 'bg-primary-fixed-dim/20 text-primary-fixed-dim' : 'text-on-surface-variant hover:bg-white/5'}`}
+        className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${editor.isActive('italic') ? 'bg-primary-fixed-dim/20 text-primary-fixed-dim' : 'text-on-surface-variant hover:bg-white/5'}`}
         title="Italic"
       >
         <span className="material-symbols-outlined text-[18px]">format_italic</span>
@@ -45,7 +45,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <button
         onClick={() => editor.chain().focus().toggleStrike().run()}
         disabled={!editor.can().chain().focus().toggleStrike().run()}
-        className={`p-1.5 rounded transition-colors ${editor.isActive('strike') ? 'bg-primary-fixed-dim/20 text-primary-fixed-dim' : 'text-on-surface-variant hover:bg-white/5'}`}
+        className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${editor.isActive('strike') ? 'bg-primary-fixed-dim/20 text-primary-fixed-dim' : 'text-on-surface-variant hover:bg-white/5'}`}
         title="Strikethrough"
       >
         <span className="material-symbols-outlined text-[18px]">strikethrough_s</span>
@@ -55,14 +55,14 @@ const MenuBar = ({ editor }: { editor: any }) => {
 
       <button
         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-        className={`p-1.5 rounded transition-colors ${editor.isActive('heading', { level: 1 }) ? 'bg-primary-fixed-dim/20 text-primary-fixed-dim' : 'text-on-surface-variant hover:bg-white/5'}`}
+        className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${editor.isActive('heading', { level: 1 }) ? 'bg-primary-fixed-dim/20 text-primary-fixed-dim' : 'text-on-surface-variant hover:bg-white/5'}`}
         title="Heading 1"
       >
         <span className="font-label-caps text-[12px] font-bold">H1</span>
       </button>
       <button
         onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-        className={`p-1.5 rounded transition-colors ${editor.isActive('heading', { level: 2 }) ? 'bg-primary-fixed-dim/20 text-primary-fixed-dim' : 'text-on-surface-variant hover:bg-white/5'}`}
+        className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${editor.isActive('heading', { level: 2 }) ? 'bg-primary-fixed-dim/20 text-primary-fixed-dim' : 'text-on-surface-variant hover:bg-white/5'}`}
         title="Heading 2"
       >
         <span className="font-label-caps text-[12px] font-bold">H2</span>
@@ -72,21 +72,21 @@ const MenuBar = ({ editor }: { editor: any }) => {
 
       <button
         onClick={() => editor.chain().focus().toggleBulletList().run()}
-        className={`p-1.5 rounded transition-colors ${editor.isActive('bulletList') ? 'bg-primary-fixed-dim/20 text-primary-fixed-dim' : 'text-on-surface-variant hover:bg-white/5'}`}
+        className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${editor.isActive('bulletList') ? 'bg-primary-fixed-dim/20 text-primary-fixed-dim' : 'text-on-surface-variant hover:bg-white/5'}`}
         title="Bullet List"
       >
         <span className="material-symbols-outlined text-[18px]">format_list_bulleted</span>
       </button>
       <button
         onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        className={`p-1.5 rounded transition-colors ${editor.isActive('orderedList') ? 'bg-primary-fixed-dim/20 text-primary-fixed-dim' : 'text-on-surface-variant hover:bg-white/5'}`}
+        className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${editor.isActive('orderedList') ? 'bg-primary-fixed-dim/20 text-primary-fixed-dim' : 'text-on-surface-variant hover:bg-white/5'}`}
         title="Ordered List"
       >
         <span className="material-symbols-outlined text-[18px]">format_list_numbered</span>
       </button>
       <button
         onClick={() => editor.chain().focus().toggleTaskList().run()}
-        className={`p-1.5 rounded transition-colors ${editor.isActive('taskList') ? 'bg-primary-fixed-dim/20 text-primary-fixed-dim' : 'text-on-surface-variant hover:bg-white/5'}`}
+        className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${editor.isActive('taskList') ? 'bg-primary-fixed-dim/20 text-primary-fixed-dim' : 'text-on-surface-variant hover:bg-white/5'}`}
         title="Task List"
       >
         <span className="material-symbols-outlined text-[18px]">checklist</span>
@@ -96,14 +96,14 @@ const MenuBar = ({ editor }: { editor: any }) => {
 
       <button
         onClick={() => editor.chain().focus().toggleBlockquote().run()}
-        className={`p-1.5 rounded transition-colors ${editor.isActive('blockquote') ? 'bg-primary-fixed-dim/20 text-primary-fixed-dim' : 'text-on-surface-variant hover:bg-white/5'}`}
+        className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${editor.isActive('blockquote') ? 'bg-primary-fixed-dim/20 text-primary-fixed-dim' : 'text-on-surface-variant hover:bg-white/5'}`}
         title="Blockquote"
       >
         <span className="material-symbols-outlined text-[18px]">format_quote</span>
       </button>
       <button
         onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-        className={`p-1.5 rounded transition-colors ${editor.isActive('codeBlock') ? 'bg-primary-fixed-dim/20 text-primary-fixed-dim' : 'text-on-surface-variant hover:bg-white/5'}`}
+        className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${editor.isActive('codeBlock') ? 'bg-primary-fixed-dim/20 text-primary-fixed-dim' : 'text-on-surface-variant hover:bg-white/5'}`}
         title="Code Block"
       >
         <span className="material-symbols-outlined text-[18px]">code_blocks</span>
@@ -112,7 +112,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <div className="w-px h-4 bg-white/10 mx-1" />
 
       <label
-        className={`p-1.5 rounded transition-colors text-on-surface-variant hover:bg-white/5 cursor-pointer flex items-center justify-center ${isUploading ? 'opacity-50' : ''}`}
+        className={`w-8 h-8 flex items-center justify-center rounded transition-colors text-on-surface-variant hover:bg-white/5 cursor-pointer ${isUploading ? 'opacity-50' : ''}`}
         title="Upload Image"
       >
         <span className="material-symbols-outlined text-[18px]">
