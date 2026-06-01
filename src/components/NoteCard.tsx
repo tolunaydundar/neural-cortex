@@ -2,8 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { type Note, useNotes } from '../context/NoteContext';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { marked } from 'marked';
-import DOMPurify from 'dompurify';
+import ReactMarkdown from 'react-markdown';
+import { useTranslation } from 'react-i18next';
 
 interface NoteCardProps {
   note: Note;
@@ -16,6 +16,7 @@ function wordCount(text: string): number {
 
 export default function NoteCard({ note, onClick }: NoteCardProps) {
   const { togglePin, duplicateNote, deleteNote, folders, moveToFolder } = useNotes();
+  const { t } = useTranslation();
   const [showMenu, setShowMenu] = useState(false);
   const [showMoveMenu, setShowMoveMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -46,7 +47,6 @@ export default function NoteCard({ note, onClick }: NoteCardProps) {
   const snippetText = note.content.length > 140
     ? note.content.substring(0, 140) + '…'
     : note.content;
-  const snippetHTML = DOMPurify.sanitize(marked.parse(snippetText, { async: false }) as string);
 
   const folder = note.folder_id ? folders.find(f => f.id === note.folder_id) : null;
 
@@ -99,14 +99,15 @@ export default function NoteCard({ note, onClick }: NoteCardProps) {
       </div>
 
       {/* Content snippet */}
-      {snippetHTML ? (
+      {snippetText ? (
         <div 
           className="text-sm text-on-surface-variant/70 line-clamp-3 flex-grow prose prose-invert prose-p:my-0 prose-headings:my-0 prose-sm max-w-none leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: snippetHTML }}
-        />
+        >
+          <ReactMarkdown>{snippetText}</ReactMarkdown>
+        </div>
       ) : (
         <p className="text-sm text-on-surface-variant/70 line-clamp-3 flex-grow whitespace-pre-wrap leading-relaxed">
-          <span className="italic opacity-50">Empty note</span>
+          <span className="italic opacity-50">{t('notes.empty_note')}</span>
         </p>
       )}
 

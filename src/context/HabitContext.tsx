@@ -149,8 +149,8 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     let expectedDate = uniqueLogDates[0];
     
-    for (let i = 0; i < uniqueLogDates.length; i++) {
-      if (uniqueLogDates[i] === expectedDate) {
+    for (const date of uniqueLogDates) {
+      if (date === expectedDate) {
         streak++;
         expectedDate -= 86400000; // Subtract one day
       } else {

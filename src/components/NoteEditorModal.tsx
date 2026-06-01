@@ -2,8 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNotes, type Note, type NoteColor } from '../context/NoteContext';
 import ConfirmModal from './ConfirmModal';
 import FolderEditorModal from './FolderEditorModal';
-import { marked } from 'marked';
-import DOMPurify from 'dompurify';
+import ReactMarkdown from 'react-markdown';
 
 interface NoteEditorModalProps {
   initialNote?: Note | null;
@@ -254,8 +253,9 @@ export default function NoteEditorModal({ initialNote, onClose }: NoteEditorModa
             {isPreview ? (
               <div 
                 className="w-full h-full min-h-[300px] overflow-y-auto bg-surface-container-lowest border border-white/10 p-4 font-body-md text-sm lg:text-base text-on-surface rounded-sm custom-scrollbar markdown-preview prose prose-invert prose-p:my-2 prose-headings:my-4 prose-a:text-primary-fixed-dim prose-code:text-primary-fixed-dim max-w-none"
-                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(content, { async: false }) as string) }}
-              />
+              >
+                <ReactMarkdown>{content}</ReactMarkdown>
+              </div>
             ) : (
               <textarea
                 ref={textareaRef}

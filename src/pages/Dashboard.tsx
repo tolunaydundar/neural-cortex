@@ -4,11 +4,13 @@ import { useTasks } from '../context/TaskContext';
 import { startOfDay, subDays, isSameDay } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { useOutletContext } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export default function Dashboard() {
   const { habits, logs, getStreak, getEfficiency, logHabit } = useHabits();
   const { tasks, moveStatus, getOverdueTasks, addTask } = useTasks();
   const { openAddModal, openAddTaskModal } = useOutletContext<{ openAddModal: () => void; openAddTaskModal: () => void }>();
+  const { t } = useTranslation();
 
   const [quickTaskTitle, setQuickTaskTitle] = useState('');
 
@@ -221,7 +223,7 @@ export default function Dashboard() {
                 disabled={!quickTaskTitle.trim()}
                 className="material-symbols-outlined text-primary-fixed-dim/60 hover:text-primary-fixed-dim disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
               >
-                add_circle
+                {t('dashboard.add_circle')}
               </button>
             </form>
 

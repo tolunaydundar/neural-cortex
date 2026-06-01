@@ -3,6 +3,7 @@ import { useTasks, type Task } from '../context/TaskContext';
 import TaskCard from '../components/TaskCard';
 import TaskDetailModal from '../components/TaskDetailModal';
 import { useOutletContext } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { DndContext, DragOverlay, closestCorners, PointerSensor, useSensor, useSensors, useDraggable, useDroppable } from '@dnd-kit/core';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 
@@ -25,6 +26,7 @@ function DraggableTask({ task, onClick, onToggleComplete }: { task: Task; onClic
   });
 
   return (
+    // SAFE: Spread operators required by @dnd-kit
     <div ref={setNodeRef} {...listeners} {...attributes} style={{ opacity: isDragging ? 0.4 : 1, touchAction: 'none' }}>
       <TaskCard task={task} onToggleComplete={onToggleComplete} onClick={onClick} />
     </div>
@@ -33,6 +35,7 @@ function DraggableTask({ task, onClick, onToggleComplete }: { task: Task; onClic
 
 function DroppableColumn({ id, title, icon, tasks, onToggleComplete, onClick }: { id: string, title: string, icon: string, tasks: Task[], onToggleComplete: (id: string) => void, onClick: (t: Task) => void }) {
   const { setNodeRef, isOver } = useDroppable({ id });
+  const { t } = useTranslation();
   
   return (
     <div 
@@ -49,7 +52,7 @@ function DroppableColumn({ id, title, icon, tasks, onToggleComplete, onClick }: 
         ))}
         {tasks.length === 0 && (
           <div className="h-full w-full flex items-center justify-center border-2 border-dashed border-outline/10 rounded-lg text-on-surface-variant/40 font-label-caps text-[9px] min-h-[100px]">
-            DROP HERE
+            {t('tasks.drop_here')}
           </div>
         )}
       </div>
@@ -60,6 +63,7 @@ function DroppableColumn({ id, title, icon, tasks, onToggleComplete, onClick }: 
 export default function Tasks() {
   const { tasks, moveStatus, getOverdueTasks, getCompletionStats } = useTasks();
   const { openAddTaskModal } = useOutletContext<{ openAddTaskModal: () => void; openAddModal: () => void }>();
+  const { t } = useTranslation();
 
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('');
@@ -176,15 +180,15 @@ export default function Tasks() {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <button onClick={() => setStatusFilter('all')} className={`filter-pill ${statusFilter === 'all' ? 'active' : ''}`}>ALL</button>
-        <button onClick={() => setStatusFilter('active')} className={`filter-pill ${statusFilter === 'active' ? 'active' : ''}`}>ACTIVE</button>
-        <button onClick={() => setStatusFilter('done')} className={`filter-pill ${statusFilter === 'done' ? 'active' : ''}`}>DONE</button>
+        <button onClick={() => setStatusFilter('all')} className={`filter-pill ${statusFilter === 'all' ? 'active' : ''}`}>{t('tasks.all')}</button>
+        <button onClick={() => setStatusFilter('active')} className={`filter-pill ${statusFilter === 'active' ? 'active' : ''}`}>{t('tasks.active')}</button>
+        <button onClick={() => setStatusFilter('done')} className={`filter-pill ${statusFilter === 'done' ? 'active' : ''}`}>{t('tasks.done')}</button>
         
         <div className="w-px h-4 bg-white/10 mx-1" />
 
         {categories.length > 0 && (
           <>
-            <button onClick={() => setCategoryFilter('')} className={`filter-pill ${!categoryFilter ? 'active' : ''}`}>ALL CATEGORIES</button>
+            <button onClick={() => setCategoryFilter('')} className={`filter-pill ${!categoryFilter ? 'active' : ''}`}>{t('tasks.all_categories')}</button>
             {categories.map(cat => (
               <button key={cat} onClick={() => setCategoryFilter(cat === categoryFilter ? '' : cat)} className={`filter-pill ${categoryFilter === cat ? 'active' : ''}`}>{cat}</button>
             ))}
@@ -202,7 +206,7 @@ export default function Tasks() {
 
       {tasks.length === 0 ? (
         <div className="glass-panel p-12 flex flex-col items-center justify-center gap-4 text-center">
-          <button onClick={openAddTaskModal} className="material-symbols-outlined text-6xl text-primary-fixed-dim/20 hover:text-primary-fixed-dim transition-colors cursor-pointer outline-none focus:outline-none hover:scale-110 active:scale-95">add_circle</button>
+          <button onClick={openAddTaskModal} className="material-symbols-outlined text-6xl text-primary-fixed-dim/20 hover:text-primary-fixed-dim transition-colors cursor-pointer outline-none focus:outline-none hover:scale-110 active:scale-95">{t('dashboard.add_circle')}</button>
           <h3 className="font-headline-sm text-headline-sm text-on-surface-variant">NO TASKS DEPLOYED</h3>
         </div>
       ) : (
