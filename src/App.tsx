@@ -23,6 +23,7 @@ import Toast from './components/Toast';
 import OnboardingModal from './components/OnboardingModal';
 import { useState, useEffect, useCallback } from 'react';
 import { importDataToCloud, checkHasCloudData } from './utils/migration';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ToastState {
   message: string;
@@ -232,10 +233,21 @@ function AppLayout() {
           onMenuToggle={() => setIsMobileMenuOpen(prev => !prev)}
         />
         <div className="flex-grow flex flex-col px-4 lg:px-margin-desktop pb-4 lg:pb-margin-desktop pt-0">
-          <Outlet context={{
-            openAddModal: () => setIsAddModalOpen(true),
-            openAddTaskModal: () => setIsAddTaskModalOpen(true),
-          }} />
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="flex-grow flex flex-col"
+            >
+              <Outlet context={{
+                openAddModal: () => setIsAddModalOpen(true),
+                openAddTaskModal: () => setIsAddTaskModalOpen(true),
+              }} />
+            </motion.div>
+          </AnimatePresence>
         </div>
       </main>
 

@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNotes, type Note, type NoteColor } from '../context/NoteContext';
 import ConfirmModal from './ConfirmModal';
 import FolderEditorModal from './FolderEditorModal';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 
 interface NoteEditorModalProps {
   initialNote?: Note | null;
@@ -26,6 +28,7 @@ export default function NoteEditorModal({ initialNote, onClose }: NoteEditorModa
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
   const [showNewFolderModal, setShowNewFolderModal] = useState(false);
+  const [isPreview, setIsPreview] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Focus textarea on open for new notes
@@ -240,13 +243,28 @@ export default function NoteEditorModal({ initialNote, onClose }: NoteEditorModa
 
           {/* Content area */}
           <div className="flex-grow flex flex-col min-h-0 relative mb-4">
-            <textarea
-              ref={textareaRef}
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Start typing your note here..."
-              className="w-full h-full min-h-[300px] bg-surface-container-lowest border border-white/10 p-4 font-body-md text-sm lg:text-base text-on-surface focus:outline-none focus:border-primary-fixed-dim transition-all resize-none rounded-sm custom-scrollbar leading-relaxed"
-            />
+            <div className="flex justify-end mb-2">
+              <button 
+                onClick={() => setIsPreview(!isPreview)}
+                className="text-xs font-label-caps text-primary-fixed-dim hover:text-[#6ff6ff] transition-colors"
+              >
+                {isPreview ? 'EDIT MARKDOWN' : 'PREVIEW'}
+              </button>
+            </div>
+            {isPreview ? (
+              <div 
+                className="w-full h-full min-h-[300px] overflow-y-auto bg-surface-container-lowest border border-white/10 p-4 font-body-md text-sm lg:text-base text-on-surface rounded-sm custom-scrollbar markdown-preview prose prose-invert prose-p:my-2 prose-headings:my-4 prose-a:text-primary-fixed-dim prose-code:text-primary-fixed-dim max-w-none"
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(content, { async: false }) as string) }}
+              />
+            ) : (
+              <textarea
+                ref={textareaRef}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Start typing your note here (Markdown supported)..."
+                className="w-full h-full min-h-[300px] bg-surface-container-lowest border border-white/10 p-4 font-body-md text-sm lg:text-base text-on-surface focus:outline-none focus:border-primary-fixed-dim transition-all resize-none rounded-sm custom-scrollbar leading-relaxed"
+              />
+            )}
           </div>
 
           {/* Footer: Stats + Actions */}

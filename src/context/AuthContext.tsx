@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useMemo, type ReactNode } from 'react';
 import { 
   type User, 
   signInWithPopup,
@@ -84,7 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await signOut(auth);
   };
 
-  const value = {
+  const value = useMemo(() => ({
     currentUser,
     loading,
     operatorName,
@@ -93,7 +93,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signupWithEmail,
     loginWithEmail,
     logout
-  };
+  }), [currentUser, loading, operatorName]); // eslint-disable-next-line react-hooks/exhaustive-deps
 
   return (
     <AuthContext.Provider value={value}>

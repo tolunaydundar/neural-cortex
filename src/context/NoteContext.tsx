@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { db } from '../firebase';
 import { 
   collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query, where 
@@ -199,12 +199,14 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const getNotesCount = useCallback((): number => notes.length, [notes]);
 
+  const value = useMemo(() => ({
+    notes, folders, addNote, updateNote, deleteNote, duplicateNote, togglePin,
+    addFolder, updateFolder, deleteFolder, moveToFolder,
+    getAllTags, getNotesByFolder, getNotesCount,
+  }), [notes, folders, getAllTags, getNotesByFolder, getNotesCount]);
+
   return (
-    <NoteContext.Provider value={{
-      notes, addNote, updateNote, deleteNote, togglePin, duplicateNote, moveToFolder,
-      folders, addFolder, updateFolder, deleteFolder,
-      getAllTags, getNotesByFolder, getNotesCount,
-    }}>
+    <NoteContext.Provider value={value}>
       {children}
     </NoteContext.Provider>
   );

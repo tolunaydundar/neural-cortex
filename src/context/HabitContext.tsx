@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { subDays, isSameDay, startOfDay } from 'date-fns';
 import { db } from '../firebase';
 import { collection, onSnapshot, addDoc, deleteDoc, doc, query, where, getDocs, writeBatch } from 'firebase/firestore';
@@ -130,26 +130,27 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     await batch.commit();
   });
 
-  const getStreak = (habitId: string): number => {
-    const habitLogs = logs
-      .filter(l => l.habitId === habitId)
-      .map(l => startOfDay(new Date(l.date)).getTime())
-      .sort((a, b) => b - a);
+  const getStreak = useCallback((habitId: string): number => {
+    const uniqueLogDates = Array.from(new Set(
+      logs
+        .filter(l => l.habitId === habitId)
+        .map(l => startOfDay(new Date(l.date)).getTime())
+    )).sort((a, b) => b - a);
 
-    if (habitLogs.length === 0) return 0;
+    if (uniqueLogDates.length === 0) return 0;
 
     let streak = 0;
     const currentDate = startOfDay(new Date()).getTime();
     
     // Check if logged today or yesterday to continue streak
-    if (habitLogs.at(0) !== currentDate && habitLogs.at(0) !== currentDate - 86400000) {
+    if (uniqueLogDates[0] !== currentDate && uniqueLogDates[0] !== currentDate - 86400000) {
       return 0;
     }
 
-    let expectedDate = habitLogs.at(0)!;
+    let expectedDate = uniqueLogDates[0];
     
-    for (let i = 0; i < habitLogs.length; i++) {
-      if (habitLogs.at(i) === expectedDate) {
+    for (let i = 0; i < uniqueLogDates.length; i++) {
+      if (uniqueLogDates[i] === expectedDate) {
         streak++;
         expectedDate -= 86400000; // Subtract one day
       } else {
@@ -158,9 +159,9 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     return streak;
-  };
+  }, [logs]);
 
-  const getPattern = (habitId: string, days: number = 30): boolean[] => {
+  const getPattern = useCallback((habitId: string, days: number = 30): boolean[] => {
     const pattern = [];
     const today = startOfDay(new Date());
     
@@ -170,16 +171,21 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       pattern.push(isLogged);
     }
     return pattern;
-  };
+  }, [logs]);
 
-  const getEfficiency = (habitId: string, days: number = 30): number => {
+  const getEfficiency = useCallback((habitId: string, days: number = 30): number => {
     const pattern = getPattern(habitId, days);
     const completedDays = pattern.filter(Boolean).length;
     return Math.round((completedDays / days) * 100);
-  };
+  }, [getPattern]);
+
+  const value = useMemo(() => ({
+    habits, logs, addHabit, logHabit, removeLog, deleteHabit, getStreak, getEfficiency, getPattern
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [habits, logs, getStreak, getEfficiency, getPattern]);
 
   return (
-    <HabitContext.Provider value={{ habits, logs, addHabit, logHabit, removeLog, deleteHabit, getStreak, getEfficiency, getPattern }}>
+    <HabitContext.Provider value={value}>
       {children}
     </HabitContext.Provider>
   );

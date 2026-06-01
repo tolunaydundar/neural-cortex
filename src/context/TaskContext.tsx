@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { startOfDay, isSameDay, subDays } from 'date-fns';
 import { db } from '../firebase';
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
@@ -163,12 +163,15 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return Array.from(cats).sort();
   }, [tasks]);
 
+  const value = useMemo(() => ({
+    tasks, addTask, updateTask, deleteTask,
+    toggleSubtask, addSubtask, removeSubtask, moveStatus,
+    getOverdueTasks, getTodayTasks, getCompletionStats, getCategories,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [tasks, getOverdueTasks, getTodayTasks, getCompletionStats, getCategories]);
+
   return (
-    <TaskContext.Provider value={{
-      tasks, addTask, updateTask, deleteTask,
-      toggleSubtask, addSubtask, removeSubtask, moveStatus,
-      getOverdueTasks, getTodayTasks, getCompletionStats, getCategories,
-    }}>
+    <TaskContext.Provider value={value}>
       {children}
     </TaskContext.Provider>
   );

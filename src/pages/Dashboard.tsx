@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useHabits } from '../context/HabitContext';
 import { useTasks } from '../context/TaskContext';
 import { startOfDay, subDays, isSameDay } from 'date-fns';
@@ -6,8 +7,10 @@ import { useOutletContext } from 'react-router-dom';
 
 export default function Dashboard() {
   const { habits, logs, getStreak, getEfficiency, logHabit } = useHabits();
-  const { tasks, moveStatus, getOverdueTasks } = useTasks();
+  const { tasks, moveStatus, getOverdueTasks, addTask } = useTasks();
   const { openAddModal, openAddTaskModal } = useOutletContext<{ openAddModal: () => void; openAddTaskModal: () => void }>();
+
+  const [quickTaskTitle, setQuickTaskTitle] = useState('');
 
   const today = startOfDay(new Date());
   const last7Days = Array.from({ length: 7 }, (_, i) => subDays(today, i));
@@ -186,6 +189,41 @@ export default function Dashboard() {
                 ))}
               </div>
             )}
+
+            {/* Quick Add Task */}
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (quickTaskTitle.trim()) {
+                  addTask({
+                    title: quickTaskTitle.trim(),
+                    description: '',
+                    priority: 'medium',
+                    status: 'todo',
+                    category: '',
+                    due_date: new Date().toISOString().slice(0, 10),
+                    subtasks: []
+                  });
+                  setQuickTaskTitle('');
+                }
+              }}
+              className="mt-4 flex items-center gap-2"
+            >
+              <input
+                type="text"
+                value={quickTaskTitle}
+                onChange={(e) => setQuickTaskTitle(e.target.value)}
+                placeholder="Quick add a task for today..."
+                className="flex-grow bg-surface-container/30 border border-white/10 px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-primary-fixed-dim rounded-sm transition-colors"
+              />
+              <button
+                type="submit"
+                disabled={!quickTaskTitle.trim()}
+                className="material-symbols-outlined text-primary-fixed-dim/60 hover:text-primary-fixed-dim disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+              >
+                add_circle
+              </button>
+            </form>
 
             {/* Overdue tasks alert */}
             {overdueTasks.length > 0 && (
