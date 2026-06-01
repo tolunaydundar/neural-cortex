@@ -123,3 +123,34 @@ export async function checkHasCloudData(currentUser: User): Promise<boolean> {
     return false;
   }
 }
+export async function purgeCloudData(currentUser: User): Promise<void> {
+  const deleteFromCollection = async (collName: string): Promise<string[]> => {
+    const q = query(collection(db, collName), where('userId', '==', currentUser.uid));
+    const snap = await getDocs(q);
+    return snap.docs.map(doc => `${collName}/${doc.id}`);
+  };
+
+  const results = await Promise.all([
+    deleteFromCollection('habits'),
+    deleteFromCollection('habit_logs'),
+    deleteFromCollection('tasks'),
+    deleteFromCollection('notes'),
+    deleteFromCollection('folders')
+  ]);
+
+  const allPaths = results.flat();
+  if (allPaths.length === 0) return;
+
+  // Chunk array into sizes of 500
+  const chunkSize = 500;
+  for (let i = 0; i < allPaths.length; i += chunkSize) {
+    const chunk = allPaths.slice(i, i + chunkSize);
+    const batch = writeBatch(db);
+    chunk.forEach(path => {
+      const parts = path.split('/');
+      const ref = doc(db, parts[0], parts[1]);
+      batch.delete(ref);
+    });
+    await batch.commit();
+  }
+}

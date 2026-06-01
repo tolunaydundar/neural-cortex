@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Outlet, NavLink, useLocation, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import AuthPage from './pages/AuthPage';
+import LandingPage from './pages/LandingPage';
 import { HabitProvider } from './context/HabitContext';
 import { TaskProvider } from './context/TaskContext';
 import { NoteProvider } from './context/NoteContext';
@@ -340,22 +341,32 @@ function AppLayout() {
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { currentUser } = useAuth();
   if (!currentUser) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to="/welcome" replace />;
+  }
+  return <>{children}</>;
+};
+
+// Public Only Route Component
+const PublicOnlyRoute = ({ children }: { children: React.ReactNode }) => {
+  const { currentUser } = useAuth();
+  if (currentUser) {
+    return <Navigate to="/" replace />;
   }
   return <>{children}</>;
 };
 
 function App() {
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <SyncProvider>
+    <SyncProvider>
+      <AuthProvider>
+        <ThemeProvider>
           <HabitProvider>
             <TaskProvider>
               <NoteProvider>
                 <Router>
                   <Routes>
-                    <Route path="/auth" element={<AuthPage />} />
+                    <Route path="/welcome" element={<PublicOnlyRoute><LandingPage /></PublicOnlyRoute>} />
+                    <Route path="/auth" element={<PublicOnlyRoute><AuthPage /></PublicOnlyRoute>} />
                     <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
                       <Route index element={<Dashboard />} />
                       <Route path="habits" element={<Habits />} />
@@ -371,9 +382,9 @@ function App() {
               </NoteProvider>
             </TaskProvider>
           </HabitProvider>
-        </SyncProvider>
-      </ThemeProvider>
-    </AuthProvider>
+        </ThemeProvider>
+      </AuthProvider>
+    </SyncProvider>
   );
 }
 

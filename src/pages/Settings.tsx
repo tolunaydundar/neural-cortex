@@ -3,6 +3,7 @@ import { useHabits } from '../context/HabitContext';
 import { useTasks } from '../context/TaskContext';
 import { useNotes } from '../context/NoteContext';
 import { useAuth } from '../context/AuthContext';
+import PurgeModal from '../components/PurgeModal';
 
 import { importDataToCloud } from '../utils/migration';
 
@@ -15,6 +16,10 @@ export default function Settings() {
   const [userName, setUserName] = useState(operatorName);
   const [showExportSuccess, setShowExportSuccess] = useState(false);
   const [showImportSuccess, setShowImportSuccess] = useState(false);
+  const [showPurgeModal, setShowPurgeModal] = useState(false);
+  const [showPurgeSuccess, setShowPurgeSuccess] = useState(false);
+  
+  const [lastExported, setLastExported] = useState<string | null>(localStorage.getItem('nexus_last_exported'));
 
 
 
@@ -53,6 +58,11 @@ export default function Settings() {
     a.download = `nexus-backup-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
+    
+    const now = new Date().toISOString();
+    localStorage.setItem('nexus_last_exported', now);
+    setLastExported(now);
+
     setShowExportSuccess(true);
     setTimeout(() => setShowExportSuccess(false), 3000);
   };
@@ -159,6 +169,20 @@ export default function Settings() {
                   IMPORT
                 </button>
               </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-error/5 border border-error/10 hover:border-error/30 transition-colors">
+                <div>
+                  <p className="text-sm font-semibold text-error">Purge Cloud Data</p>
+                  <p className="text-xs text-on-surface-variant mt-1">Permanently delete all your content</p>
+                </div>
+                <button
+                  onClick={() => setShowPurgeModal(true)}
+                  className="flex items-center justify-center gap-2 w-full sm:w-32 px-4 py-2 border border-error/30 text-error font-label-caps text-[10px] hover:bg-error/10 transition-colors cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-sm">delete_forever</span>
+                  PURGE
+                </button>
+              </div>
             </div>
 
             {showExportSuccess && (
@@ -171,6 +195,12 @@ export default function Settings() {
               <div className="mt-4 p-3 bg-primary-fixed-dim/10 border border-primary-fixed-dim/30 text-primary-fixed-dim text-xs font-label-caps flex items-center gap-2">
                 <span className="material-symbols-outlined text-sm" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
                 DATA IMPORTED — RELOADING...
+              </div>
+            )}
+            {showPurgeSuccess && (
+              <div className="mt-4 p-3 bg-error/10 border border-error/30 text-error text-xs font-label-caps flex items-center gap-2">
+                <span className="material-symbols-outlined text-sm" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
+                ALL CLOUD DATA PURGED
               </div>
             )}
           </div>
@@ -197,6 +227,26 @@ export default function Settings() {
               <div className="flex justify-between items-center py-2 border-b border-white/5">
                 <span className="text-xs text-on-surface-variant">Completed Tasks</span>
                 <span className="font-data-display text-sm text-primary-fixed-dim">{tasks.filter(t => t.status === 'done').length}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-white/5">
+                <span className="text-xs text-on-surface-variant">Active Notes</span>
+                <span className="font-data-display text-sm text-primary-fixed-dim">{notes.length}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-white/5">
+                <span className="text-xs text-on-surface-variant">Note Folders</span>
+                <span className="font-data-display text-sm text-primary-fixed-dim">{folders.length}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-white/5">
+                <span className="text-xs text-on-surface-variant">Account Created</span>
+                <span className="font-data-display text-sm text-on-surface-variant/70">
+                  {currentUser?.metadata.creationTime ? new Date(currentUser.metadata.creationTime).toLocaleDateString() : 'Unknown'}
+                </span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-white/5">
+                <span className="text-xs text-on-surface-variant">Last Backup</span>
+                <span className="font-data-display text-sm text-on-surface-variant/70">
+                  {lastExported ? new Date(lastExported).toLocaleDateString() : 'Never'}
+                </span>
               </div>
 
               <div className="flex justify-between items-center py-2">
@@ -232,6 +282,19 @@ export default function Settings() {
           </div>
         </div>
       </div>
+
+      <PurgeModal 
+        isOpen={showPurgeModal} 
+        onClose={() => setShowPurgeModal(false)} 
+        onSuccess={() => {
+          setShowPurgeModal(false);
+          setShowPurgeSuccess(true);
+          setTimeout(() => {
+            setShowPurgeSuccess(false);
+            window.location.reload();
+          }, 2000);
+        }} 
+      />
     </div>
   );
 }

@@ -11,6 +11,7 @@ import {
 } from 'firebase/auth';
 import { auth, googleProvider, db } from '../firebase';
 import { doc, setDoc, updateDoc, onSnapshot } from 'firebase/firestore';
+import { useSync } from './SyncContext';
 
 export interface UserPreferences {
   notesSortMode: string;
@@ -49,6 +50,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
   const [userPreferences, setUserPreferences] = useState<UserPreferences>(DEFAULT_PREFERENCES);
   const [loading, setLoading] = useState(true);
+  const { runSync } = useSync();
 
   useEffect(() => {
     let unsubscribeProfile: (() => void) | null = null;
@@ -112,16 +114,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
-  const updateOperatorName = useCallback(async (name: string) => {
+  const updateOperatorName = useCallback(async (name: string) => runSync(async () => {
     // Optimistic update
     setOperatorName(name);
     if (currentUser) {
       const userRef = doc(db, 'users', currentUser.uid);
       await updateDoc(userRef, { operatorName: name });
     }
-  }, [currentUser]);
+  }), [currentUser, runSync]);
 
-  const updateTheme = useCallback(async (newTheme: 'dark' | 'light') => {
+  const updateTheme = useCallback(async (newTheme: 'dark' | 'light') => runSync(async () => {
     // Optimistic update
     setThemeState(newTheme);
     localStorage.setItem('nexus_theme', newTheme);
@@ -131,9 +133,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.error("Failed to sync theme", err);
       });
     }
-  }, [currentUser]);
+  }), [currentUser, runSync]);
 
-  const updateUserPreferences = useCallback(async (prefs: Partial<UserPreferences>) => {
+  const updateUserPreferences = useCallback(async (prefs: Partial<UserPreferences>) => runSync(async () => {
     // Optimistic update
     setUserPreferences(prev => ({ ...prev, ...prefs }));
     
@@ -151,7 +153,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.error("Failed to sync user preferences", err);
       });
     }
-  }, [currentUser]);
+  }), [currentUser, runSync]);
 
   const loginWithGoogle = async () => {
     await signInWithPopup(auth, googleProvider, browserPopupRedirectResolver);
