@@ -3,12 +3,12 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
 
 const firebaseConfig = {
-  projectId: "neural-cortex-app-2026",
-  appId: "1:580792319098:web:fa198f745733b537050fc3",
-  storageBucket: "neural-cortex-app-2026.firebasestorage.app",
-  apiKey: "AIzaSyBvdGpOGxwVLZgirp7pNTWb_zMAX5OdIBY",
-  authDomain: "neural-cortex-app-2026.firebaseapp.com",
-  messagingSenderId: "580792319098",
+  projectId: "neural-cortex",
+  appId: "1:109936735660:web:105ca3fdc192ae35b1f609",
+  storageBucket: "neural-cortex.firebasestorage.app",
+  apiKey: "AIzaSyCV8LbYxuWXA2jWGXPcyA67pjGwpuwIaHg",
+  authDomain: "neural-cortex.firebaseapp.com",
+  messagingSenderId: "109936735660",
 };
 
 // Initialize Firebase
