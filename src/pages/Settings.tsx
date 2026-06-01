@@ -214,6 +214,7 @@ export default function Settings() {
           <div className="glass-panel p-6">
             <h3 className="font-label-caps text-[10px] text-on-surface-variant mb-4">SYSTEM STATISTICS</h3>
             <div className="space-y-3">
+              {/* Habits Group */}
               <div className="flex justify-between items-center py-2 border-b border-white/5">
                 <span className="text-xs text-on-surface-variant">Active Habits</span>
                 <span className="font-data-display text-sm text-primary-fixed-dim">{habits.length}</span>
@@ -222,6 +223,8 @@ export default function Settings() {
                 <span className="text-xs text-on-surface-variant">Total Log Entries</span>
                 <span className="font-data-display text-sm text-primary-fixed-dim">{logs.length}</span>
               </div>
+              
+              {/* Tasks Group */}
               <div className="flex justify-between items-center py-2 border-b border-white/5">
                 <span className="text-xs text-on-surface-variant">Active Tasks</span>
                 <span className="font-data-display text-sm text-primary-fixed-dim">{tasks.filter(t => t.status !== 'done').length}</span>
@@ -230,6 +233,8 @@ export default function Settings() {
                 <span className="text-xs text-on-surface-variant">Completed Tasks</span>
                 <span className="font-data-display text-sm text-primary-fixed-dim">{tasks.filter(t => t.status === 'done').length}</span>
               </div>
+              
+              {/* Notes Group */}
               <div className="flex justify-between items-center py-2 border-b border-white/5">
                 <span className="text-xs text-on-surface-variant">Active Notes</span>
                 <span className="font-data-display text-sm text-primary-fixed-dim">{notes.length}</span>
@@ -238,23 +243,18 @@ export default function Settings() {
                 <span className="text-xs text-on-surface-variant">Note Folders</span>
                 <span className="font-data-display text-sm text-primary-fixed-dim">{folders.length}</span>
               </div>
+              
+              {/* Account / Backup */}
               <div className="flex justify-between items-center py-2 border-b border-white/5">
                 <span className="text-xs text-on-surface-variant">Account Created</span>
                 <span className="font-data-display text-sm text-on-surface-variant/70">
                   {currentUser?.metadata.creationTime ? new Date(currentUser.metadata.creationTime).toLocaleDateString() : 'Unknown'}
                 </span>
               </div>
-              <div className="flex justify-between items-center py-2 border-b border-white/5">
-                <span className="text-xs text-on-surface-variant">Last Backup</span>
+              <div className="flex justify-between items-center py-2">
+                <span className="text-xs text-on-surface-variant">Last Manual Backup</span>
                 <span className="font-data-display text-sm text-on-surface-variant/70">
                   {lastExported ? new Date(lastExported).toLocaleDateString() : 'Never'}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center py-2">
-                <span className="text-xs text-on-surface-variant">Data Backend</span>
-                <span className="font-data-display text-sm text-on-surface-variant/70">
-                  {currentUser ? 'Firebase Firestore' : 'Signed out'}
                 </span>
               </div>
             </div>
@@ -273,12 +273,18 @@ export default function Settings() {
                 <span className="font-data-display text-sm text-primary-fixed-dim">1.0.0</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-white/5">
+                <span className="text-xs text-on-surface-variant">Design System</span>
+                <span className="font-data-display text-sm text-on-surface-variant/70">Tailwind v4</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-white/5">
                 <span className="text-xs text-on-surface-variant">Runtime</span>
                 <span className="font-data-display text-sm text-on-surface-variant/70">React 19 + Vite</span>
               </div>
               <div className="flex justify-between items-center py-2">
-                <span className="text-xs text-on-surface-variant">Design System</span>
-                <span className="font-data-display text-sm text-on-surface-variant/70">Tailwind v4</span>
+                <span className="text-xs text-on-surface-variant">Data Backend</span>
+                <span className="font-data-display text-sm text-on-surface-variant/70">
+                  {currentUser ? 'Firebase Firestore' : 'Signed out'}
+                </span>
               </div>
             </div>
           </div>

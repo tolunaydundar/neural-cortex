@@ -20,6 +20,7 @@ import HabitDetails from './pages/HabitDetails';
 import LogActivityModal from './components/LogActivityModal';
 import AddHabitModal from './components/AddHabitModal';
 import AddTaskModal from './components/AddTaskModal';
+import NoteEditorModal from './components/NoteEditorModal';
 import Toast from './components/Toast';
 import OnboardingModal from './components/OnboardingModal';
 import { useState, useEffect, useCallback } from 'react';
@@ -37,6 +38,7 @@ function AppLayout() {
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
+  const [isAddNoteModalOpen, setIsAddNoteModalOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [isInitializingData, setIsInitializingData] = useState(true);
   const [toast, setToast] = useState<ToastState | null>(null);
@@ -254,6 +256,8 @@ function AppLayout() {
       <main className="ml-0 lg:ml-64 min-h-screen flex flex-col mobile-content-pad">
         <TopBar
           onAddHabit={() => setIsAddModalOpen(true)}
+          onAddTask={() => setIsAddTaskModalOpen(true)}
+          onAddNote={() => setIsAddNoteModalOpen(true)}
           onMenuToggle={() => setIsMobileMenuOpen(prev => !prev)}
         />
         <div className="flex-grow flex flex-col px-4 lg:px-margin-desktop pb-4 lg:pb-margin-desktop pt-0">
@@ -324,6 +328,9 @@ function AppLayout() {
           onClose={() => setIsAddTaskModalOpen(false)}
           onSuccess={() => setToast({ message: 'TASK DEPLOYED', icon: 'task_alt' })}
         />
+      )}
+      {isAddNoteModalOpen && (
+        <NoteEditorModal initialNote={null} onClose={() => setIsAddNoteModalOpen(false)} />
       )}
 
       {showOnboarding && (

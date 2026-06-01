@@ -1,5 +1,5 @@
 
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -29,10 +29,10 @@ export default function Sidebar({ onLogActivity, isOpen = false, onClose }: Side
   const sidebarContent = (
     <>
       <div className="px-8 mb-12 flex items-center justify-between">
-        <div>
-          <h1 className="font-headline-md text-headline-md font-bold tracking-tighter text-primary-fixed-dim">Neural Cortex</h1>
+        <Link to="/" onClick={handleNavClick} className="cursor-pointer block group">
+          <h1 className="font-headline-md text-headline-md font-bold tracking-tighter text-primary-fixed-dim group-hover:opacity-80 transition-opacity">Neural Cortex</h1>
           <p className="font-label-caps text-label-caps text-on-surface-variant/60 mt-1 ml-[2px]">Version 1.0.0</p>
-        </div>
+        </Link>
         {/* Close button — only in mobile drawer */}
         {onClose && (
           <button

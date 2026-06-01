@@ -5,11 +5,14 @@ import { useSync } from '../context/SyncContext';
 
 interface TopBarProps {
   onAddHabit: () => void;
+  onAddTask?: () => void;
+  onAddNote?: () => void;
   onMenuToggle?: () => void;
 }
 
-export default function TopBar({ onAddHabit, onMenuToggle }: TopBarProps) {
+export default function TopBar({ onAddHabit, onAddTask, onAddNote, onMenuToggle }: TopBarProps) {
   const [time, setTime] = useState("");
+  const [isCreateMenuOpen, setIsCreateMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { isSaving, lastSaved } = useSync();
   
@@ -66,13 +69,46 @@ export default function TopBar({ onAddHabit, onMenuToggle }: TopBarProps) {
         </div>
         <SystemStatus />
         <div className="flex items-center gap-4">
-          <button 
-            onClick={onAddHabit}
-            className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-primary-fixed-dim text-background font-label-caps text-xs hover:bg-[#6ff6ff] transition-colors cursor-pointer shadow-[0_0_15px_rgba(0,220,230,0.4)] hover:shadow-[0_0_20px_rgba(0,220,230,0.6)] rounded-sm"
-          >
-            <span className="material-symbols-outlined text-sm">add</span>
-            <span className="hidden sm:inline">NEW HABIT</span>
-          </button>
+          <div className="relative">
+            <button 
+              onClick={() => setIsCreateMenuOpen(!isCreateMenuOpen)}
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-primary-fixed-dim text-background font-label-caps text-xs hover:bg-[#6ff6ff] transition-colors cursor-pointer shadow-[0_0_15px_rgba(0,220,230,0.4)] hover:shadow-[0_0_20px_rgba(0,220,230,0.6)] rounded-sm"
+            >
+              <span className="material-symbols-outlined text-sm">add</span>
+              <span className="hidden sm:inline">CREATE</span>
+              <span className="material-symbols-outlined text-[10px] hidden sm:inline ml-1 transition-transform" style={{ transform: isCreateMenuOpen ? 'rotate(180deg)' : 'none' }}>expand_more</span>
+            </button>
+            
+            {isCreateMenuOpen && (
+              <>
+                <div className="fixed inset-0 z-[50]" onClick={() => setIsCreateMenuOpen(false)} />
+                <div className="absolute top-full right-0 mt-2 w-40 bg-surface-container-highest border border-white/10 shadow-lg overflow-hidden z-[60] flex flex-col rounded-sm">
+                  <button 
+                    onClick={() => { onAddHabit(); setIsCreateMenuOpen(false); }} 
+                    className="w-full text-left px-4 py-3 hover:bg-white/5 font-label-caps text-[10px] text-on-surface flex items-center gap-3 transition-colors cursor-pointer"
+                  >
+                    <span className="material-symbols-outlined text-[16px] text-primary-fixed-dim">routine</span> HABIT
+                  </button>
+                  {onAddTask && (
+                    <button 
+                      onClick={() => { onAddTask(); setIsCreateMenuOpen(false); }} 
+                      className="w-full text-left px-4 py-3 hover:bg-white/5 font-label-caps text-[10px] text-on-surface flex items-center gap-3 transition-colors cursor-pointer border-t border-white/5"
+                    >
+                      <span className="material-symbols-outlined text-[16px] text-primary-fixed-dim">task_alt</span> TASK
+                    </button>
+                  )}
+                  {onAddNote && (
+                    <button 
+                      onClick={() => { onAddNote(); setIsCreateMenuOpen(false); }} 
+                      className="w-full text-left px-4 py-3 hover:bg-white/5 font-label-caps text-[10px] text-on-surface flex items-center gap-3 transition-colors cursor-pointer border-t border-white/5"
+                    >
+                      <span className="material-symbols-outlined text-[16px] text-primary-fixed-dim">description</span> NOTE
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
           <button
             onClick={() => navigate('/settings')}
             className="text-on-surface-variant hover:text-primary-fixed-dim transition-colors cursor-pointer p-1"
