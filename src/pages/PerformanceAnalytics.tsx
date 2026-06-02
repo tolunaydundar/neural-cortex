@@ -16,13 +16,13 @@ export default function PerformanceAnalytics() {
   const taskCategories = Array.from(new Set(tasks.map(t => t.category).filter(Boolean)));
   const categoryStats = taskCategories.map(cat => {
     const catTasks = tasks.filter(t => t.category === cat);
-    const done = catTasks.filter(t => t.status === 'done' || t.status === 'completed').length;
+    const done = catTasks.filter(t => t.status === 'done').length;
     return { name: cat, done, total: catTasks.length, rate: catTasks.length > 0 ? Math.round((done / catTasks.length) * 100) : 0 };
   }).sort((a, b) => b.rate - a.rate);
 
   // Focus metrics
   const today = startOfDay(new Date());
-  const focusTasks = tasks.filter(t => t.category === 'Focus' && (t.status === 'done' || t.status === 'completed'));
+  const focusTasks = tasks.filter(t => t.category === 'Focus' && t.status === 'done');
   let totalFocusMinutes = 0;
   let focusMinutes7d = 0;
   let focusMinutes30d = 0;

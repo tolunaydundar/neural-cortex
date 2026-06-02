@@ -1,8 +1,6 @@
-import { createContext, useContext, useEffect, useState, useRef, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useRef, useCallback, type ReactNode } from 'react';
 import { useAuth } from './AuthContext';
 import { useTasks } from './TaskContext';
-import { doc, updateDoc } from 'firebase/firestore';
-import { db } from '../firebase';
 
 export type TimerMode = 'focus' | 'shortBreak' | 'longBreak';
 export type TimerStatus = 'idle' | 'running' | 'paused';
@@ -13,6 +11,7 @@ export interface TimerSettings {
   longBreakDuration: number;
   longBreakInterval: number;
   autoStartFocus: boolean;
+  autoStartBreaks: boolean;
   soundEnabled: boolean;
   browserNotifications: boolean;
   logActivity: boolean;
@@ -127,7 +126,7 @@ export const TimerProvider = ({ children }: { children: ReactNode }) => {
           title: `Focus Session (${Math.round(settings.focusDuration / 60)}m)`,
           description: 'Automatically logged from Timer.',
           priority: 'low',
-          status: 'completed',
+          status: 'done',
           category: 'Focus',
           due_date: new Date().toISOString().slice(0, 10),
           subtasks: []
