@@ -43,7 +43,6 @@ export default function Notes() {
     (userPreferences.notesViewMode as ViewMode) || 'grid'
   );
 
-  // Sync from cloud when preferences update (e.g. from another device)
   useEffect(() => {
     if (userPreferences.notesSortMode) {
       setSortModeLocal(userPreferences.notesSortMode as SortMode);
@@ -53,7 +52,6 @@ export default function Notes() {
     }
   }, [userPreferences.notesSortMode, userPreferences.notesViewMode]);
 
-  // Wrapped setters that sync to cloud
   const setSortMode = useCallback((mode: SortMode) => {
     setSortModeLocal(mode);
     updateUserPreferences({ notesSortMode: mode });
@@ -63,6 +61,7 @@ export default function Notes() {
     setViewModeLocal(mode);
     updateUserPreferences({ notesViewMode: mode });
   }, [updateUserPreferences]);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarFilter, setSidebarFilter] = useState<SidebarFilter>('all');
   const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
@@ -134,13 +133,10 @@ export default function Notes() {
         if (!prevNote && !nextNote) {
           newOrder = Date.now();
         } else if (!prevNote) {
-          // Moved to the top
           newOrder = (nextNote!.order ?? new Date(nextNote!.created_at).getTime()) + 10000;
         } else if (!nextNote) {
-          // Moved to the bottom
           newOrder = (prevNote!.order ?? new Date(prevNote!.created_at).getTime()) - 10000;
         } else {
-          // Moved between two notes
           const prevOrder = prevNote!.order ?? new Date(prevNote!.created_at).getTime();
           const nextOrder = nextNote!.order ?? new Date(nextNote!.created_at).getTime();
           newOrder = (prevOrder + nextOrder) / 2;
@@ -151,12 +147,9 @@ export default function Notes() {
     }
   }, [sortMode, notes, updateNote]);
 
-  // ── Filtering ──
-
   const filteredNotes = useMemo(() => {
     let result = [...notes];
 
-    // Sidebar filter
     if (sidebarFilter === 'pinned') {
       result = result.filter(n => n.pinned);
     } else if (typeof sidebarFilter === 'object' && sidebarFilter.type === 'folder') {
@@ -165,7 +158,6 @@ export default function Notes() {
       result = result.filter(n => n.tags.includes(sidebarFilter.tag));
     }
 
-    // Search filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       result = result.filter(n =>
@@ -175,9 +167,7 @@ export default function Notes() {
       );
     }
 
-    // Sort
     result.sort((a, b) => {
-      // Pinned notes always first (except when filtering by pinned)
       if (sidebarFilter !== 'pinned') {
         if (a.pinned && !b.pinned) return -1;
         if (!a.pinned && b.pinned) return 1;
@@ -191,7 +181,7 @@ export default function Notes() {
       if (sortMode === 'alpha') {
         return a.title.localeCompare(b.title);
       }
-      return 0; // 'custom' mode
+      return 0;
     });
 
     return result;
@@ -201,7 +191,6 @@ export default function Notes() {
   const unpinnedNotes = filteredNotes.filter(n => !n.pinned);
   const showPinnedSection = sidebarFilter !== 'pinned' && pinnedNotes.length > 0;
 
-  // Active sidebar filter label
   const filterLabel = (() => {
     if (sidebarFilter === 'all') return 'All Notes';
     if (sidebarFilter === 'pinned') return 'Pinned';
@@ -215,33 +204,32 @@ export default function Notes() {
     return 'Notes';
   })();
 
-  // ── Sidebar Content ──
   const sidebarContent = (
-    <div className="flex flex-col h-full py-2">
+    <div className="flex flex-col h-full">
       {/* Main filters */}
       <button
         onClick={() => { setSidebarFilter('all'); setMobileSidebarOpen(false); }}
-        className={`note-sidebar-item ${sidebarFilter === 'all' ? 'active' : ''}`}
+        className={`flex items-center gap-3 px-4 py-2.5 rounded-md transition-colors text-sm ${sidebarFilter === 'all' ? 'bg-primary-fixed-dim/10 text-primary-fixed-dim font-bold' : 'text-on-surface-variant hover:bg-on-surface/5'}`}
       >
         <span className="material-symbols-outlined text-[18px]">notes</span>
-        <span className="flex-grow">All Notes</span>
+        <span className="flex-grow text-left">All Notes</span>
         <span className="font-data-display text-[11px] opacity-50">{notes.length}</span>
       </button>
       <button
         onClick={() => { setSidebarFilter('pinned'); setMobileSidebarOpen(false); }}
-        className={`note-sidebar-item ${sidebarFilter === 'pinned' ? 'active' : ''}`}
+        className={`flex items-center gap-3 px-4 py-2.5 rounded-md transition-colors text-sm ${sidebarFilter === 'pinned' ? 'bg-primary-fixed-dim/10 text-primary-fixed-dim font-bold' : 'text-on-surface-variant hover:bg-on-surface/5'}`}
       >
         <span className="material-symbols-outlined text-[18px]">push_pin</span>
-        <span className="flex-grow">Pinned</span>
+        <span className="flex-grow text-left">Pinned</span>
         <span className="font-data-display text-[11px] opacity-50">{pinnedCount}</span>
       </button>
 
       {/* Folders */}
-      <div className="note-sidebar-section-title flex items-center justify-between mt-2">
-        <span>Folders</span>
+      <div className="flex items-center justify-between mt-6 mb-2 px-4">
+        <span className="font-label-caps text-[10px] text-on-surface-variant/80 tracking-widest">FOLDERS</span>
         <button
           onClick={handleNewFolder}
-          className="material-symbols-outlined text-[14px] cursor-pointer hover:text-primary-fixed-dim transition-colors opacity-70 hover:opacity-100"
+          className="material-symbols-outlined text-[14px] cursor-pointer hover:text-primary-fixed-dim transition-colors text-on-surface-variant/80"
           title="New Folder"
         >
           add
@@ -250,10 +238,10 @@ export default function Notes() {
 
       {folders.length === 0 ? (
         <div className="px-4 py-2">
-          <p className="text-[10px] text-on-surface-variant/40 italic">No folders yet</p>
+          <p className="text-[11px] text-on-surface-variant/60 italic">No folders yet</p>
         </div>
       ) : (
-        <div className="py-1">
+        <div className="px-2">
           <FolderTree
             folders={folders}
             parentId={null}
@@ -268,8 +256,10 @@ export default function Notes() {
       {/* Tags */}
       {allTags.length > 0 && (
         <>
-          <div className="note-sidebar-section-title">Tags</div>
-          <div className="px-4 pb-2 flex flex-wrap gap-1.5">
+          <div className="mt-6 mb-3 px-4">
+            <span className="font-label-caps text-[10px] text-on-surface-variant/80 tracking-widest">TAGS</span>
+          </div>
+          <div className="px-4 pb-4 flex flex-wrap gap-1.5">
             {allTags.map(tag => {
               const isActive = typeof sidebarFilter === 'object' && sidebarFilter.type === 'tag' && sidebarFilter.tag === tag;
               return (
@@ -279,7 +269,7 @@ export default function Notes() {
                     setSidebarFilter(isActive ? 'all' : { type: 'tag', tag });
                     setMobileSidebarOpen(false);
                   }}
-                  className={`note-tag-chip interactive ${isActive ? 'bg-primary-fixed-dim/20 border-primary-fixed-dim/40' : ''}`}
+                  className={`px-2 py-1 rounded text-[11px] font-label-caps tracking-wide transition-all ${isActive ? 'bg-primary-fixed-dim/20 text-primary-fixed-dim border border-primary-fixed-dim/40' : 'bg-surface-container hover:bg-surface-container-high text-on-surface-variant border border-on-surface/10'}`}
                 >
                   #{tag}
                 </button>
@@ -291,12 +281,11 @@ export default function Notes() {
     </div>
   );
 
-  // ── Note Grid/List Rendering ──
   const renderNotes = (noteList: Note[]) => {
     const strategy = viewMode === 'grid' ? rectSortingStrategy : verticalListSortingStrategy;
     const containerClass = viewMode === 'grid' 
-      ? "grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4" 
-      : "space-y-2";
+      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6" 
+      : "flex flex-col gap-3";
 
     return (
       <SortableContext items={noteList.map(n => n.id)} strategy={strategy}>
@@ -310,87 +299,77 @@ export default function Notes() {
   };
 
   return (
-    <div className="flex-grow flex flex-col space-y-6 lg:space-y-8 h-full">
+    <div className="flex-grow flex flex-col space-y-6 lg:space-y-8 h-full max-w-7xl mx-auto w-full px-2 sm:px-4 py-4 sm:py-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
-          <h1 className="font-headline-lg text-headline-lg-mobile lg:text-headline-lg text-primary-fixed-dim">Notebook</h1>
-          <p className="text-on-surface-variant font-label-caps text-[10px] mt-1">KNOWLEDGE BASE & NEURAL ARCHIVES</p>
+          <h1 className="font-headline-lg text-4xl lg:text-5xl text-on-surface mb-2 tracking-tight">Notebook</h1>
+          <div className="flex items-center gap-4 text-on-surface-variant font-label-caps text-[10px] tracking-widest opacity-80">
+            <span>{notes.length} NOTES</span>
+            <span className="w-1 h-1 rounded-full bg-on-surface/20" />
+            <span>{pinnedCount} PINNED</span>
+            <span className="w-1 h-1 rounded-full bg-on-surface/20" />
+            <span>{folders.length} FOLDERS</span>
+          </div>
         </div>
         <button
           onClick={() => handleOpenEditor()}
-          className="flex justify-center items-center gap-2 px-4 py-2 bg-primary-fixed-dim text-background font-label-caps text-xs hover:bg-[#6ff6ff] transition-colors cursor-pointer shadow-[0_0_15px_rgba(0,220,230,0.4)] hover:shadow-[0_0_20px_rgba(0,220,230,0.6)] rounded-sm w-full sm:w-fit"
+          className="flex justify-center items-center gap-2 px-5 py-2.5 bg-primary-fixed-dim text-background font-label-caps text-xs hover:bg-[#6ff6ff] transition-all cursor-pointer shadow-[0_0_15px_rgba(0,220,230,0.3)] hover:shadow-[0_0_25px_rgba(0,220,230,0.5)] hover:scale-[1.02] active:scale-[0.98] rounded-md w-full sm:w-fit"
         >
           <span className="material-symbols-outlined text-sm">edit_square</span>
           <span>NEW NOTE</span>
         </button>
       </div>
 
-      {/* Stats ribbon */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="glass-panel p-3 lg:p-4 text-center">
-          <p className="font-label-caps text-[9px] text-on-surface-variant mb-1">TOTAL NOTES</p>
-          <p className="font-data-display text-xl lg:text-2xl text-primary-fixed-dim">{notes.length}</p>
-        </div>
-        <div className="glass-panel p-3 lg:p-4 text-center">
-          <p className="font-label-caps text-[9px] text-on-surface-variant mb-1">PINNED</p>
-          <p className="font-data-display text-xl lg:text-2xl text-primary-fixed-dim">{pinnedCount}</p>
-        </div>
-        <div className="glass-panel p-3 lg:p-4 text-center">
-          <p className="font-label-caps text-[9px] text-on-surface-variant mb-1">FOLDERS</p>
-          <p className="font-data-display text-xl lg:text-2xl text-primary-fixed-dim">{folders.length}</p>
-        </div>
-      </div>
-
       {/* Main layout: Sidebar + Content */}
-      <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 flex-grow min-h-0">
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 flex-grow min-h-0 items-start">
 
         {/* Desktop Sidebar */}
-        <div className="note-sidebar hidden lg:block glass-panel custom-scrollbar rounded-sm">
+        <div className="hidden lg:flex flex-col w-64 flex-shrink-0 sticky top-4 h-[calc(100vh-140px)] overflow-y-auto custom-scrollbar pr-2">
           {sidebarContent}
         </div>
 
         {/* Mobile Sidebar Area */}
-        <div className="lg:hidden flex flex-col gap-2">
+        <div className="lg:hidden flex flex-col gap-2 w-full">
           <button
             onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-            className="flex items-center justify-between w-full px-3 py-2 border border-white/10 text-on-surface-variant font-label-caps text-[10px] hover:bg-white/5 transition-colors cursor-pointer rounded-sm"
+            className="flex items-center justify-between w-full px-4 py-3 bg-surface-container rounded-lg border border-on-surface/10 text-on-surface font-label-caps text-[11px] tracking-wider transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-2">
               <span className="material-symbols-outlined text-sm">folder_open</span>
               {filterLabel}
             </div>
-            <span className="material-symbols-outlined text-[14px]">{mobileSidebarOpen ? 'expand_less' : 'expand_more'}</span>
+            <span className="material-symbols-outlined text-[16px]">{mobileSidebarOpen ? 'expand_less' : 'expand_more'}</span>
           </button>
 
           {mobileSidebarOpen && (
-            <div className="glass-panel rounded-sm max-h-[60vh] overflow-y-auto custom-scrollbar">
+            <div className="bg-surface-container-lowest border border-on-surface/10 p-2 rounded-lg max-h-[60vh] overflow-y-auto custom-scrollbar shadow-xl z-10 relative">
               {sidebarContent}
             </div>
           )}
         </div>
 
         {/* Content area */}
-        <div className="flex-grow flex flex-col gap-4 min-w-0">
+        <div className="flex-grow flex flex-col gap-6 w-full min-w-0">
 
           {/* Controls: Search, Sort, View */}
-          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-            <div className="relative w-full sm:w-64">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+          <div className="flex flex-col xl:flex-row gap-4 items-start xl:items-center justify-between bg-surface-container p-2 sm:p-3 rounded-lg border border-on-surface/10">
+            <div className="relative w-full xl:w-72">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/80 text-sm">search</span>
               <input
                 type="text"
-                placeholder="Search notes, tags..."
+                placeholder="Search notes..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-surface-container-lowest border border-white/10 pl-9 pr-3 py-2 font-body-md text-sm text-on-surface focus:outline-none focus:border-primary-fixed-dim transition-all rounded-sm"
+                className="w-full bg-surface-container-highest border border-transparent pl-9 pr-3 py-2 font-body-md text-sm text-on-surface focus:outline-none focus:border-on-surface/20 focus:bg-surface-container-lowest transition-all rounded-md placeholder:text-on-surface-variant/70"
               />
             </div>
 
-            <div className="flex items-center justify-between sm:justify-start gap-2 w-full sm:w-auto">
+            <div className="flex items-center justify-between sm:justify-end gap-3 w-full xl:w-auto overflow-x-auto pb-1 xl:pb-0">
               <select
                 value={sortMode}
                 onChange={(e) => setSortMode(e.target.value as SortMode)}
-                className="bg-surface-container-lowest border border-white/10 px-2 py-1 text-[10px] font-label-caps text-on-surface-variant focus:outline-none focus:border-primary-fixed-dim cursor-pointer rounded-sm"
+                className="bg-transparent border-none px-2 py-1.5 text-[11px] font-label-caps text-on-surface-variant hover:text-on-surface focus:outline-none cursor-pointer tracking-wider flex-shrink-0"
               >
                 <option value="custom">SORT: CUSTOM</option>
                 <option value="updated">SORT: RECENT</option>
@@ -398,33 +377,37 @@ export default function Notes() {
                 <option value="alpha">SORT: A-Z</option>
               </select>
 
+              <div className="w-px h-4 bg-on-surface/10 hidden sm:block flex-shrink-0" />
+
               <select
                 value={userPreferences.notesEditorMode || 'modal'}
                 onChange={(e) => updateUserPreferences({ notesEditorMode: e.target.value as 'full' | 'modal' })}
-                className="bg-surface-container-lowest border border-white/10 px-2 py-1 text-[10px] font-label-caps text-on-surface-variant focus:outline-none focus:border-primary-fixed-dim cursor-pointer rounded-sm"
+                className="bg-transparent border-none px-2 py-1.5 text-[11px] font-label-caps text-on-surface-variant hover:text-on-surface focus:outline-none cursor-pointer tracking-wider flex-shrink-0"
               >
                 <option value="modal">MODE: MODAL</option>
                 <option value="full">MODE: FULLPAGE</option>
               </select>
 
-              <div className="flex border border-white/10 rounded-sm overflow-hidden">
+              <div className="w-px h-4 bg-on-surface/10 hidden sm:block flex-shrink-0" />
+
+              <div className="flex bg-surface-container-highest rounded-md p-0.5 flex-shrink-0">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-1.5 transition-colors cursor-pointer ${viewMode === 'grid' ? 'bg-primary-fixed-dim/15 text-primary-fixed-dim' : 'text-on-surface-variant/50 hover:text-on-surface-variant'}`}
+                  className={`p-1.5 rounded transition-colors cursor-pointer ${viewMode === 'grid' ? 'bg-surface-container-lowest text-primary-fixed-dim shadow-sm' : 'text-on-surface-variant/80 hover:text-on-surface-variant'}`}
                   title="Grid view"
                 >
                   <span className="material-symbols-outlined text-[16px]">grid_view</span>
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-1.5 transition-colors cursor-pointer ${viewMode === 'list' ? 'bg-primary-fixed-dim/15 text-primary-fixed-dim' : 'text-on-surface-variant/50 hover:text-on-surface-variant'}`}
+                  className={`p-1.5 rounded transition-colors cursor-pointer ${viewMode === 'list' ? 'bg-surface-container-lowest text-primary-fixed-dim shadow-sm' : 'text-on-surface-variant/80 hover:text-on-surface-variant'}`}
                   title="List view"
                 >
                   <span className="material-symbols-outlined text-[16px]">view_list</span>
                 </button>
                 <button
                   onClick={() => setViewMode('table')}
-                  className={`p-1.5 transition-colors cursor-pointer ${viewMode === 'table' ? 'bg-primary-fixed-dim/15 text-primary-fixed-dim' : 'text-on-surface-variant/50 hover:text-on-surface-variant'}`}
+                  className={`p-1.5 rounded transition-colors cursor-pointer ${viewMode === 'table' ? 'bg-surface-container-lowest text-primary-fixed-dim shadow-sm' : 'text-on-surface-variant/80 hover:text-on-surface-variant'}`}
                   title="Table view"
                 >
                   <span className="material-symbols-outlined text-[16px]">table_rows</span>
@@ -435,11 +418,12 @@ export default function Notes() {
 
           {/* Active filter label on desktop */}
           {sidebarFilter !== 'all' && (
-            <div className="hidden lg:flex items-center gap-2">
-              <span className="font-label-caps text-[10px] text-primary-fixed-dim tracking-widest">{filterLabel.toUpperCase()}</span>
+            <div className="hidden lg:flex items-center gap-2 px-2">
+              <span className="font-label-caps text-[10px] text-on-surface-variant/60 tracking-widest">FILTERING BY:</span>
+              <span className="font-label-caps text-[10px] text-primary-fixed-dim tracking-widest bg-primary-fixed-dim/10 px-2 py-0.5 rounded">{filterLabel.toUpperCase()}</span>
               <button
                 onClick={() => setSidebarFilter('all')}
-                className="material-symbols-outlined text-[14px] text-on-surface-variant/40 hover:text-primary-fixed-dim transition-colors cursor-pointer"
+                className="material-symbols-outlined text-[14px] text-on-surface-variant/70 hover:text-primary-fixed-dim transition-colors cursor-pointer ml-1"
               >
                 close
               </button>
@@ -449,32 +433,38 @@ export default function Notes() {
           {/* Note Grid */}
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             {notes.length === 0 ? (
-              <div className="glass-panel p-12 flex flex-col items-center justify-center gap-4 text-center flex-grow">
+              <div className="border border-on-surface/10 border-dashed rounded-2xl p-12 flex flex-col items-center justify-center gap-4 text-center flex-grow mt-4">
                 <button
                   onClick={() => handleOpenEditor()}
-                  className="material-symbols-outlined text-6xl text-primary-fixed-dim/20 hover:text-primary-fixed-dim transition-colors cursor-pointer outline-none focus:outline-none hover:scale-110 active:scale-95"
+                  className="material-symbols-outlined text-[80px] text-on-surface-variant/70 hover:text-primary-fixed-dim/50 transition-colors cursor-pointer"
                 >
                   edit_document
                 </button>
-                <h3 className="font-headline-sm text-headline-sm text-on-surface-variant">NO NOTES ARCHIVED</h3>
-                <p className="text-sm text-on-surface-variant/60 max-w-md">
-                  Initialize a new document in your knowledge base to start archiving your thoughts and ideas.
+                <h3 className="font-headline-sm text-xl text-on-surface-variant mt-2">Notebook Empty</h3>
+                <p className="text-sm text-on-surface-variant/80 max-w-sm">
+                  Initialize a new document to start archiving your thoughts and ideas.
                 </p>
+                <button
+                  onClick={() => handleOpenEditor()}
+                  className="mt-4 px-6 py-2 bg-on-surface/5 hover:bg-on-surface/10 text-on-surface font-label-caps text-[11px] rounded-full transition-colors"
+                >
+                  CREATE NOTE
+                </button>
               </div>
             ) : filteredNotes.length === 0 ? (
-              <div className="text-center py-12 text-on-surface-variant/60 flex-grow">
-                <span className="material-symbols-outlined text-4xl mb-2 block">search_off</span>
-                <p className="font-label-caps text-sm">No notes match current criteria</p>
+              <div className="text-center py-20 text-on-surface-variant/70 flex-grow">
+                <span className="material-symbols-outlined text-5xl mb-3 block">search_off</span>
+                <p className="font-label-caps text-[11px] tracking-widest">NO MATCHES FOUND</p>
               </div>
             ) : viewMode === 'table' ? (
-              <div className="w-full overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[600px]">
+              <div className="w-full overflow-x-auto bg-surface-container rounded-xl border border-on-surface/10">
+                <table className="w-full text-left border-collapse min-w-[700px]">
                   <thead>
-                    <tr className="border-b border-white/10 font-label-caps text-[10px] text-on-surface-variant">
-                      <th className="py-3 px-4 font-normal">Title</th>
-                      <th className="py-3 px-4 font-normal">Folder</th>
-                      <th className="py-3 px-4 font-normal">Tags</th>
-                      <th className="py-3 px-4 font-normal text-right">Updated</th>
+                    <tr className="border-b border-on-surface/20 bg-surface-container-high font-label-caps text-[10px] text-on-surface-variant/60 tracking-wider">
+                      <th className="py-4 px-5 font-normal">Title</th>
+                      <th className="py-4 px-5 font-normal">Folder</th>
+                      <th className="py-4 px-5 font-normal">Tags</th>
+                      <th className="py-4 px-5 font-normal text-right">Updated</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -484,43 +474,45 @@ export default function Notes() {
                         <tr 
                           key={note.id}
                           onClick={() => handleOpenEditor(note)}
-                          className={`border-b border-white/5 hover:bg-white/5 cursor-pointer transition-colors group note-color-${note.color}`}
+                          className={`border-b border-on-surface/10 hover:bg-on-surface/5 cursor-pointer transition-colors group note-color-${note.color}`}
                         >
-                          <td className="py-3 px-4">
+                          <td className="py-4 px-5">
                             <div className="flex items-center gap-3">
-                              {note.icon ? (
-                                <span className="text-[16px]">{note.icon}</span>
+                              {note.cover_image ? (
+                                <img src={note.cover_image} alt="" className="w-6 h-6 rounded object-cover flex-shrink-0" />
+                              ) : note.icon ? (
+                                <span className="text-[18px] leading-none flex-shrink-0">{note.icon}</span>
                               ) : (
-                                <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">description</span>
+                                <span className="material-symbols-outlined text-[18px] text-on-surface-variant/60 flex-shrink-0">description</span>
                               )}
-                              <span className="font-body-md text-sm text-on-surface group-hover:text-primary-fixed-dim transition-colors">
+                              <span className="font-body-md text-[14px] text-on-surface group-hover:text-primary-fixed-dim transition-colors font-medium truncate">
                                 {note.title || 'Untitled Note'}
                               </span>
-                              {note.pinned && <span className="material-symbols-outlined text-[12px] text-primary-fixed-dim" style={{fontVariationSettings: "'FILL' 1"}}>push_pin</span>}
+                              {note.pinned && <span className="material-symbols-outlined text-[14px] text-primary-fixed-dim flex-shrink-0" style={{fontVariationSettings: "'FILL' 1"}}>push_pin</span>}
                             </div>
                           </td>
-                          <td className="py-3 px-4">
+                          <td className="py-4 px-5">
                             {folder ? (
-                              <div className="flex items-center gap-1 text-xs text-on-surface-variant">
-                                <span className="material-symbols-outlined text-[14px]">{folder.icon}</span>
-                                {folder.name}
+                              <div className="flex items-center gap-1.5 text-[12px] text-on-surface-variant/80">
+                                <span className="material-symbols-outlined text-[14px] opacity-70">{folder.icon}</span>
+                                <span className="truncate">{folder.name}</span>
                               </div>
                             ) : (
-                              <span className="text-xs text-on-surface-variant/40 italic">None</span>
+                              <span className="text-[12px] text-on-surface-variant/60 italic">None</span>
                             )}
                           </td>
-                          <td className="py-3 px-4">
-                            <div className="flex flex-wrap gap-1">
-                              {note.tags.slice(0, 3).map(t => (
-                                <span key={t} className="px-1.5 py-0.5 rounded-sm bg-white/5 text-[10px] text-on-surface-variant whitespace-nowrap">#{t}</span>
+                          <td className="py-4 px-5">
+                            <div className="flex flex-wrap gap-1.5">
+                              {note.tags.slice(0, 2).map(t => (
+                                <span key={t} className="px-1.5 py-0.5 rounded bg-surface-container-highest border border-on-surface/10 text-[9px] font-label-caps tracking-wider text-on-surface-variant whitespace-nowrap">#{t}</span>
                               ))}
-                              {note.tags.length > 3 && (
-                                <span className="px-1.5 py-0.5 rounded-sm bg-white/5 text-[10px] text-on-surface-variant whitespace-nowrap">+{note.tags.length - 3}</span>
+                              {note.tags.length > 2 && (
+                                <span className="px-1.5 py-0.5 rounded bg-surface-container-highest border border-on-surface/10 text-[9px] font-label-caps tracking-wider text-on-surface-variant whitespace-nowrap">+{note.tags.length - 2}</span>
                               )}
                             </div>
                           </td>
-                          <td className="py-3 px-4 text-right">
-                            <span className="text-[11px] text-on-surface-variant font-data-display">
+                          <td className="py-4 px-5 text-right">
+                            <span className="text-[11px] text-on-surface-variant/60 font-data-display tracking-widest whitespace-nowrap">
                               {new Date(note.updated_at).toLocaleDateString()}
                             </span>
                           </td>
@@ -531,12 +523,13 @@ export default function Notes() {
                 </table>
               </div>
             ) : (
-              <div className="space-y-6 pb-8">
+              <div className="space-y-10 pb-12">
                 {showPinnedSection && (
                   <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="material-symbols-outlined text-primary-fixed-dim text-[16px]" style={{fontVariationSettings: "'FILL' 1"}}>push_pin</span>
-                      <h2 className="font-label-caps text-[10px] text-primary-fixed-dim tracking-widest">PINNED ({pinnedNotes.length})</h2>
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="material-symbols-outlined text-primary-fixed-dim text-[18px]" style={{fontVariationSettings: "'FILL' 1"}}>push_pin</span>
+                      <h2 className="font-label-caps text-[11px] text-primary-fixed-dim tracking-widest font-bold">PINNED</h2>
+                      <span className="text-[10px] text-primary-fixed-dim/50 ml-1">({pinnedNotes.length})</span>
                     </div>
                     {renderNotes(pinnedNotes)}
                   </div>
@@ -545,16 +538,16 @@ export default function Notes() {
                 {unpinnedNotes.length > 0 && (
                   <div>
                     {showPinnedSection && (
-                      <div className="flex items-center gap-2 mb-3">
-                        <span className="material-symbols-outlined text-on-surface-variant text-[16px]">notes</span>
-                        <h2 className="font-label-caps text-[10px] text-on-surface-variant tracking-widest">NOTES ({unpinnedNotes.length})</h2>
+                      <div className="flex items-center gap-2 mb-4">
+                        <span className="material-symbols-outlined text-on-surface-variant/80 text-[18px]">notes</span>
+                        <h2 className="font-label-caps text-[11px] text-on-surface-variant/80 tracking-widest font-bold">ALL NOTES</h2>
+                        <span className="text-[10px] text-on-surface-variant/70 ml-1">({unpinnedNotes.length})</span>
                       </div>
                     )}
                     {renderNotes(unpinnedNotes)}
                   </div>
                 )}
 
-                {/* Show pinned notes in pinned filter */}
                 {sidebarFilter === 'pinned' && pinnedNotes.length > 0 && (
                   <div>{renderNotes(pinnedNotes)}</div>
                 )}

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 @theme {
   --color-on-secondary: #520071;
@@ -1181,3 +1182,22 @@ body {
     background-size: 200% 200%;
     animation: gradient-x 10s ease infinite;
 }
+
+/* TipTap Placeholder */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--color-on-surface-variant);
+  opacity: 0.5;
+  pointer-events: none;
+  height: 0;
+}
+
+/* TipTap Editor Improvements */
+.ProseMirror { outline: none !important; }
+.ProseMirror > * { border-radius: 4px; padding: 2px 8px; margin-top: 4px !important; margin-bottom: 4px !important; transition: background-color 0.15s ease; }
+.ProseMirror > *:hover { background-color: rgba(128, 128, 128, 0.1); }
+
+/* TipTap Heading Color Overrides for Theme Adaptability */
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 { color: var(--color-on-surface) !important; }
+.prose strong, .prose b { color: var(--color-on-surface) !important; }
