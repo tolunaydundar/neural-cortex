@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { signInWithRedirect, getRedirectResult } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
@@ -18,6 +19,7 @@ const AuthPage = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { loginWithEmail, signupWithEmail } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const reduceMotion = useReducedMotion();
 
@@ -121,17 +123,17 @@ const AuthPage = () => {
 
           <motion.div 
             initial="hidden" animate="visible" variants={fadeIn} transition={{ delay: 0.3 }}
-            className="mt-16 space-y-3 font-data-display text-xs text-primary-fixed-dim/40 tracking-[0.2em]"
+            className="mt-16 space-y-3 font-data-display text-xs text-primary-fixed-dim tracking-[0.2em]"
           >
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-primary-fixed-dim animate-pulse"></span>
               <p>&gt; SECURE CONNECTION ESTABLISHED</p>
             </div>
-            <div className="flex items-center gap-2 opacity-70">
+            <div className="flex items-center gap-2 opacity-80">
               <span className="w-1.5 h-1.5 rounded-full bg-primary-fixed-dim animate-pulse" style={{ animationDelay: '0.2s' }}></span>
               <p>&gt; SYNC HABITS ONLINE</p>
             </div>
-            <div className="flex items-center gap-2 opacity-40">
+            <div className="flex items-center gap-2 opacity-60">
               <span className="w-1.5 h-1.5 rounded-full bg-primary-fixed-dim animate-pulse" style={{ animationDelay: '0.4s' }}></span>
               <p>&gt; AWAITING OPERATOR INPUT...</p>
             </div>
@@ -142,6 +144,19 @@ const AuthPage = () => {
       {/* Right Column (Auth Form) */}
       <div className="w-full lg:w-[55%] flex items-center justify-center p-6 sm:p-12 relative z-10">
         
+        {/* Theme Toggle Button */}
+        <div className="absolute top-6 right-6 z-50">
+          <button 
+            onClick={toggleTheme}
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-highest/50 hover:bg-surface-container-highest transition-colors text-on-surface-variant hover:text-on-surface"
+            aria-label="Toggle theme"
+          >
+            <span className="material-symbols-outlined text-[20px]">
+              {isDark ? 'light_mode' : 'dark_mode'}
+            </span>
+          </button>
+        </div>
+
         {/* Mobile-only background effects */}
         <div className="lg:hidden absolute inset-0 pointer-events-none z-0">
           <div className="absolute -top-24 -left-24 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(0,220,230,0.15)_0%,rgba(0,220,230,0)_70%)] blur-2xl" />

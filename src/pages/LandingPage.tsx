@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
@@ -26,6 +27,8 @@ const LandingPage = () => {
   const { isDark, toggleTheme } = useTheme();
   const { testDrive } = useAuth();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   return (
     <div className="min-h-screen bg-background text-on-surface overflow-x-hidden selection:bg-primary-fixed-dim/30">
@@ -111,18 +114,42 @@ const LandingPage = () => {
             <Link to="/auth?mode=signup" className="w-full sm:w-auto px-8 py-4 rounded-full bg-primary-fixed-dim text-background font-label-caps text-sm tracking-widest font-bold hover:bg-[#6ff6ff] hover:shadow-[0_0_30px_rgba(0,220,230,0.4)] hover:-translate-y-1 transition-all text-center">
               INITIALIZE HABIT
             </Link>
-            <button 
-              onClick={async () => {
-                await testDrive();
-                if (auth.currentUser) {
-                  await importDataToCloud(auth.currentUser, createSampleLocalData());
-                }
-                navigate('/');
-              }}
-              className="w-full sm:w-auto px-8 py-4 rounded-full border border-primary-fixed-dim text-primary-fixed-dim font-label-caps text-sm tracking-widest font-bold hover:bg-primary-fixed-dim/10 hover:-translate-y-1 transition-all"
-            >
-              TEST DRIVE
-            </button>
+            <div className="relative w-full sm:w-auto">
+              <button 
+                disabled={isLoading}
+                onClick={async () => {
+                  try {
+                    setError('');
+                    setIsLoading(true);
+                    await testDrive();
+                    if (auth.currentUser) {
+                      await importDataToCloud(auth.currentUser, createSampleLocalData());
+                    }
+                    navigate('/');
+                  } catch (err: unknown) {
+                    console.error("Test Drive Error:", err);
+                    if (err instanceof Error) {
+                      setError(err.message);
+                    } else {
+                      setError('Failed to start test drive.');
+                    }
+                  } finally {
+                    setIsLoading(false);
+                  }
+                }}
+                className="w-full sm:w-auto px-8 py-4 rounded-full border border-primary-fixed-dim text-primary-fixed-dim font-label-caps text-sm tracking-widest font-bold hover:bg-primary-fixed-dim/10 hover:-translate-y-1 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isLoading && <span className="material-symbols-outlined animate-spin text-sm">sync</span>}
+                TEST DRIVE
+              </button>
+              {error && (
+                <div className="absolute top-full left-0 right-0 mt-2 text-error text-xs font-medium text-center bg-error-container/20 p-2 rounded-sm border border-error/20">
+                  {error.includes('operation-not-allowed') 
+                    ? 'Anonymous auth is not enabled in Firebase.' 
+                    : error}
+                </div>
+              )}
+            </div>
             <a href="#features" className="w-full sm:w-auto px-8 py-4 rounded-full border border-outline/20 glass-panel text-on-surface font-label-caps text-sm tracking-widest hover:bg-surface-container-highest hover:border-outline/40 transition-all text-center">
               EXPLORE
             </a>
