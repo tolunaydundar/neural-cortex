@@ -51,6 +51,8 @@ export default function NoteDetail() {
   // Initialize state from note
   useEffect(() => {
     if (!isNew && existingNote && !initialized) {
+      // Hydrate the editor draft once after the note arrives from Firestore.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTitle(existingNote.title || '');
       setContent(existingNote.content || '');
       setTags(existingNote.tags || []);

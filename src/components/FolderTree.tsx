@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { type Folder } from '../context/NoteContext';
+import type { SidebarFilter } from '../pages/Notes';
 
 interface FolderTreeProps {
   folders: Folder[];
   parentId: string | null;
-  activeFilter: any;
+  activeFilter: SidebarFilter;
   onSelect: (folderId: string) => void;
   onEdit: (folderId: string) => void;
   depth?: number;
@@ -41,6 +42,7 @@ export default function FolderTree({ folders, parentId, activeFilter, onSelect, 
                 <button 
                   onClick={(e) => toggleExpand(f.id, e)}
                   className="material-symbols-outlined text-[16px] mr-1 text-on-surface-variant/50 hover:text-on-surface-variant transition-colors"
+                  aria-label={isExpanded ? `Collapse ${f.name}` : `Expand ${f.name}`}
                 >
                   {isExpanded ? 'expand_more' : 'chevron_right'}
                 </button>
@@ -54,6 +56,7 @@ export default function FolderTree({ folders, parentId, activeFilter, onSelect, 
                 onClick={(e) => { e.stopPropagation(); onEdit(f.id); }}
                 className="material-symbols-outlined text-[14px] text-on-surface-variant/20 hover:text-primary-fixed-dim transition-colors cursor-pointer opacity-0 group-hover:opacity-100"
                 title="Edit folder"
+                aria-label={`Edit ${f.name}`}
               >
                 edit
               </button>

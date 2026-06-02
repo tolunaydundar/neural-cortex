@@ -73,6 +73,8 @@ export default function TopBar({ onAddHabit, onAddTask, onAddNote, onMenuToggle 
             <button 
               onClick={() => setIsCreateMenuOpen(!isCreateMenuOpen)}
               className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-primary-fixed-dim text-background font-label-caps text-xs hover:bg-[#6ff6ff] transition-colors cursor-pointer rounded-sm hover:shadow-lg"
+              aria-haspopup="menu"
+              aria-expanded={isCreateMenuOpen}
             >
               <span className="material-symbols-outlined text-sm">add</span>
               <span className="hidden sm:inline">CREATE</span>

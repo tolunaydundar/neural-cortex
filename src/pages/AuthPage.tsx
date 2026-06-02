@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { signInWithRedirect, getRedirectResult } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { usePageTitle } from '../utils/usePageTitle';
 
 const fadeIn = {
@@ -19,6 +19,7 @@ const AuthPage = () => {
   const [error, setError] = useState('');
   const { loginWithEmail, signupWithEmail } = useAuth();
   const navigate = useNavigate();
+  const reduceMotion = useReducedMotion();
 
   usePageTitle(isLogin ? 'Sign In' : 'Sign Up');
 
@@ -79,7 +80,7 @@ const AuthPage = () => {
         <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
           <motion.div 
-            animate={{ 
+            animate={reduceMotion ? undefined : { 
               scale: [1, 1.1, 1],
               opacity: [0.1, 0.2, 0.1],
             }}
@@ -87,7 +88,7 @@ const AuthPage = () => {
             className="absolute -top-32 -left-32 h-[600px] w-[600px] rounded-full bg-[radial-gradient(circle,rgba(0,220,230,0.25)_0%,rgba(0,220,230,0)_70%)] blur-3xl" 
           />
           <motion.div 
-            animate={{ 
+            animate={reduceMotion ? undefined : { 
               scale: [1, 1.2, 1],
               opacity: [0.05, 0.15, 0.05],
             }}

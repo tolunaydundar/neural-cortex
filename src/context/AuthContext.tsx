@@ -186,7 +186,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signupWithEmail,
     loginWithEmail,
     logout
-  }), [currentUser, loading, operatorName, theme, userPreferences, updateOperatorName, updateTheme, updateUserPreferences]); // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [currentUser, loading, operatorName, theme, userPreferences, updateOperatorName, updateTheme, updateUserPreferences]);
 
   return (
     <AuthContext.Provider value={value}>

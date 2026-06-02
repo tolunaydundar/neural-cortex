@@ -46,6 +46,16 @@ export default function TaskCard({ task, onToggleComplete, onClick }: TaskCardPr
         <div
           className={`task-checkbox mt-0.5 ${isDone ? 'checked' : ''}`}
           onClick={(e) => { e.stopPropagation(); onToggleComplete(task.id); }}
+          role="button"
+          tabIndex={0}
+          aria-label={isDone ? `Mark ${task.title} as queued` : `Mark ${task.title} complete`}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              e.stopPropagation();
+              onToggleComplete(task.id);
+            }
+          }}
         >
           {isDone && (
             <span className="material-symbols-outlined text-background text-[14px]" style={{fontVariationSettings: "'FILL' 1"}}>check</span>
@@ -62,7 +72,7 @@ export default function TaskCard({ task, onToggleComplete, onClick }: TaskCardPr
               {task.category && (
                 <span className="category-chip hidden sm:inline-flex">{task.category}</span>
               )}
-              <div className={`w-2 h-2 rounded-full priority-dot-${task.priority}`} title={getPriorityLabel(task.priority)} />
+              <div className={`w-2 h-2 rounded-full priority-dot-${task.priority}`} title={getPriorityLabel(task.priority)} aria-label={`${getPriorityLabel(task.priority)} priority`} />
             </div>
           </div>
 

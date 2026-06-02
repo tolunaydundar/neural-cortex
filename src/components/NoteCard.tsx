@@ -11,7 +11,7 @@ interface NoteCardProps {
 }
 
 function stripHtmlAndWordCount(text: string) {
-  let plainText = '';
+  let plainText: string;
   if (typeof window !== 'undefined' && window.DOMParser) {
     const doc = new DOMParser().parseFromString(text, 'text/html');
     plainText = doc.body.textContent || '';
@@ -119,6 +119,7 @@ export default function NoteCard({ note, onClick }: NoteCardProps) {
             ref={btnRef}
             onClick={handleMenuClick}
             className="material-symbols-outlined text-[18px] text-on-surface-variant/60 hover:bg-on-surface/5 rounded p-0.5 group-hover:text-on-surface-variant transition-colors flex-shrink-0 cursor-pointer"
+            aria-label={`Open actions for ${note.title || 'untitled note'}`}
           >
             more_vert
           </button>

@@ -17,12 +17,15 @@ export default function Settings() {
   const [userName, setUserName] = useState(operatorName);
   const [showExportSuccess, setShowExportSuccess] = useState(false);
   const [showImportSuccess, setShowImportSuccess] = useState(false);
+  const [dataMessage, setDataMessage] = useState<{ type: 'error' | 'info'; text: string } | null>(null);
   const [showPurgeModal, setShowPurgeModal] = useState(false);
   const [showPurgeSuccess, setShowPurgeSuccess] = useState(false);
   
   const [lastExported, setLastExported] = useState<string | null>(localStorage.getItem('nexus_last_exported'));
 
   useEffect(() => {
+    // Keep the editable draft in sync with profile updates from Firestore.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setUserName(operatorName);
   }, [operatorName]);
 
@@ -32,7 +35,7 @@ export default function Settings() {
 
   const handleExport = () => {
     if (!currentUser) {
-      alert('Please sign in to export your cloud data.');
+      setDataMessage({ type: 'error', text: 'Please sign in to export your cloud data.' });
       return;
     }
     const data = {
@@ -63,6 +66,7 @@ export default function Settings() {
     setLastExported(now);
 
     setShowExportSuccess(true);
+    setDataMessage({ type: 'info', text: 'Backup exported successfully.' });
     setTimeout(() => setShowExportSuccess(false), 3000);
   };
 
@@ -80,16 +84,17 @@ export default function Settings() {
           if (currentUser) {
             await importDataToCloud(currentUser, data);
             setShowImportSuccess(true);
+            setDataMessage({ type: 'info', text: 'Data imported. Reloading to refresh local listeners.' });
             setTimeout(() => {
               setShowImportSuccess(false);
               window.location.reload();
             }, 1500);
           } else {
-            alert('You must be logged in to import data.');
+            setDataMessage({ type: 'error', text: 'You must be logged in to import data.' });
           }
         } catch (err) {
           console.error(err);
-          alert('Invalid backup file format or import failed.');
+          setDataMessage({ type: 'error', text: err instanceof Error ? err.message : 'Invalid backup file format or import failed.' });
         }
       };
       reader.readAsText(file);
@@ -184,6 +189,16 @@ export default function Settings() {
               <div className="mt-6 p-4 rounded-sm bg-primary-fixed-dim/10 border border-primary-fixed-dim/30 text-primary-fixed-dim text-xs font-label-caps font-bold flex items-center gap-3">
                 <span className="material-symbols-outlined text-[18px]" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
                 BACKUP EXPORTED SUCCESSFULLY
+              </div>
+            )}
+            {dataMessage && (
+              <div className={`mt-6 p-4 rounded-sm border text-xs font-label-caps font-bold flex items-center gap-3 ${
+                dataMessage.type === 'error'
+                  ? 'bg-error/10 border-error/30 text-error'
+                  : 'bg-primary-fixed-dim/10 border-primary-fixed-dim/30 text-primary-fixed-dim'
+              }`}>
+                <span className="material-symbols-outlined text-[18px]">{dataMessage.type === 'error' ? 'error' : 'info'}</span>
+                {dataMessage.text}
               </div>
             )}
             {showImportSuccess && (

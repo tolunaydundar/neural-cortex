@@ -5,21 +5,10 @@ import { db } from '../firebase';
 import { collection, onSnapshot, addDoc, deleteDoc, doc, query, where, getDocs, writeBatch, setDoc } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
 import { useSync } from './SyncContext';
+import { assertOwnedDocument } from '../utils/firestoreOwnership';
+import { sortHabitsByCreatedAt, type Habit, type HabitLog } from '../domain/habits';
 
-export interface Habit {
-  id: string;
-  title: string;
-  icon: string;
-  created_at: string;
-  userId: string;
-}
-
-export interface HabitLog {
-  id: string;
-  habitId: string;
-  date: string; // ISO string
-  userId: string;
-}
+export type { Habit, HabitLog } from '../domain/habits';
 
 interface HabitContextType {
   habits: Habit[];
@@ -60,9 +49,7 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       snapshot.forEach((doc) => {
         fetchedHabits.push({ id: doc.id, ...doc.data() } as Habit);
       });
-      // Sort by created_at ascending
-      fetchedHabits.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-      setHabits(fetchedHabits);
+      setHabits(sortHabitsByCreatedAt(fetchedHabits));
     });
 
     const logsQuery = query(
@@ -84,16 +71,16 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   }, [currentUser]);
 
-  const addHabit = (habit: Omit<Habit, 'id' | 'created_at' | 'userId'>) => runSync(async () => {
+  const addHabit = useCallback((habit: Omit<Habit, 'id' | 'created_at' | 'userId'>) => runSync(async () => {
     if (!currentUser) return;
     await addDoc(collection(db, 'habits'), {
       ...habit,
       userId: currentUser.uid,
       created_at: new Date().toISOString()
     });
-  });
+  }), [currentUser, runSync]);
 
-  const logHabit = (habitId: string, date: Date = new Date()) => runSync(async () => {
+  const logHabit = useCallback((habitId: string, date: Date = new Date()) => runSync(async () => {
     if (!currentUser) return;
 
     // Prevent duplicate logs for the same day (client side check)
@@ -109,20 +96,23 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       userId: currentUser.uid,
       date: day.toISOString(),
     });
-  });
+  }), [currentUser, logs, runSync]);
 
-  const removeLog = (logId: string) => runSync(async () => {
+  const removeLog = useCallback((logId: string) => runSync(async () => {
+    if (!currentUser) return;
+    await assertOwnedDocument('habit_logs', logId, currentUser.uid);
     await deleteDoc(doc(db, 'habit_logs', logId));
-  });
+  }), [currentUser, runSync]);
 
-  const deleteHabit = (habitId: string) => runSync(async () => {
-    // Delete the habit document
+  const deleteHabit = useCallback((habitId: string) => runSync(async () => {
+    if (!currentUser) return;
+    await assertOwnedDocument('habits', habitId, currentUser.uid);
     await deleteDoc(doc(db, 'habits', habitId));
 
-    // Query and delete all associated logs
     const logsQuery = query(
       collection(db, 'habit_logs'),
-      where('habitId', '==', habitId)
+      where('habitId', '==', habitId),
+      where('userId', '==', currentUser.uid)
     );
     const logsSnapshot = await getDocs(logsQuery);
 
@@ -132,7 +122,7 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       batch.delete(doc(db, 'habit_logs', logDoc.id));
     });
     await batch.commit();
-  });
+  }), [currentUser, runSync]);
 
   const getStreak = useCallback((habitId: string): number => {
     const uniqueLogDates = Array.from(new Set(
@@ -185,8 +175,7 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const value = useMemo(() => ({
     habits, logs, addHabit, logHabit, removeLog, deleteHabit, getStreak, getEfficiency, getPattern
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [habits, logs, getStreak, getEfficiency, getPattern]);
+  }), [habits, logs, addHabit, logHabit, removeLog, deleteHabit, getStreak, getEfficiency, getPattern]);
 
   return (
     <HabitContext.Provider value={value}>

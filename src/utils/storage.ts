@@ -6,6 +6,9 @@ export async function uploadFile(
   path: string,
   onProgress?: (progress: number) => void
 ): Promise<string> {
+  if (!path.startsWith('users/')) {
+    throw new Error('Uploads must use a user-scoped storage path.');
+  }
   const storageRef = ref(storage, path);
   const uploadTask = uploadBytesResumable(storageRef, file);
 

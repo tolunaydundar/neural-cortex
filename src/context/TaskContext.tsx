@@ -5,27 +5,10 @@ import { db } from '../firebase';
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
 import { useSync } from './SyncContext';
+import { assertOwnedDocument } from '../utils/firestoreOwnership';
+import { sortTasksByOrder, type Task } from '../domain/tasks';
 
-export interface Subtask {
-  id: string;
-  title: string;
-  done: boolean;
-}
-
-export interface Task {
-  id: string;
-  title: string;
-  description: string;
-  priority: 'critical' | 'high' | 'medium' | 'low';
-  status: 'todo' | 'in_progress' | 'done';
-  category: string;
-  due_date: string | null;
-  created_at: string;
-  completed_at: string | null;
-  subtasks: Subtask[];
-  userId: string;
-  order?: number;
-}
+export type { Subtask, Task } from '../domain/tasks';
 
 interface TaskContextType {
   tasks: Task[];
@@ -67,22 +50,13 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
       snapshot.forEach((doc) => {
         fetchedTasks.push({ id: doc.id, ...doc.data() } as Task);
       });
-      // Sort in memory by order ascending, then by created_at descending
-      fetchedTasks.sort((a, b) => {
-        if (a.order !== undefined && b.order !== undefined) {
-          return a.order - b.order;
-        }
-        if (a.order !== undefined) return -1;
-        if (b.order !== undefined) return 1;
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      });
-      setTasks(fetchedTasks);
+      setTasks(sortTasksByOrder(fetchedTasks));
     });
 
     return () => unsubscribe();
   }, [currentUser]);
 
-  const addTask = (task: Omit<Task, 'id' | 'created_at' | 'completed_at' | 'userId'>) => runSync(async () => {
+  const addTask = useCallback((task: Omit<Task, 'id' | 'created_at' | 'completed_at' | 'userId'>) => runSync(async () => {
     if (!currentUser) return;
     const now = new Date().toISOString();
     await addDoc(collection(db, 'tasks'), {
@@ -92,9 +66,11 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
       completed_at: null,
       order: Date.now(),
     });
-  });
+  }), [currentUser, runSync]);
 
-  const updateTask = (id: string, updates: Partial<Omit<Task, 'id' | 'created_at' | 'userId'>>) => runSync(async () => {
+  const updateTask = useCallback((id: string, updates: Partial<Omit<Task, 'id' | 'created_at' | 'userId'>>) => runSync(async () => {
+    if (!currentUser) return;
+    await assertOwnedDocument('tasks', id, currentUser.uid);
     const taskRef = doc(db, 'tasks', id);
     const updatedData: Record<string, unknown> = { ...updates };
     
@@ -108,38 +84,46 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     await updateDoc(taskRef, updatedData);
-  });
+  }), [currentUser, runSync]);
 
-  const deleteTask = (id: string) => runSync(async () => {
+  const deleteTask = useCallback((id: string) => runSync(async () => {
+    if (!currentUser) return;
+    await assertOwnedDocument('tasks', id, currentUser.uid);
     await deleteDoc(doc(db, 'tasks', id));
-  });
+  }), [currentUser, runSync]);
 
-  const toggleSubtask = (taskId: string, subtaskId: string) => runSync(async () => {
+  const toggleSubtask = useCallback((taskId: string, subtaskId: string) => runSync(async () => {
+    if (!currentUser) return;
+    await assertOwnedDocument('tasks', taskId, currentUser.uid);
     const task = tasks.find(t => t.id === taskId);
     if (!task) return;
     const updatedSubtasks = task.subtasks.map(st => 
       st.id === subtaskId ? { ...st, done: !st.done } : st
     );
     await updateDoc(doc(db, 'tasks', taskId), { subtasks: updatedSubtasks });
-  });
+  }), [currentUser, runSync, tasks]);
 
-  const addSubtask = (taskId: string, title: string) => runSync(async () => {
+  const addSubtask = useCallback((taskId: string, title: string) => runSync(async () => {
+    if (!currentUser) return;
+    await assertOwnedDocument('tasks', taskId, currentUser.uid);
     const task = tasks.find(t => t.id === taskId);
     if (!task) return;
     const newSubtask = { id: crypto.randomUUID(), title, done: false };
     await updateDoc(doc(db, 'tasks', taskId), { subtasks: [...task.subtasks, newSubtask] });
-  });
+  }), [currentUser, runSync, tasks]);
 
-  const removeSubtask = (taskId: string, subtaskId: string) => runSync(async () => {
+  const removeSubtask = useCallback((taskId: string, subtaskId: string) => runSync(async () => {
+    if (!currentUser) return;
+    await assertOwnedDocument('tasks', taskId, currentUser.uid);
     const task = tasks.find(t => t.id === taskId);
     if (!task) return;
     const updatedSubtasks = task.subtasks.filter(st => st.id !== subtaskId);
     await updateDoc(doc(db, 'tasks', taskId), { subtasks: updatedSubtasks });
-  });
+  }), [currentUser, runSync, tasks]);
 
-  const moveStatus = (id: string, status: Task['status']) => runSync(async () => {
+  const moveStatus = useCallback((id: string, status: Task['status']) => runSync(async () => {
     await updateTask(id, { status });
-  });
+  }), [runSync, updateTask]);
 
   const getOverdueTasks = useCallback((): Task[] => {
     const now = startOfDay(new Date());
@@ -176,8 +160,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     tasks, addTask, updateTask, deleteTask,
     toggleSubtask, addSubtask, removeSubtask, moveStatus,
     getOverdueTasks, getTodayTasks, getCompletionStats, getCategories,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [tasks, getOverdueTasks, getTodayTasks, getCompletionStats, getCategories]);
+  }), [tasks, addTask, updateTask, deleteTask, toggleSubtask, addSubtask, removeSubtask, moveStatus, getOverdueTasks, getTodayTasks, getCompletionStats, getCategories]);
 
   return (
     <TaskContext.Provider value={value}>

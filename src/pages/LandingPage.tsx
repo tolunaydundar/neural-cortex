@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -17,39 +17,31 @@ const staggerContainer = {
 };
 
 const LandingPage = () => {
+  const reduceMotion = useReducedMotion();
+
   return (
     <div className="min-h-screen bg-background text-on-surface overflow-x-hidden selection:bg-primary-fixed-dim/30">
-      {/* Animated Background Orbs */}
+      {/* Restrained background treatment */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <motion.div 
-          animate={{ 
+          animate={reduceMotion ? undefined : { 
             scale: [1, 1.1, 1],
             opacity: [0.15, 0.25, 0.15],
             x: [0, 20, 0],
             y: [0, -20, 0]
           }}
           transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-32 -left-32 h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle,rgba(0,220,230,0.3)_0%,rgba(0,220,230,0)_70%)] blur-3xl" 
+          className="absolute -top-32 -left-32 h-[420px] w-[420px] rounded-full bg-[radial-gradient(circle,rgba(0,220,230,0.18)_0%,rgba(0,220,230,0)_70%)] blur-3xl" 
         />
         <motion.div 
-          animate={{ 
+          animate={reduceMotion ? undefined : { 
             scale: [1, 1.2, 1],
             opacity: [0.1, 0.2, 0.1],
             x: [0, -30, 0],
             y: [0, 30, 0]
           }}
           transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-          className="absolute top-1/3 -right-32 h-[600px] w-[600px] rounded-full bg-[radial-gradient(circle,rgba(206,93,255,0.2)_0%,rgba(206,93,255,0)_70%)] blur-3xl" 
-        />
-        <motion.div 
-          animate={{ 
-            scale: [1, 1.15, 1],
-            opacity: [0.15, 0.25, 0.15],
-            x: [0, 40, 0],
-            y: [0, 20, 0]
-          }}
-          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 5 }}
-          className="absolute -bottom-40 left-1/4 h-[400px] w-[400px] rounded-full bg-[radial-gradient(circle,rgba(0,105,111,0.3)_0%,rgba(0,105,111,0)_70%)] blur-3xl" 
+          className="absolute top-1/3 -right-32 h-[460px] w-[460px] rounded-full bg-[radial-gradient(circle,rgba(206,93,255,0.12)_0%,rgba(206,93,255,0)_70%)] blur-3xl" 
         />
       </div>
 

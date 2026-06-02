@@ -1,7 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Outlet, NavLink, useLocation, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import AuthPage from './pages/AuthPage';
-import LandingPage from './pages/LandingPage';
 import { HabitProvider } from './context/HabitContext';
 import { TaskProvider } from './context/TaskContext';
 import { NoteProvider } from './context/NoteContext';
@@ -9,28 +7,43 @@ import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { SyncProvider } from './context/SyncContext';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
-import Dashboard from './pages/Dashboard';
-import Habits from './pages/Habits';
-import Tasks from './pages/Tasks';
-import Notes from './pages/Notes';
-import NoteDetail from './pages/NoteDetail';
-import PerformanceAnalytics from './pages/PerformanceAnalytics';
-import LegacyLogs from './pages/LegacyLogs';
-import Settings from './pages/Settings';
-import HabitDetails from './pages/HabitDetails';
-import LogActivityModal from './components/LogActivityModal';
-import AddHabitModal from './components/AddHabitModal';
-import AddTaskModal from './components/AddTaskModal';
-import NoteEditorModal from './components/NoteEditorModal';
 import Toast from './components/Toast';
-import OnboardingModal from './components/OnboardingModal';
-import { useState, useEffect, useCallback } from 'react';
+import { lazy, Suspense, useState, useEffect, useCallback } from 'react';
 import { importDataToCloud, checkHasCloudData } from './utils/migration';
 import { motion, AnimatePresence } from 'framer-motion';
+import { createSampleLocalData } from './utils/sampleData';
+
+const AuthPage = lazy(() => import('./pages/AuthPage'));
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Habits = lazy(() => import('./pages/Habits'));
+const Tasks = lazy(() => import('./pages/Tasks'));
+const Notes = lazy(() => import('./pages/Notes'));
+const NoteDetail = lazy(() => import('./pages/NoteDetail'));
+const PerformanceAnalytics = lazy(() => import('./pages/PerformanceAnalytics'));
+const LegacyLogs = lazy(() => import('./pages/LegacyLogs'));
+const Settings = lazy(() => import('./pages/Settings'));
+const HabitDetails = lazy(() => import('./pages/HabitDetails'));
+const LogActivityModal = lazy(() => import('./components/LogActivityModal'));
+const AddHabitModal = lazy(() => import('./components/AddHabitModal'));
+const AddTaskModal = lazy(() => import('./components/AddTaskModal'));
+const NoteEditorModal = lazy(() => import('./components/NoteEditorModal'));
+const OnboardingModal = lazy(() => import('./components/OnboardingModal'));
 
 interface ToastState {
   message: string;
   icon?: string;
+}
+
+function RouteFallback() {
+  return (
+    <div className="flex min-h-[320px] flex-grow items-center justify-center">
+      <div className="flex items-center gap-3 text-on-surface-variant">
+        <span className="material-symbols-outlined animate-spin text-primary-fixed-dim">progress_activity</span>
+        <span className="font-label-caps text-[11px] tracking-widest">LOADING MODULE</span>
+      </div>
+    </div>
+  );
 }
 
 // Layout component to wrap pages that share the sidebar and topbar
@@ -69,123 +82,8 @@ function AppLayout() {
     await updateOperatorName(name);
 
     if (wantsExampleData) {
-      const now = new Date();
-      const habit1Id = crypto.randomUUID();
-      const habit2Id = crypto.randomUUID();
-      const habit3Id = crypto.randomUUID();
-
-      const dummyHabits = [
-        { id: habit1Id, title: 'Meditation', icon: 'self_improvement', created_at: new Date(now.getTime() - 14 * 86400000).toISOString() },
-        { id: habit2Id, title: 'Read 10 Pages', icon: 'menu_book', created_at: new Date(now.getTime() - 14 * 86400000).toISOString() },
-        { id: habit3Id, title: 'Workout', icon: 'fitness_center', created_at: new Date(now.getTime() - 14 * 86400000).toISOString() },
-      ];
-
-      const dummyLogs = [];
-      for (let i = 0; i < 14; i++) {
-        const date = new Date(now.getTime() - i * 86400000);
-        dummyLogs.push({ id: crypto.randomUUID(), habitId: habit1Id, date: date.toISOString() });
-        if (i % 3 !== 0) {
-          dummyLogs.push({ id: crypto.randomUUID(), habitId: habit2Id, date: date.toISOString() });
-        }
-        if (i % 2 === 0) {
-          dummyLogs.push({ id: crypto.randomUUID(), habitId: habit3Id, date: date.toISOString() });
-        }
-      }
-
-      // Sample tasks with varied priorities, statuses, categories, due dates, and subtasks
-      const dummyTasks = [
-        {
-          id: crypto.randomUUID(),
-          title: 'Review project roadmap',
-          description: 'Go through Q3 objectives and prioritize deliverables.',
-          priority: 'high' as const,
-          status: 'in_progress' as const,
-          category: 'Work',
-          due_date: new Date(now.getTime() + 2 * 86400000).toISOString().slice(0, 10),
-          created_at: new Date(now.getTime() - 5 * 86400000).toISOString(),
-          completed_at: null,
-          subtasks: [
-            { id: crypto.randomUUID(), title: 'Gather team feedback', done: true },
-            { id: crypto.randomUUID(), title: 'Draft timeline', done: false },
-            { id: crypto.randomUUID(), title: 'Present to stakeholders', done: false },
-          ],
-        },
-        {
-          id: crypto.randomUUID(),
-          title: 'Buy groceries',
-          description: '',
-          priority: 'medium' as const,
-          status: 'todo' as const,
-          category: 'Personal',
-          due_date: new Date(now.getTime() + 1 * 86400000).toISOString().slice(0, 10),
-          created_at: new Date(now.getTime() - 1 * 86400000).toISOString(),
-          completed_at: null,
-          subtasks: [
-            { id: crypto.randomUUID(), title: 'Vegetables & fruits', done: false },
-            { id: crypto.randomUUID(), title: 'Protein & dairy', done: false },
-          ],
-        },
-        {
-          id: crypto.randomUUID(),
-          title: 'Fix login page bug',
-          description: 'Users report a flash of unstyled content on initial load.',
-          priority: 'critical' as const,
-          status: 'todo' as const,
-          category: 'Work',
-          due_date: new Date().toISOString().slice(0, 10),
-          created_at: new Date(now.getTime() - 2 * 86400000).toISOString(),
-          completed_at: null,
-          subtasks: [],
-        },
-        {
-          id: crypto.randomUUID(),
-          title: 'Read "Atomic Habits" chapter 5',
-          description: '',
-          priority: 'low' as const,
-          status: 'todo' as const,
-          category: 'Personal',
-          due_date: null,
-          created_at: new Date(now.getTime() - 3 * 86400000).toISOString(),
-          completed_at: null,
-          subtasks: [],
-        },
-        {
-          id: crypto.randomUUID(),
-          title: 'Set up CI/CD pipeline',
-          description: 'Configure GitHub Actions for automated testing and deployment.',
-          priority: 'high' as const,
-          status: 'done' as const,
-          category: 'Work',
-          due_date: new Date(now.getTime() - 3 * 86400000).toISOString().slice(0, 10),
-          created_at: new Date(now.getTime() - 7 * 86400000).toISOString(),
-          completed_at: new Date(now.getTime() - 3 * 86400000).toISOString(),
-          subtasks: [
-            { id: crypto.randomUUID(), title: 'Write test suite', done: true },
-            { id: crypto.randomUUID(), title: 'Configure deploy step', done: true },
-          ],
-        },
-        {
-          id: crypto.randomUUID(),
-          title: 'Schedule dentist appointment',
-          description: '',
-          priority: 'medium' as const,
-          status: 'done' as const,
-          category: 'Health',
-          due_date: new Date(now.getTime() - 1 * 86400000).toISOString().slice(0, 10),
-          created_at: new Date(now.getTime() - 5 * 86400000).toISOString(),
-          completed_at: new Date(now.getTime() - 1 * 86400000).toISOString(),
-          subtasks: [],
-        },
-      ];
-
-      const dummyData = {
-        nexus_habits: JSON.stringify(dummyHabits),
-        nexus_logs: JSON.stringify(dummyLogs),
-        nexus_tasks: JSON.stringify(dummyTasks)
-      };
-
       if (currentUser) {
-        await importDataToCloud(currentUser, dummyData);
+        await importDataToCloud(currentUser, createSampleLocalData());
       }
 
       window.location.reload();
@@ -313,29 +211,39 @@ function AppLayout() {
       </nav>
 
       {isLogModalOpen && (
-        <LogActivityModal
-          onClose={() => setIsLogModalOpen(false)}
-          onSuccess={() => setToast({ message: 'ACTIVITY LOGGED SUCCESSFULLY', icon: 'task_alt' })}
-        />
+        <Suspense fallback={null}>
+          <LogActivityModal
+            onClose={() => setIsLogModalOpen(false)}
+            onSuccess={() => setToast({ message: 'ACTIVITY LOGGED SUCCESSFULLY', icon: 'task_alt' })}
+          />
+        </Suspense>
       )}
       {isAddModalOpen && (
-        <AddHabitModal
-          onClose={() => setIsAddModalOpen(false)}
-          onSuccess={() => setToast({ message: 'HABIT INITIALIZED', icon: 'add_task' })}
-        />
+        <Suspense fallback={null}>
+          <AddHabitModal
+            onClose={() => setIsAddModalOpen(false)}
+            onSuccess={() => setToast({ message: 'HABIT INITIALIZED', icon: 'add_task' })}
+          />
+        </Suspense>
       )}
       {isAddTaskModalOpen && (
-        <AddTaskModal
-          onClose={() => setIsAddTaskModalOpen(false)}
-          onSuccess={() => setToast({ message: 'TASK DEPLOYED', icon: 'task_alt' })}
-        />
+        <Suspense fallback={null}>
+          <AddTaskModal
+            onClose={() => setIsAddTaskModalOpen(false)}
+            onSuccess={() => setToast({ message: 'TASK DEPLOYED', icon: 'task_alt' })}
+          />
+        </Suspense>
       )}
       {isAddNoteModalOpen && (
-        <NoteEditorModal initialNote={null} onClose={() => setIsAddNoteModalOpen(false)} />
+        <Suspense fallback={null}>
+          <NoteEditorModal initialNote={null} onClose={() => setIsAddNoteModalOpen(false)} />
+        </Suspense>
       )}
 
       {showOnboarding && (
-        <OnboardingModal onComplete={handleOnboardingComplete} />
+        <Suspense fallback={null}>
+          <OnboardingModal onComplete={handleOnboardingComplete} />
+        </Suspense>
       )}
 
       {toast && <Toast message={toast.message} icon={toast.icon} onDone={handleToastDone} />}
@@ -372,18 +280,18 @@ function App() {
               <NoteProvider>
                 <Router>
                   <Routes>
-                    <Route path="/welcome" element={<PublicOnlyRoute><LandingPage /></PublicOnlyRoute>} />
-                    <Route path="/auth" element={<PublicOnlyRoute><AuthPage /></PublicOnlyRoute>} />
+                    <Route path="/welcome" element={<PublicOnlyRoute><Suspense fallback={<RouteFallback />}><LandingPage /></Suspense></PublicOnlyRoute>} />
+                    <Route path="/auth" element={<PublicOnlyRoute><Suspense fallback={<RouteFallback />}><AuthPage /></Suspense></PublicOnlyRoute>} />
                     <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-                      <Route index element={<Dashboard />} />
-                      <Route path="habits" element={<Habits />} />
-                      <Route path="tasks" element={<Tasks />} />
-                      <Route path="notes" element={<Notes />} />
-                      <Route path="notes/:id" element={<NoteDetail />} />
-                      <Route path="performance" element={<PerformanceAnalytics />} />
-                      <Route path="legacy" element={<LegacyLogs />} />
-                      <Route path="settings" element={<Settings />} />
-                      <Route path="habit/:id" element={<HabitDetails />} />
+                      <Route index element={<Suspense fallback={<RouteFallback />}><Dashboard /></Suspense>} />
+                      <Route path="habits" element={<Suspense fallback={<RouteFallback />}><Habits /></Suspense>} />
+                      <Route path="tasks" element={<Suspense fallback={<RouteFallback />}><Tasks /></Suspense>} />
+                      <Route path="notes" element={<Suspense fallback={<RouteFallback />}><Notes /></Suspense>} />
+                      <Route path="notes/:id" element={<Suspense fallback={<RouteFallback />}><NoteDetail /></Suspense>} />
+                      <Route path="performance" element={<Suspense fallback={<RouteFallback />}><PerformanceAnalytics /></Suspense>} />
+                      <Route path="legacy" element={<Suspense fallback={<RouteFallback />}><LegacyLogs /></Suspense>} />
+                      <Route path="settings" element={<Suspense fallback={<RouteFallback />}><Settings /></Suspense>} />
+                      <Route path="habit/:id" element={<Suspense fallback={<RouteFallback />}><HabitDetails /></Suspense>} />
                     </Route>
                   </Routes>
                 </Router>

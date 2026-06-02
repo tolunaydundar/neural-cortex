@@ -27,7 +27,7 @@ import { useNavigate } from 'react-router-dom';
 
 type SortMode = 'updated' | 'created' | 'alpha' | 'custom';
 type ViewMode = 'grid' | 'list' | 'table';
-type SidebarFilter = 'all' | 'pinned' | { type: 'folder'; id: string } | { type: 'tag'; tag: string };
+export type SidebarFilter = 'all' | 'pinned' | { type: 'folder'; id: string } | { type: 'tag'; tag: string };
 
 export default function Notes() {
   usePageTitle('Notes');
@@ -47,6 +47,7 @@ export default function Notes() {
 
   useEffect(() => {
     if (userPreferences.notesSortMode) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSortModeLocal(userPreferences.notesSortMode as SortMode);
     }
     if (userPreferences.notesViewMode) {
@@ -159,7 +160,7 @@ export default function Notes() {
         updateNote(active.id as string, { order: newOrder });
       }
     }
-  }, [sortMode, notes, updateNote]);
+  }, [sortMode, notes, updateNote, setSortMode]);
 
   const filteredNotes = useMemo(() => {
     let result = [...notes];
@@ -409,6 +410,7 @@ export default function Notes() {
                   onClick={() => setViewMode('grid')}
                   className={`p-1.5 rounded transition-colors cursor-pointer ${viewMode === 'grid' ? 'bg-surface-container-lowest text-primary-fixed-dim' : 'text-on-surface-variant/80 hover:text-on-surface-variant'}`}
                   title="Grid view"
+                  aria-label="Grid view"
                 >
                   <span className="material-symbols-outlined text-[16px]">grid_view</span>
                 </button>
@@ -416,6 +418,7 @@ export default function Notes() {
                   onClick={() => setViewMode('list')}
                   className={`p-1.5 rounded transition-colors cursor-pointer ${viewMode === 'list' ? 'bg-surface-container-lowest text-primary-fixed-dim' : 'text-on-surface-variant/80 hover:text-on-surface-variant'}`}
                   title="List view"
+                  aria-label="List view"
                 >
                   <span className="material-symbols-outlined text-[16px]">view_list</span>
                 </button>
@@ -423,6 +426,7 @@ export default function Notes() {
                   onClick={() => setViewMode('table')}
                   className={`p-1.5 rounded transition-colors cursor-pointer ${viewMode === 'table' ? 'bg-surface-container-lowest text-primary-fixed-dim' : 'text-on-surface-variant/80 hover:text-on-surface-variant'}`}
                   title="Table view"
+                  aria-label="Table view"
                 >
                   <span className="material-symbols-outlined text-[16px]">table_rows</span>
                 </button>

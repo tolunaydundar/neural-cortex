@@ -1,6 +1,7 @@
 import { db } from '../firebase';
 import { collection, writeBatch, doc, query, where, limit, getDocs, getDoc, updateDoc } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
+import { validateBackupPayload } from './backupSchema';
 
 export async function importDataToCloud(currentUser: User, importedData: Record<string, unknown>): Promise<boolean> {
   if (!importedData) {
@@ -9,41 +10,12 @@ export async function importDataToCloud(currentUser: User, importedData: Record<
 
   try {
     const batch = writeBatch(db);
-
-    const parse = (key: 'nexus_habits' | 'nexus_logs' | 'nexus_tasks' | 'nexus_notes' | 'nexus_folders') => {
-      const raw = importedData[key];
-      if (!raw) return [];
-      if (Array.isArray(raw)) return raw;
-      if (typeof raw === 'string') {
-        try {
-          return JSON.parse(raw);
-        } catch {
-          return [];
-        }
-      }
-      return [];
-    };
-
-    const localHabits = parse('nexus_habits');
-    const localLogs = parse('nexus_logs');
-    const localTasks = parse('nexus_tasks');
-    const localNotes = parse('nexus_notes');
-    const localFolders = parse('nexus_folders');
-
-    // Parse user preferences if present
-    let preferences: Record<string, unknown> | null = null;
-    const rawPrefs = importedData['nexus_preferences'];
-    if (rawPrefs) {
-      if (typeof rawPrefs === 'string') {
-        try {
-          preferences = JSON.parse(rawPrefs);
-        } catch {
-          preferences = null;
-        }
-      } else if (typeof rawPrefs === 'object' && !Array.isArray(rawPrefs)) {
-        preferences = rawPrefs as Record<string, unknown>;
-      }
-    }
+    const { collections, preferences } = validateBackupPayload(importedData);
+    const localHabits = collections.nexus_habits;
+    const localLogs = collections.nexus_logs;
+    const localTasks = collections.nexus_tasks;
+    const localNotes = collections.nexus_notes;
+    const localFolders = collections.nexus_folders;
 
     const hasCollectionData = localHabits.length || localLogs.length || localTasks.length || localNotes.length || localFolders.length;
 

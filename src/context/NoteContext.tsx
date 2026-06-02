@@ -2,41 +2,14 @@
 import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { db } from '../firebase';
 import { 
-  collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query, where 
+  collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query, where, writeBatch 
 } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
 import { useSync } from './SyncContext';
+import { assertOwnedDocument } from '../utils/firestoreOwnership';
+import { getAllNoteTags, getNoteOrder, type Folder, type Note } from '../domain/notes';
 
-export type NoteColor = 'default' | 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'purple';
-
-export interface Note {
-  id: string;
-  title: string;
-  content: string;
-  tags: string[];
-  folder_id: string | null;
-  parent_id?: string | null;
-  cover_image?: string | null;
-  icon?: string | null;
-  format?: 'markdown' | 'html';
-  color: NoteColor;
-  pinned: boolean;
-  order?: number;
-  created_at: string;
-  updated_at: string;
-  userId: string;
-  is_deleted?: boolean;
-}
-
-export interface Folder {
-  id: string;
-  name: string;
-  icon: string;
-  parent_id?: string | null;
-  created_at: string;
-  userId: string;
-  is_deleted?: boolean;
-}
+export type { Folder, Note, NoteColor } from '../domain/notes';
 
 interface NoteContextType {
   notes: Note[];
@@ -86,9 +59,7 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       // Sort in memory using order field (fallback to created_at)
       fetchedNotes.sort((a, b) => {
-        const orderA = a.order ?? new Date(a.created_at).getTime();
-        const orderB = b.order ?? new Date(b.created_at).getTime();
-        return orderB - orderA;
+        return getNoteOrder(b) - getNoteOrder(a);
       });
       setNotes(fetchedNotes);
     });
@@ -114,7 +85,7 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // ── Note CRUD ──
 
-  const addNote = (note: Omit<Note, 'id' | 'created_at' | 'updated_at' | 'userId'>): Promise<string> => runSync(async () => {
+  const addNote = useCallback((note: Omit<Note, 'id' | 'created_at' | 'updated_at' | 'userId'>): Promise<string> => runSync(async () => {
     if (!currentUser) return '';
     const now = new Date().toISOString();
     const docRef = await addDoc(collection(db, 'notes'), {
@@ -125,29 +96,36 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       updated_at: now,
     });
     return docRef.id;
-  });
+  }), [currentUser, runSync]);
 
-  const updateNote = (id: string, updates: Partial<Omit<Note, 'id' | 'created_at' | 'userId'>>) => runSync(async () => {
+  const updateNote = useCallback((id: string, updates: Partial<Omit<Note, 'id' | 'created_at' | 'userId'>>) => runSync(async () => {
+    if (!currentUser) return;
+    await assertOwnedDocument('notes', id, currentUser.uid);
     const noteRef = doc(db, 'notes', id);
     await updateDoc(noteRef, { ...updates, updated_at: new Date().toISOString() });
-  });
+  }), [currentUser, runSync]);
 
-  const deleteNote = (id: string) => runSync(async () => {
+  const deleteNote = useCallback((id: string) => runSync(async () => {
+    if (!currentUser) return;
+    await assertOwnedDocument('notes', id, currentUser.uid);
     await deleteDoc(doc(db, 'notes', id));
-  });
+  }), [currentUser, runSync]);
 
-  const togglePin = (id: string) => runSync(async () => {
+  const togglePin = useCallback((id: string) => runSync(async () => {
+    if (!currentUser) return;
+    await assertOwnedDocument('notes', id, currentUser.uid);
     const note = notes.find(n => n.id === id);
     if (!note) return;
     await updateDoc(doc(db, 'notes', id), { 
       pinned: !note.pinned, 
       updated_at: new Date().toISOString() 
     });
-  });
+  }), [currentUser, notes, runSync]);
 
-  const duplicateNote = (id: string) => runSync(async () => {
+  const duplicateNote = useCallback((id: string) => runSync(async () => {
     const original = notes.find(n => n.id === id);
     if (!original || !currentUser) return;
+    await assertOwnedDocument('notes', id, currentUser.uid);
     const now = new Date().toISOString();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id: _, ...originalData } = original;
@@ -160,15 +138,15 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       created_at: now,
       updated_at: now,
     });
-  });
+  }), [currentUser, notes, runSync]);
 
-  const moveToFolder = (noteId: string, folderId: string | null) => runSync(async () => {
+  const moveToFolder = useCallback((noteId: string, folderId: string | null) => runSync(async () => {
     await updateNote(noteId, { folder_id: folderId });
-  });
+  }), [runSync, updateNote]);
 
   // ── Folder CRUD ──
 
-  const addFolder = (name: string, icon: string, parent_id: string | null = null): Promise<string> => runSync(async () => {
+  const addFolder = useCallback((name: string, icon: string, parent_id: string | null = null): Promise<string> => runSync(async () => {
     if (!currentUser) return '';
     const newFolder = {
       name,
@@ -179,27 +157,30 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     const docRef = await addDoc(collection(db, 'folders'), newFolder);
     return docRef.id;
-  });
+  }), [currentUser, runSync]);
 
-  const updateFolder = (id: string, updates: Partial<Omit<Folder, 'id' | 'created_at' | 'userId'>>) => runSync(async () => {
+  const updateFolder = useCallback((id: string, updates: Partial<Omit<Folder, 'id' | 'created_at' | 'userId'>>) => runSync(async () => {
+    if (!currentUser) return;
+    await assertOwnedDocument('folders', id, currentUser.uid);
     await updateDoc(doc(db, 'folders', id), updates);
-  });
+  }), [currentUser, runSync]);
 
-  const deleteFolder = (id: string) => runSync(async () => {
-    await deleteDoc(doc(db, 'folders', id));
-    // Move orphaned notes to uncategorized
+  const deleteFolder = useCallback((id: string) => runSync(async () => {
+    if (!currentUser) return;
+    await assertOwnedDocument('folders', id, currentUser.uid);
+    const batch = writeBatch(db);
+    batch.delete(doc(db, 'folders', id));
     const orphanedNotes = notes.filter(n => n.folder_id === id);
     for (const note of orphanedNotes) {
-      await updateDoc(doc(db, 'notes', note.id), { folder_id: null });
+      batch.update(doc(db, 'notes', note.id), { folder_id: null, updated_at: new Date().toISOString() });
     }
-  });
+    await batch.commit();
+  }), [currentUser, notes, runSync]);
 
   // ── Derived ──
 
   const getAllTags = useCallback((): string[] => {
-    const tagSet = new Set<string>();
-    notes.forEach(n => n.tags?.forEach(t => tagSet.add(t)));
-    return Array.from(tagSet).sort();
+    return getAllNoteTags(notes);
   }, [notes]);
 
   const getNotesByFolder = useCallback((folderId: string | null): Note[] => {
@@ -212,7 +193,7 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     notes, folders, addNote, updateNote, deleteNote, duplicateNote, togglePin,
     addFolder, updateFolder, deleteFolder, moveToFolder,
     getAllTags, getNotesByFolder, getNotesCount,
-  }), [notes, folders, getAllTags, getNotesByFolder, getNotesCount]);
+  }), [notes, folders, addNote, updateNote, deleteNote, duplicateNote, togglePin, addFolder, updateFolder, deleteFolder, moveToFolder, getAllTags, getNotesByFolder, getNotesCount]);
 
   return (
     <NoteContext.Provider value={value}>
