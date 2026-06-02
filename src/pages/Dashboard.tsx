@@ -4,13 +4,11 @@ import { useTasks } from '../context/TaskContext';
 import { startOfDay, subDays, isSameDay } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { useOutletContext } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 
 export default function Dashboard() {
   const { habits, logs, getStreak, getEfficiency, logHabit } = useHabits();
   const { tasks, moveStatus, getOverdueTasks, addTask } = useTasks();
   const { openAddModal, openAddTaskModal } = useOutletContext<{ openAddModal: () => void; openAddTaskModal: () => void }>();
-  const { t } = useTranslation();
 
   const [quickTaskTitle, setQuickTaskTitle] = useState('');
 
@@ -238,14 +236,14 @@ export default function Dashboard() {
             
             <div className="flex justify-between items-end">
               <span className="font-label-caps text-[11px] text-on-surface-variant/80">7-DAY AVERAGE</span>
-              <span className="font-data-display text-4xl text-primary-fixed-dim font-bold">
+              <span className="font-data-display text-3xl text-primary-fixed-dim font-bold">
                 {Math.round(weeklyProgress)}%
               </span>
             </div>
 
             <div className="flex justify-between items-end pt-6 border-t border-on-surface/5">
               <span className="font-label-caps text-[11px] text-on-surface-variant/80">30-DAY AVERAGE</span>
-              <span className="font-data-display text-3xl text-on-surface/80 font-bold">
+              <span className="font-data-display text-3xl text-primary-fixed-dim font-bold">
                 {overallEfficiency}%
               </span>
             </div>

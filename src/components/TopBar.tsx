@@ -111,10 +111,10 @@ export default function TopBar({ onAddHabit, onAddTask, onAddNote, onMenuToggle 
           </div>
           <button
             onClick={() => navigate('/settings')}
-            className="text-on-surface-variant hover:text-primary-fixed-dim transition-colors cursor-pointer p-1"
+            className="flex items-center justify-center text-on-surface-variant hover:text-primary-fixed-dim transition-colors cursor-pointer"
             aria-label="Settings"
           >
-            <span className="material-symbols-outlined text-[20px]">settings</span>
+            <span className="material-symbols-outlined text-[20px] leading-none">settings</span>
           </button>
         </div>
       </div>

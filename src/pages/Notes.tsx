@@ -31,7 +31,7 @@ type SidebarFilter = 'all' | 'pinned' | { type: 'folder'; id: string } | { type:
 export default function Notes() {
   usePageTitle('Notes');
   const navigate = useNavigate();
-  const { notes, folders, getAllTags, updateNote } = useNotes();
+  const { notes, folders, getAllTags, updateNote, deleteNote, togglePin, duplicateNote, moveToFolder } = useNotes();
   const { userPreferences, updateUserPreferences } = useAuth();
 
   const [isEditorOpen, setIsEditorOpen] = useState(false);
