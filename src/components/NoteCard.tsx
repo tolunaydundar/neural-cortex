@@ -3,6 +3,7 @@ import { type Note, useNotes } from '../context/NoteContext';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
+import ContextMenu from './ContextMenu';
 
 interface NoteCardProps {
   note: Note;
@@ -26,6 +27,7 @@ export default function NoteCard({ note, onClick }: NoteCardProps) {
   const { t } = useTranslation();
   const [showMenu, setShowMenu] = useState(false);
   const [showMoveMenu, setShowMoveMenu] = useState(false);
+  const [menuAnchorRect, setMenuAnchorRect] = useState<DOMRect | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
 
@@ -73,8 +75,15 @@ export default function NoteCard({ note, onClick }: NoteCardProps) {
 
   const handleMenuClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setShowMenu(!showMenu);
-    setShowMoveMenu(false);
+    if (showMenu) {
+      setShowMenu(false);
+      setShowMoveMenu(false);
+      setMenuAnchorRect(null);
+    } else {
+      setShowMenu(true);
+      setShowMoveMenu(false);
+      setMenuAnchorRect(e.currentTarget.getBoundingClientRect());
+    }
   };
 
   return (
@@ -158,51 +167,53 @@ export default function NoteCard({ note, onClick }: NoteCardProps) {
       </div>
 
       {/* Context Menu */}
-      {showMenu && (
-        <div ref={menuRef} className="absolute z-50 bg-surface-container-highest border border-on-surface/20 rounded-lg p-1 min-w-[160px] flex flex-col gap-1" style={{ top: '40px', right: '12px' }} onClick={e => e.stopPropagation()}>
-          <button className="flex items-center gap-2 px-3 py-2 hover:bg-on-surface/5 rounded text-sm text-on-surface-variant transition-colors text-left" onClick={(e) => { e.stopPropagation(); togglePin(note.id); setShowMenu(false); }}>
-            <span className="material-symbols-outlined text-[16px]">{note.pinned ? 'push_pin' : 'keep'}</span>
-            {note.pinned ? 'Unpin' : 'Pin to Top'}
+      <ContextMenu
+        isOpen={showMenu}
+        onClose={() => { setShowMenu(false); setShowMoveMenu(false); setMenuAnchorRect(null); }}
+        anchorRect={menuAnchorRect}
+      >
+        <button className="flex items-center gap-2 px-3 py-2 hover:bg-on-surface/5 rounded text-sm text-on-surface-variant transition-colors text-left" onClick={(e) => { e.stopPropagation(); togglePin(note.id); setShowMenu(false); }}>
+          <span className="material-symbols-outlined text-[16px]">{note.pinned ? 'push_pin' : 'keep'}</span>
+          {note.pinned ? 'Unpin' : 'Pin to Top'}
+        </button>
+        <button className="flex items-center gap-2 px-3 py-2 hover:bg-on-surface/5 rounded text-sm text-on-surface-variant transition-colors text-left" onClick={(e) => { e.stopPropagation(); duplicateNote(note.id); setShowMenu(false); }}>
+          <span className="material-symbols-outlined text-[16px]">content_copy</span>
+          Duplicate
+        </button>
+        {folders.length > 0 && (
+          <button className="flex items-center gap-2 px-3 py-2 hover:bg-on-surface/5 rounded text-sm text-on-surface-variant transition-colors text-left" onClick={(e) => { e.stopPropagation(); setShowMoveMenu(!showMoveMenu); }}>
+            <span className="material-symbols-outlined text-[16px]">folder_move</span>
+            Move to Folder
+            <span className="material-symbols-outlined text-[14px] ml-auto">chevron_right</span>
           </button>
-          <button className="flex items-center gap-2 px-3 py-2 hover:bg-on-surface/5 rounded text-sm text-on-surface-variant transition-colors text-left" onClick={(e) => { e.stopPropagation(); duplicateNote(note.id); setShowMenu(false); }}>
-            <span className="material-symbols-outlined text-[16px]">content_copy</span>
-            Duplicate
-          </button>
-          {folders.length > 0 && (
-            <button className="flex items-center gap-2 px-3 py-2 hover:bg-on-surface/5 rounded text-sm text-on-surface-variant transition-colors text-left" onClick={(e) => { e.stopPropagation(); setShowMoveMenu(!showMoveMenu); }}>
-              <span className="material-symbols-outlined text-[16px]">folder_move</span>
-              Move to Folder
-              <span className="material-symbols-outlined text-[14px] ml-auto">chevron_right</span>
+        )}
+        {showMoveMenu && (
+          <div className="pl-6 pr-2 py-1 flex flex-col gap-1 border-l-2 border-on-surface/10 ml-4 mt-1">
+            <button
+              className="flex items-center gap-2 px-2 py-1.5 hover:bg-on-surface/5 rounded text-xs text-on-surface-variant transition-colors text-left"
+              onClick={(e) => { e.stopPropagation(); moveToFolder(note.id, null); setShowMenu(false); }}
+            >
+              <span className="material-symbols-outlined text-[14px]">folder_off</span>
+              No Folder
             </button>
-          )}
-          {showMoveMenu && (
-            <div className="pl-6 pr-2 py-1 flex flex-col gap-1 border-l-2 border-on-surface/10 ml-4 mt-1">
+            {folders.map(f => (
               <button
-                className="flex items-center gap-2 px-2 py-1.5 hover:bg-on-surface/5 rounded text-xs text-on-surface-variant transition-colors text-left"
-                onClick={(e) => { e.stopPropagation(); moveToFolder(note.id, null); setShowMenu(false); }}
+                key={f.id}
+                className={`flex items-center gap-2 px-2 py-1.5 hover:bg-on-surface/5 rounded text-xs transition-colors text-left ${note.folder_id === f.id ? 'text-primary-fixed-dim font-bold' : 'text-on-surface-variant'}`}
+                onClick={(e) => { e.stopPropagation(); moveToFolder(note.id, f.id); setShowMenu(false); }}
               >
-                <span className="material-symbols-outlined text-[14px]">folder_off</span>
-                No Folder
+                <span className="material-symbols-outlined text-[14px]">{f.icon}</span>
+                {f.name}
               </button>
-              {folders.map(f => (
-                <button
-                  key={f.id}
-                  className={`flex items-center gap-2 px-2 py-1.5 hover:bg-on-surface/5 rounded text-xs transition-colors text-left ${note.folder_id === f.id ? 'text-primary-fixed-dim font-bold' : 'text-on-surface-variant'}`}
-                  onClick={(e) => { e.stopPropagation(); moveToFolder(note.id, f.id); setShowMenu(false); }}
-                >
-                  <span className="material-symbols-outlined text-[14px]">{f.icon}</span>
-                  {f.name}
-                </button>
-              ))}
-            </div>
-          )}
-          <div className="w-full h-px bg-on-surface/10 my-1" />
-          <button className="flex items-center gap-2 px-3 py-2 hover:bg-error/20 hover:text-error rounded text-sm text-on-surface-variant transition-colors text-left" onClick={(e) => { e.stopPropagation(); deleteNote(note.id); setShowMenu(false); }}>
-            <span className="material-symbols-outlined text-[16px]">delete</span>
-            Delete
-          </button>
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+        <div className="w-full h-px bg-on-surface/10 my-1" />
+        <button className="flex items-center gap-2 px-3 py-2 hover:bg-error/20 hover:text-error rounded text-sm text-on-surface-variant transition-colors text-left" onClick={(e) => { e.stopPropagation(); deleteNote(note.id); setShowMenu(false); }}>
+          <span className="material-symbols-outlined text-[16px]">delete</span>
+          Delete
+        </button>
+      </ContextMenu>
     </div>
   );
 }

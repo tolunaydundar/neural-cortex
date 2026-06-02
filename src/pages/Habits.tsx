@@ -28,11 +28,11 @@ export default function Habits() {
       <div className="mb-10 pt-8 lg:pt-12 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
         <div>
           <h1 className="font-headline-lg text-4xl sm:text-6xl text-on-surface font-bold tracking-tight">Habits</h1>
-          <div className="flex flex-wrap items-center gap-3 mt-5 font-label-caps text-[11px] sm:text-[13px] text-on-surface-variant/80 tracking-wider">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center items-start gap-1.5 sm:gap-3 mt-4 sm:mt-5 font-label-caps text-[11px] sm:text-[13px] text-on-surface-variant/80 tracking-wider">
             <span>{habits.length} HABITS</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
+            <span className="hidden sm:block w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
             <span className={weeklyProgress < 50 ? 'text-secondary' : 'text-primary-fixed-dim'}>{Math.round(weeklyProgress)}% WEEKLY PROGRESS</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
+            <span className="hidden sm:block w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
             <span>{weeklyProgress > 80 ? 'SYSTEM OPTIMAL' : (weeklyProgress > 50 ? 'SYSTEM DEGRADED' : 'SYSTEM CRITICAL')}</span>
           </div>
         </div>

@@ -4,12 +4,14 @@ import TaskCard from '../components/TaskCard';
 import TaskDetailModal from '../components/TaskDetailModal';
 import { useOutletContext } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { DndContext, DragOverlay, closestCorners, PointerSensor, useSensor, useSensors, useDraggable, useDroppable } from '@dnd-kit/core';
+import { DndContext, DragOverlay, closestCorners, PointerSensor, useSensor, useSensors, useDroppable } from '@dnd-kit/core';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { usePageTitle } from '../utils/usePageTitle';
 
 type StatusFilter = 'all' | 'active' | 'done';
-type SortMode = 'priority' | 'due_date' | 'created';
+type SortMode = 'priority' | 'due_date' | 'created' | 'custom';
 
 function getPriorityValue(priority: Task['priority']): number {
   switch (priority) {
@@ -21,14 +23,21 @@ function getPriorityValue(priority: Task['priority']): number {
 }
 
 function DraggableTask({ task, onClick, onToggleComplete }: { task: Task; onClick: (t: Task) => void; onToggleComplete: (id: string) => void }) {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+  const { attributes, listeners, setNodeRef, isDragging, transform, transition } = useSortable({
     id: task.id,
     data: { task }
   });
 
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    touchAction: 'none'
+  };
+
   return (
     // SAFE: Spread operators required by @dnd-kit
-    <div ref={setNodeRef} {...listeners} {...attributes} style={{ opacity: isDragging ? 0.4 : 1, touchAction: 'none' }}>
+    <div ref={setNodeRef} {...listeners} {...attributes} style={style as React.CSSProperties}>
       <TaskCard task={task} onToggleComplete={onToggleComplete} onClick={onClick} />
     </div>
   );
@@ -47,23 +56,25 @@ function DroppableColumn({ id, title, icon, tasks, onToggleComplete, onClick }: 
         <span className="material-symbols-outlined text-primary-fixed-dim text-[20px]">{icon}</span>
         <h2 className="font-label-caps text-[11px] text-on-surface font-bold tracking-widest">{title} ({tasks.length})</h2>
       </div>
-      <div className="space-y-4 flex-grow min-h-[150px]">
-        {tasks.map(t => (
-          <DraggableTask key={t.id} task={t} onClick={onClick} onToggleComplete={onToggleComplete} />
-        ))}
-        {tasks.length === 0 && (
-          <div className="h-full w-full flex items-center justify-center border-2 border-dashed border-on-surface/10 rounded-sm text-on-surface-variant/40 font-label-caps text-[10px] min-h-[120px] transition-colors">
-            {t('tasks.drop_here')}
-          </div>
-        )}
-      </div>
+      <SortableContext id={id} items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+        <div className="space-y-4 flex-grow min-h-[150px]">
+          {tasks.map(t => (
+            <DraggableTask key={t.id} task={t} onClick={onClick} onToggleComplete={onToggleComplete} />
+          ))}
+          {tasks.length === 0 && (
+            <div className="h-full w-full flex items-center justify-center border-2 border-dashed border-on-surface/10 rounded-sm text-on-surface-variant/40 font-label-caps text-[10px] min-h-[120px] transition-colors">
+              {t('tasks.drop_here')}
+            </div>
+          )}
+        </div>
+      </SortableContext>
     </div>
   );
 }
 
 export default function Tasks() {
   usePageTitle('Tasks');
-  const { tasks, moveStatus, getOverdueTasks, getCompletionStats } = useTasks();
+  const { tasks, moveStatus, updateTask, getOverdueTasks, getCompletionStats } = useTasks();
   const { openAddTaskModal } = useOutletContext<{ openAddTaskModal: () => void; openAddModal: () => void }>();
   const { t } = useTranslation();
 
@@ -101,6 +112,7 @@ export default function Tasks() {
     }
 
     result.sort((a, b) => {
+      if (sortMode === 'custom') return 0; // Maintain context order which is order ascending
       if (sortMode === 'priority') return getPriorityValue(a.priority) - getPriorityValue(b.priority);
       if (sortMode === 'due_date') {
         if (!a.due_date && !b.due_date) return 0;
@@ -139,12 +151,65 @@ export default function Tasks() {
     const { active, over } = event;
     if (!over) return;
     
-    const taskId = active.id as string;
-    const newStatus = over.id as Task['status'];
+    const activeId = active.id as string;
+    const overId = over.id as string;
     
-    const task = tasks.find(t => t.id === taskId);
-    if (task && task.status !== newStatus) {
-      moveStatus(taskId, newStatus);
+    if (activeId === overId) return;
+
+    const activeTask = tasks.find(t => t.id === activeId);
+    if (!activeTask) return;
+
+    let targetStatus = activeTask.status;
+    if (['todo', 'in_progress', 'done'].includes(overId)) {
+      targetStatus = overId as Task['status'];
+    } else {
+      const overTask = tasks.find(t => t.id === overId);
+      if (overTask) {
+        targetStatus = overTask.status;
+      }
+    }
+
+    if (sortMode !== 'custom' && !['todo', 'in_progress', 'done'].includes(overId)) {
+      setSortMode('custom');
+    }
+
+    const targetColumnTasks = filteredTasks.filter(t => t.status === targetStatus);
+    const oldIndex = targetColumnTasks.findIndex(t => t.id === activeId);
+    const newIndex = targetColumnTasks.findIndex(t => t.id === overId);
+
+    if (['todo', 'in_progress', 'done'].includes(overId)) {
+      // Dropped on an empty column
+      if (activeTask.status !== targetStatus) {
+        updateTask(activeId, { status: targetStatus });
+      }
+      return;
+    }
+
+    let newOrder: number;
+    if (oldIndex !== -1 && newIndex !== -1 && oldIndex < newIndex) {
+      // Shifting down
+      const prevNote = targetColumnTasks[newIndex];
+      const nextNote = targetColumnTasks[newIndex + 1];
+      if (!nextNote) {
+        newOrder = (prevNote.order ?? new Date(prevNote.created_at).getTime()) + 10000;
+      } else {
+        newOrder = ((prevNote.order ?? new Date(prevNote.created_at).getTime()) + (nextNote.order ?? new Date(nextNote.created_at).getTime())) / 2;
+      }
+    } else {
+      // Shifting up or moving from a different column
+      const nextNote = targetColumnTasks[newIndex];
+      const prevNote = newIndex > 0 ? targetColumnTasks[newIndex - 1] : undefined;
+      if (!prevNote) {
+        newOrder = (nextNote.order ?? new Date(nextNote.created_at).getTime()) - 10000;
+      } else {
+        newOrder = ((prevNote.order ?? new Date(prevNote.created_at).getTime()) + (nextNote.order ?? new Date(nextNote.created_at).getTime())) / 2;
+      }
+    }
+
+    if (activeTask.status !== targetStatus) {
+      updateTask(activeId, { status: targetStatus, order: newOrder });
+    } else {
+      updateTask(activeId, { order: newOrder });
     }
   };
 
@@ -155,11 +220,11 @@ export default function Tasks() {
       <div className="mb-8 pt-8 lg:pt-12 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
         <div>
           <h1 className="font-headline-lg text-4xl sm:text-6xl text-on-surface font-bold tracking-tight">Tasks</h1>
-          <div className="flex flex-wrap items-center gap-3 mt-5 font-label-caps text-[11px] sm:text-[13px] text-on-surface-variant/80 tracking-wider">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center items-start gap-1.5 sm:gap-3 mt-4 sm:mt-5 font-label-caps text-[11px] sm:text-[13px] text-on-surface-variant/80 tracking-wider">
             <span>{todayCount} DUE TODAY</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
+            <span className="hidden sm:block w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
             <span className={overdue.length > 0 ? 'text-error font-bold' : ''}>{overdue.length} OVERDUE</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
+            <span className="hidden sm:block w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
             <span>{stats7d.rate}% 7-DAY COMPLETION RATE</span>
           </div>
         </div>
@@ -172,7 +237,7 @@ export default function Tasks() {
         </button>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 mb-8">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
         <button 
           onClick={() => setStatusFilter('all')} 
           className={`px-5 py-2.5 rounded-sm text-[11px] font-label-caps transition-all ${statusFilter === 'all' ? 'bg-primary-fixed-dim text-background font-bold' : 'bg-on-surface/5 text-on-surface hover:bg-on-surface/10'}`}
@@ -192,7 +257,7 @@ export default function Tasks() {
           {t('tasks.done')}
         </button>
         
-        <div className="w-px h-6 bg-on-surface/10 mx-2" />
+        <div className="hidden sm:block w-px h-6 bg-on-surface/10 mx-2" />
 
         {categories.length > 0 && (
           <>
@@ -222,6 +287,7 @@ export default function Tasks() {
             onChange={(e) => setSortMode(e.target.value as SortMode)} 
             className="appearance-none bg-on-surface/5 border border-on-surface/5 px-6 py-2.5 pr-10 rounded-sm text-[11px] font-label-caps text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim cursor-pointer transition-all hover:bg-on-surface/10"
           >
+            <option value="custom">SORT: CUSTOM</option>
             <option value="priority">SORT: PRIORITY</option>
             <option value="due_date">SORT: DUE DATE</option>
             <option value="created">SORT: NEWEST</option>

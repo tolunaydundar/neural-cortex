@@ -24,6 +24,7 @@ export interface Task {
   completed_at: string | null;
   subtasks: Subtask[];
   userId: string;
+  order?: number;
 }
 
 interface TaskContextType {
@@ -66,8 +67,15 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
       snapshot.forEach((doc) => {
         fetchedTasks.push({ id: doc.id, ...doc.data() } as Task);
       });
-      // Sort in memory by created_at ascending (or descending, depends on preference, let's keep original ordering which wasn't strictly enforced, but let's do descending)
-      fetchedTasks.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      // Sort in memory by order ascending, then by created_at descending
+      fetchedTasks.sort((a, b) => {
+        if (a.order !== undefined && b.order !== undefined) {
+          return a.order - b.order;
+        }
+        if (a.order !== undefined) return -1;
+        if (b.order !== undefined) return 1;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
       setTasks(fetchedTasks);
     });
 
@@ -82,6 +90,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
       userId: currentUser.uid,
       created_at: now,
       completed_at: null,
+      order: Date.now(),
     });
   });
 

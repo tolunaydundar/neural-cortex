@@ -70,13 +70,13 @@ export default function Dashboard() {
       {/* Massive Header */}
       <div className="mb-8 pt-8 lg:pt-12">
         <h1 className="font-headline-lg text-4xl sm:text-6xl text-on-surface font-bold tracking-tight">Dashboard</h1>
-        <div className="flex flex-wrap items-center gap-3 mt-5 font-label-caps text-[11px] sm:text-[13px] text-on-surface-variant/80 tracking-wider">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center items-start gap-1.5 sm:gap-3 mt-4 sm:mt-5 font-label-caps text-[11px] sm:text-[13px] text-on-surface-variant/80 tracking-wider">
           <span>{habitsLoggedCount}/{habits.length} HABITS TODAY</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
+          <span className="hidden sm:block w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
           <span>{activeTasks.length} ACTIVE TASKS</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
+          <span className="hidden sm:block w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
           <span>{topStreak} DAY TOP STREAK</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
+          <span className="hidden sm:block w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
           <span className={overdueTasks.length > 0 ? 'text-error font-bold' : ''}>{overdueTasks.length} OVERDUE</span>
         </div>
       </div>

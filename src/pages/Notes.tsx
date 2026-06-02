@@ -5,6 +5,7 @@ import NoteCard from '../components/NoteCard';
 import NoteEditorModal from '../components/NoteEditorModal';
 import FolderEditorModal from '../components/FolderEditorModal';
 import FolderTree from '../components/FolderTree';
+import ContextMenu from '../components/ContextMenu';
 import {
   DndContext,
   closestCenter,
@@ -36,6 +37,7 @@ export default function Notes() {
 
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [menuAnchorRect, setMenuAnchorRect] = useState<DOMRect | null>(null);
   const [sortMode, setSortModeLocal] = useState<SortMode>(
     (userPreferences.notesSortMode as SortMode) || 'updated'
   );
@@ -536,9 +538,11 @@ export default function Notes() {
                                 if (openMenuId === note.id) {
                                   setOpenMenuId(null);
                                   setShowMoveMenuId(null);
+                                  setMenuAnchorRect(null);
                                 } else {
                                   setOpenMenuId(note.id);
                                   setShowMoveMenuId(null);
+                                  setMenuAnchorRect(e.currentTarget.getBoundingClientRect());
                                 }
                               }}
                               className="material-symbols-outlined text-[18px] text-on-surface-variant/60 hover:bg-on-surface/5 rounded p-0.5 group-hover:text-on-surface-variant transition-colors cursor-pointer"
@@ -546,7 +550,11 @@ export default function Notes() {
                               more_vert
                             </button>
                             {openMenuId === note.id && (
-                              <div className="absolute z-50 bg-surface-container-highest border border-on-surface/20 rounded-lg p-1 min-w-[160px] flex flex-col gap-1 shadow-md" style={{ top: '50px', right: '20px' }} onClick={e => e.stopPropagation()}>
+                              <ContextMenu
+                                isOpen={true}
+                                onClose={() => { setOpenMenuId(null); setShowMoveMenuId(null); setMenuAnchorRect(null); }}
+                                anchorRect={menuAnchorRect}
+                              >
                                 <button className="flex items-center gap-2 px-3 py-2 hover:bg-on-surface/5 rounded text-sm text-on-surface-variant transition-colors text-left" onClick={(e) => { e.stopPropagation(); togglePin(note.id); setOpenMenuId(null); }}>
                                   <span className="material-symbols-outlined text-[16px]">{note.pinned ? 'push_pin' : 'keep'}</span>
                                   {note.pinned ? 'Unpin' : 'Pin to Top'}
@@ -588,7 +596,7 @@ export default function Notes() {
                                   <span className="material-symbols-outlined text-[16px]">delete</span>
                                   Delete
                                 </button>
-                              </div>
+                              </ContextMenu>
                             )}
                           </td>
                         </tr>
