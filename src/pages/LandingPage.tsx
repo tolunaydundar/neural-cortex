@@ -56,7 +56,7 @@ const LandingPage = () => {
       {/* Navigation */}
       <nav className="relative z-50 flex items-center justify-between px-6 py-6 md:px-12 max-w-7xl mx-auto">
         <div className="flex items-center gap-3 group cursor-pointer">
-          <div className="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center border border-outline/10 group-hover:border-primary-fixed-dim/50 transition-colors shadow-[0_0_15px_rgba(0,220,230,0.1)] group-hover:shadow-[0_0_20px_rgba(0,220,230,0.3)]">
+          <div className="w-10 h-10 rounded-sm bg-surface-container flex items-center justify-center border border-outline/10 group-hover:border-primary-fixed-dim/50 transition-colors group-hover:shadow-[0_0_20px_rgba(0,220,230,0.3)]">
             <span className="material-symbols-outlined text-primary-fixed-dim text-xl">psychology</span>
           </div>
           <span className="font-headline-sm font-bold text-lg tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-primary-fixed-dim to-secondary-container">
@@ -132,8 +132,8 @@ const LandingPage = () => {
                 { icon: 'description', title: 'Notes Studio', desc: 'Structured markdown notes with folders, tags, and rich editing capabilities.' },
                 { icon: 'analytics', title: 'Precision Dashboards', desc: 'Real-time metrics and status signals reveal exactly where execution is drifting.' }
               ].map((feature, i) => (
-                <motion.div key={i} variants={fadeIn} className="glass-panel p-8 rounded-3xl hover:border-primary-fixed-dim/30 hover:shadow-[0_0_30px_rgba(0,220,230,0.1)] transition-all group cursor-default">
-                  <div className="w-12 h-12 rounded-2xl bg-surface-container flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-primary-fixed-dim/10 transition-all">
+                <motion.div key={i} variants={fadeIn} className="glass-panel p-8 rounded-md hover:border-primary-fixed-dim/30 hover:shadow-[0_0_30px_rgba(0,220,230,0.1)] transition-all group cursor-default">
+                  <div className="w-12 h-12 rounded-sm bg-surface-container flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-primary-fixed-dim/10 transition-all">
                     <span className="material-symbols-outlined text-primary-fixed-dim">{feature.icon}</span>
                   </div>
                   <h3 className="font-headline-sm text-xl text-on-surface mb-3">{feature.title}</h3>

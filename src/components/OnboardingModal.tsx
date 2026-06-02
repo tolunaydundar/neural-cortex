@@ -27,7 +27,7 @@ export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="glass-panel p-6 lg:p-8 w-full max-w-md mx-4 rounded-lg shadow-[0_0_30px_rgba(0,220,230,0.1)]"
+        className="glass-panel p-6 lg:p-8 w-full max-w-md mx-4 rounded-lg"
       >
         <div className="text-center mb-8">
           <span className="material-symbols-outlined text-4xl text-primary-fixed-dim mb-4 drop-shadow-[0_0_8px_rgba(0,220,230,0.5)]">

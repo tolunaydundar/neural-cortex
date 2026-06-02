@@ -67,7 +67,7 @@ export default function AddTaskModal({ onClose, onSuccess }: AddTaskModalProps) 
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
-        className="glass-panel p-6 lg:p-8 w-full max-w-md mx-4 relative rounded-lg border-primary-fixed-dim/30 shadow-[0_0_30px_rgba(0,220,230,0.1)] max-h-[90vh] overflow-y-auto custom-scrollbar"
+        className="glass-panel p-6 lg:p-8 w-full max-w-md mx-4 relative rounded-lg border-primary-fixed-dim/30 max-h-[90vh] overflow-y-auto custom-scrollbar"
         onClick={e => e.stopPropagation()}
       >
         <button
@@ -142,7 +142,7 @@ export default function AddTaskModal({ onClose, onSuccess }: AddTaskModalProps) 
                 className="bg-surface-container-lowest border-b border-white/20 p-3 font-body-md text-on-surface focus:outline-none focus:border-primary-fixed-dim transition-all"
               />
               {showCategorySuggestions && filteredCategories.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 z-10 glass-panel border border-white/10 shadow-lg">
+                <div className="absolute top-full left-0 right-0 mt-1 z-10 glass-panel border border-white/10">
                   {filteredCategories.map(c => (
                     <button
                       key={c}

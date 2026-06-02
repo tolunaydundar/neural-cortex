@@ -119,7 +119,7 @@ export default function TipTapEditor({ content, onChange, onHeadingsUpdate, plac
   return (
     <div className="flex flex-col w-full h-full relative group">
       {!readOnly && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex flex-wrap items-center gap-1 bg-surface-container-highest/95 backdrop-blur-xl p-2 rounded-2xl border border-on-surface/20 shadow-2xl transition-all w-[90%] sm:w-auto justify-center">
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex flex-wrap items-center gap-1 bg-surface-container-highest/95 backdrop-blur-xl p-2 rounded-sm border border-on-surface/20 transition-all w-[90%] sm:w-auto justify-center">
           <button
             onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
             className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${editor.isActive('heading', { level: 1 }) ? 'bg-primary-fixed-dim/20 text-primary-fixed-dim' : 'text-on-surface hover:bg-on-surface/10'}`}

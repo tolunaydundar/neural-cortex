@@ -98,7 +98,7 @@ const AuthPage = () => {
 
         <div className="relative z-10 w-full max-w-lg">
           <Link to="/welcome" className="inline-flex items-center gap-3 group cursor-pointer mb-16">
-            <div className="w-12 h-12 rounded-2xl bg-surface-container flex items-center justify-center border border-outline/10 group-hover:border-primary-fixed-dim/40 transition-colors shadow-[0_0_15px_rgba(0,220,230,0.15)] group-hover:shadow-[0_0_25px_rgba(0,220,230,0.3)]">
+            <div className="w-12 h-12 rounded-sm bg-surface-container flex items-center justify-center border border-outline/10 group-hover:border-primary-fixed-dim/40 transition-colors group-hover:shadow-[0_0_25px_rgba(0,220,230,0.3)]">
               <span className="material-symbols-outlined text-primary-fixed-dim text-2xl">psychology</span>
             </div>
             <span className="font-headline-sm font-bold text-xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-primary-fixed-dim to-secondary-container">
@@ -156,7 +156,7 @@ const AuthPage = () => {
           {/* Mobile Logo */}
           <div className="lg:hidden mb-12 flex justify-center">
             <Link to="/welcome" className="inline-flex items-center gap-2 group cursor-pointer">
-              <div className="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center border border-outline/10 shadow-[0_0_15px_rgba(0,220,230,0.1)]">
+              <div className="w-10 h-10 rounded-sm bg-surface-container flex items-center justify-center border border-outline/10">
                 <span className="material-symbols-outlined text-primary-fixed-dim text-xl">psychology</span>
               </div>
               <span className="font-headline-sm font-bold text-lg tracking-wide text-on-surface">
@@ -175,7 +175,7 @@ const AuthPage = () => {
           </div>
 
           {error && (
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-error-container/20 text-error p-4 rounded-xl mb-6 text-sm border border-error/20 flex items-start gap-3">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-error-container/20 text-error p-4 rounded-sm mb-6 text-sm border border-error/20 flex items-start gap-3">
               <span className="material-symbols-outlined text-[18px] shrink-0 mt-0.5">error</span>
               <p>{error}</p>
             </motion.div>
@@ -193,7 +193,7 @@ const AuthPage = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-surface-container-highest/50 px-4 py-3.5 pl-11 rounded-xl text-on-surface placeholder:text-on-surface-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim/50 border border-outline/10 focus:border-primary-fixed-dim/30 transition-all focus:bg-surface-container"
+                  className="w-full bg-surface-container-highest/50 px-4 py-3.5 pl-11 rounded-sm text-on-surface placeholder:text-on-surface-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim/50 border border-outline/10 focus:border-primary-fixed-dim/30 transition-all focus:bg-surface-container"
                   placeholder="agent@nexus.com"
                 />
               </div>
@@ -210,7 +210,7 @@ const AuthPage = () => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-surface-container-highest/50 px-4 py-3.5 pl-11 rounded-xl text-on-surface placeholder:text-on-surface-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim/50 border border-outline/10 focus:border-primary-fixed-dim/30 transition-all focus:bg-surface-container"
+                  className="w-full bg-surface-container-highest/50 px-4 py-3.5 pl-11 rounded-sm text-on-surface placeholder:text-on-surface-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim/50 border border-outline/10 focus:border-primary-fixed-dim/30 transition-all focus:bg-surface-container"
                   placeholder="••••••••"
                 />
               </div>
@@ -218,7 +218,7 @@ const AuthPage = () => {
 
             <button
               type="submit"
-              className="w-full bg-primary-fixed-dim text-background py-4 rounded-xl font-label-caps text-xs tracking-[0.15em] font-bold mt-4 hover:bg-[#6ff6ff] hover:shadow-[0_0_20px_rgba(0,220,230,0.3)] transition-all flex items-center justify-center gap-2 group"
+              className="w-full bg-primary-fixed-dim text-background py-4 rounded-sm font-label-caps text-xs tracking-[0.15em] font-bold mt-4 hover:bg-[#6ff6ff] hover:shadow-[0_0_20px_rgba(0,220,230,0.3)] transition-all flex items-center justify-center gap-2 group"
             >
               {isLogin ? 'AUTHENTICATE' : 'INITIALIZE'}
               <span className="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
@@ -233,7 +233,7 @@ const AuthPage = () => {
 
           <button
             onClick={handleGoogleSignIn}
-            className="w-full mt-8 bg-surface-container/50 text-on-surface py-3.5 rounded-xl font-medium border border-outline/10 hover:bg-surface-container-highest hover:border-outline/20 transition-all flex items-center justify-center gap-3 group"
+            className="w-full mt-8 bg-surface-container/50 text-on-surface py-3.5 rounded-sm font-medium border border-outline/10 hover:bg-surface-container-highest hover:border-outline/20 transition-all flex items-center justify-center gap-3 group"
           >
             <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
               <path

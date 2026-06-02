@@ -41,18 +41,18 @@ function DroppableColumn({ id, title, icon, tasks, onToggleComplete, onClick }: 
   return (
     <div 
       ref={setNodeRef} 
-      className={`flex-1 min-w-[300px] flex flex-col rounded-xl p-4 transition-colors duration-200 border ${isOver ? 'bg-primary-fixed-dim/10 border-primary-fixed-dim/30' : 'bg-surface-container/20 border-outline/10'}`}
+      className={`flex-1 min-w-[320px] flex flex-col rounded-md p-6 transition-all duration-300 border ${isOver ? 'bg-primary-fixed-dim/5 border-primary-fixed-dim/30' : 'bg-on-surface/5 border-on-surface/5 hover:bg-surface-container/50'}`}
     >
-      <div className="flex items-center gap-2 mb-4">
-        <span className="material-symbols-outlined text-primary-fixed-dim text-[16px]">{icon}</span>
-        <h2 className="font-label-caps text-[10px] text-primary-fixed-dim tracking-widest">{title} ({tasks.length})</h2>
+      <div className="flex items-center gap-3 mb-6">
+        <span className="material-symbols-outlined text-primary-fixed-dim text-[20px]">{icon}</span>
+        <h2 className="font-label-caps text-[11px] text-on-surface font-bold tracking-widest">{title} ({tasks.length})</h2>
       </div>
-      <div className="space-y-3 flex-grow min-h-[150px]">
+      <div className="space-y-4 flex-grow min-h-[150px]">
         {tasks.map(t => (
           <DraggableTask key={t.id} task={t} onClick={onClick} onToggleComplete={onToggleComplete} />
         ))}
         {tasks.length === 0 && (
-          <div className="h-full w-full flex items-center justify-center border-2 border-dashed border-outline/10 rounded-lg text-on-surface-variant/40 font-label-caps text-[9px] min-h-[100px]">
+          <div className="h-full w-full flex items-center justify-center border-2 border-dashed border-on-surface/10 rounded-sm text-on-surface-variant/40 font-label-caps text-[10px] min-h-[120px] transition-colors">
             {t('tasks.drop_here')}
           </div>
         )}
@@ -151,69 +151,98 @@ export default function Tasks() {
   const liveSelectedTask = selectedTask ? tasks.find(t => t.id === selectedTask.id) : null;
 
   return (
-    <div className="flex-grow space-y-6 lg:space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+    <div className="flex-grow space-y-8 max-w-[1400px] mx-auto w-full pb-24">
+      <div className="mb-8 pt-8 lg:pt-12 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
         <div>
-          <h1 className="font-headline-lg text-headline-lg-mobile lg:text-headline-lg text-primary-fixed-dim">Task Matrix</h1>
-          <p className="text-on-surface-variant font-label-caps text-[10px] mt-1">MISSION CONTROL & OBJECTIVE MANAGEMENT</p>
+          <h1 className="font-headline-lg text-4xl sm:text-6xl text-on-surface font-bold tracking-tight">Tasks</h1>
+          <div className="flex flex-wrap items-center gap-3 mt-5 font-label-caps text-[11px] sm:text-[13px] text-on-surface-variant/80 tracking-wider">
+            <span>{todayCount} DUE TODAY</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
+            <span className={overdue.length > 0 ? 'text-error font-bold' : ''}>{overdue.length} OVERDUE</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
+            <span>{stats7d.rate}% 7-DAY COMPLETION RATE</span>
+          </div>
         </div>
         <button
           onClick={openAddTaskModal}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-fixed-dim text-background font-label-caps text-xs hover:bg-[#6ff6ff] transition-colors cursor-pointer shadow-[0_0_15px_rgba(0,220,230,0.4)] hover:shadow-[0_0_20px_rgba(0,220,230,0.6)] rounded-sm w-fit"
+          className="flex items-center gap-2 px-6 py-3 bg-primary-fixed-dim text-background font-label-caps text-[12px] font-bold hover:bg-[#6ff6ff] transition-all cursor-pointer hover:shadow-[0_0_30px_rgba(0,220,230,0.5)] rounded-sm w-fit"
         >
-          <span className="material-symbols-outlined text-sm">add</span>
+          <span className="material-symbols-outlined text-base">add</span>
           <span>NEW TASK</span>
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        <div className="glass-panel p-3 lg:p-4 text-center">
-          <p className="font-label-caps text-[9px] text-on-surface-variant mb-1">TODAY'S TASKS</p>
-          <p className="font-data-display text-xl lg:text-2xl text-primary-fixed-dim">{todayCount}</p>
-        </div>
-        <div className="glass-panel p-3 lg:p-4 text-center">
-          <p className="font-label-caps text-[9px] text-on-surface-variant mb-1">OVERDUE</p>
-          <p className={`font-data-display text-xl lg:text-2xl ${overdue.length > 0 ? 'text-error' : 'text-primary-fixed-dim'}`}>{overdue.length}</p>
-        </div>
-        <div className="glass-panel p-3 lg:p-4 text-center">
-          <p className="font-label-caps text-[9px] text-on-surface-variant mb-1">7-DAY RATE</p>
-          <p className="font-data-display text-xl lg:text-2xl text-primary-fixed-dim">{stats7d.rate}%</p>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2">
-        <button onClick={() => setStatusFilter('all')} className={`filter-pill ${statusFilter === 'all' ? 'active' : ''}`}>{t('tasks.all')}</button>
-        <button onClick={() => setStatusFilter('active')} className={`filter-pill ${statusFilter === 'active' ? 'active' : ''}`}>{t('tasks.active')}</button>
-        <button onClick={() => setStatusFilter('done')} className={`filter-pill ${statusFilter === 'done' ? 'active' : ''}`}>{t('tasks.done')}</button>
+      <div className="flex flex-wrap items-center gap-3 mb-8">
+        <button 
+          onClick={() => setStatusFilter('all')} 
+          className={`px-5 py-2.5 rounded-sm text-[11px] font-label-caps transition-all ${statusFilter === 'all' ? 'bg-primary-fixed-dim text-background font-bold' : 'bg-on-surface/5 text-on-surface hover:bg-on-surface/10'}`}
+        >
+          {t('tasks.all')}
+        </button>
+        <button 
+          onClick={() => setStatusFilter('active')} 
+          className={`px-5 py-2.5 rounded-sm text-[11px] font-label-caps transition-all ${statusFilter === 'active' ? 'bg-primary-fixed-dim text-background font-bold' : 'bg-on-surface/5 text-on-surface hover:bg-on-surface/10'}`}
+        >
+          {t('tasks.active')}
+        </button>
+        <button 
+          onClick={() => setStatusFilter('done')} 
+          className={`px-5 py-2.5 rounded-sm text-[11px] font-label-caps transition-all ${statusFilter === 'done' ? 'bg-primary-fixed-dim text-background font-bold' : 'bg-on-surface/5 text-on-surface hover:bg-on-surface/10'}`}
+        >
+          {t('tasks.done')}
+        </button>
         
-        <div className="w-px h-4 bg-white/10 mx-1" />
+        <div className="w-px h-6 bg-on-surface/10 mx-2" />
 
         {categories.length > 0 && (
           <>
-            <button onClick={() => setCategoryFilter('')} className={`filter-pill ${!categoryFilter ? 'active' : ''}`}>{t('tasks.all_categories')}</button>
+            <button 
+              onClick={() => setCategoryFilter('')} 
+              className={`px-5 py-2.5 rounded-sm text-[11px] font-label-caps transition-all ${!categoryFilter ? 'bg-on-surface-variant/20 text-on-surface font-bold' : 'bg-on-surface/5 text-on-surface hover:bg-on-surface/10'}`}
+            >
+              {t('tasks.all_categories')}
+            </button>
             {categories.map(cat => (
-              <button key={cat} onClick={() => setCategoryFilter(cat === categoryFilter ? '' : cat)} className={`filter-pill ${categoryFilter === cat ? 'active' : ''}`}>{cat}</button>
+              <button 
+                key={cat} 
+                onClick={() => setCategoryFilter(cat === categoryFilter ? '' : cat)} 
+                className={`px-5 py-2.5 rounded-sm text-[11px] font-label-caps transition-all ${categoryFilter === cat ? 'bg-on-surface-variant/20 text-on-surface font-bold' : 'bg-on-surface/5 text-on-surface hover:bg-on-surface/10'}`}
+              >
+                {cat}
+              </button>
             ))}
           </>
         )}
         
         <div className="flex-grow" />
         
-        <select value={sortMode} onChange={(e) => setSortMode(e.target.value as SortMode)} className="bg-surface-container-lowest border border-white/10 px-2 py-1 text-[10px] font-label-caps text-on-surface-variant focus:outline-none focus:border-primary-fixed-dim cursor-pointer rounded-sm">
-          <option value="priority">SORT: PRIORITY</option>
-          <option value="due_date">SORT: DUE DATE</option>
-          <option value="created">SORT: NEWEST</option>
-        </select>
+        <div className="relative group">
+          <select 
+            value={sortMode} 
+            onChange={(e) => setSortMode(e.target.value as SortMode)} 
+            className="appearance-none bg-on-surface/5 border border-on-surface/5 px-6 py-2.5 pr-10 rounded-sm text-[11px] font-label-caps text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim cursor-pointer transition-all hover:bg-on-surface/10"
+          >
+            <option value="priority">SORT: PRIORITY</option>
+            <option value="due_date">SORT: DUE DATE</option>
+            <option value="created">SORT: NEWEST</option>
+          </select>
+          <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[16px] pointer-events-none text-on-surface-variant">
+            expand_more
+          </span>
+        </div>
       </div>
 
       {tasks.length === 0 ? (
-        <div className="glass-panel p-12 flex flex-col items-center justify-center gap-4 text-center">
-          <button onClick={openAddTaskModal} className="material-symbols-outlined text-6xl text-primary-fixed-dim/20 hover:text-primary-fixed-dim transition-colors cursor-pointer outline-none focus:outline-none hover:scale-110 active:scale-95">{t('dashboard.add_circle')}</button>
-          <h3 className="font-headline-sm text-headline-sm text-on-surface-variant">NO TASKS DEPLOYED</h3>
+        <div className="bg-on-surface/5 rounded-md p-16 flex flex-col items-center justify-center gap-6 text-center border border-on-surface/5">
+          <button onClick={openAddTaskModal} className="w-20 h-20 rounded-full bg-primary-fixed-dim/10 text-primary-fixed-dim flex items-center justify-center hover:bg-primary-fixed-dim/20 transition-all cursor-pointer hover:scale-110 active:scale-95">
+            <span className="material-symbols-outlined text-[40px]">add</span>
+          </button>
+          <h3 className="font-headline-sm text-2xl text-on-surface">No Tasks Deployed</h3>
+          <p className="text-on-surface-variant/70 max-w-md">Your task matrix is empty. Start by adding a new objective to begin tracking your progress.</p>
         </div>
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-          <div className="flex flex-col lg:flex-row gap-6 items-stretch w-full overflow-x-auto pb-4 custom-scrollbar">
+          <div className="flex flex-col xl:flex-row gap-6 items-stretch w-full overflow-x-auto pb-6 custom-scrollbar">
             {['all', 'active'].includes(statusFilter) && (
               <DroppableColumn id="todo" title="QUEUED" icon="radio_button_unchecked" tasks={queuedTasks} onToggleComplete={handleToggleComplete} onClick={setSelectedTask} />
             )}
@@ -225,7 +254,7 @@ export default function Tasks() {
             )}
           </div>
           <DragOverlay>
-            {activeDragTask ? <TaskCard task={activeDragTask} onToggleComplete={() => {}} onClick={() => {}} /> : null}
+            {activeDragTask ? <div className="opacity-80 scale-105 rotate-2 transition-all"><TaskCard task={activeDragTask} onToggleComplete={() => {}} onClick={() => {}} /></div> : null}
           </DragOverlay>
         </DndContext>
       )}

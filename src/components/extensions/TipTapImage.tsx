@@ -39,7 +39,7 @@ const TipTapImageNodeView = ({ node }: NodeViewProps) => {
       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
         <button
           onClick={handleDownload}
-          className="bg-black/60 hover:bg-black/90 text-white p-1.5 rounded-md flex items-center justify-center backdrop-blur-sm transition-colors cursor-pointer border border-white/20 shadow-lg"
+          className="bg-black/60 hover:bg-black/90 text-white p-1.5 rounded-md flex items-center justify-center backdrop-blur-sm transition-colors cursor-pointer border border-white/20"
           title="Download Image"
         >
           <span className="material-symbols-outlined text-[16px]">download</span>

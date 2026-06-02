@@ -218,7 +218,7 @@ export default function NoteDetail() {
       {focusMode && (
         <button
           onClick={() => setFocusMode(false)}
-          className="fixed top-4 right-4 z-50 bg-surface-container/50 hover:bg-surface-container-high border border-on-surface/20 backdrop-blur-md text-on-surface-variant p-2 rounded-full transition-all shadow-lg group"
+          className="fixed top-4 right-4 z-50 bg-surface-container/50 hover:bg-surface-container-high border border-on-surface/20 backdrop-blur-md text-on-surface-variant p-2 rounded-full transition-all group"
           title="Exit Focus Mode"
         >
           <span className="material-symbols-outlined group-hover:text-primary-fixed-dim transition-colors">close_fullscreen</span>
@@ -234,7 +234,7 @@ export default function NoteDetail() {
             
             {/* Cover Image */}
             {coverImage ? (
-              <div className="relative w-full h-48 sm:h-64 rounded-2xl overflow-hidden mb-12 group shadow-2xl">
+              <div className="relative w-full h-48 sm:h-64 rounded-sm overflow-hidden mb-12 group">
                 <img src={coverImage} alt="Cover" className="w-full h-full object-cover" />
                 <div className={`absolute top-4 right-4 transition-opacity flex gap-2 ${focusMode ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'}`}>
                   <label className="bg-black/40 hover:bg-black/70 text-on-surface px-3 py-1.5 rounded-md text-[10px] font-label-caps cursor-pointer backdrop-blur-md transition-colors border border-on-surface/20">

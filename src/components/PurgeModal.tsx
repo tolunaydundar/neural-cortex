@@ -68,7 +68,7 @@ export default function PurgeModal({ isOpen, onClose, onSuccess }: PurgeModalPro
         ref={modalRef}
         role="dialog"
         aria-modal="true"
-        className="glass-panel p-6 lg:p-8 w-full max-w-md rounded-xl border border-error/20 shadow-[0_0_40px_rgba(255,82,82,0.15)]"
+        className="glass-panel p-6 lg:p-8 w-full max-w-md rounded-sm border border-error/20"
       >
         <div className="text-center mb-6">
           <div className="w-16 h-16 rounded-full bg-error/10 flex items-center justify-center mx-auto mb-4 border border-error/20">
@@ -97,7 +97,7 @@ export default function PurgeModal({ isOpen, onClose, onSuccess }: PurgeModalPro
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter current password"
-                className="w-full bg-surface-container px-4 py-3 rounded-xl text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-error/50 transition-all border border-outline/10 focus:border-error/30"
+                className="w-full bg-surface-container px-4 py-3 rounded-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-error/50 transition-all border border-outline/10 focus:border-error/30"
                 required
               />
             </div>
@@ -112,7 +112,7 @@ export default function PurgeModal({ isOpen, onClose, onSuccess }: PurgeModalPro
               value={confirmText}
               onChange={(e) => setConfirmText(e.target.value)}
               placeholder="PURGE"
-              className="w-full bg-surface-container px-4 py-3 rounded-xl text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-error/50 transition-all border border-outline/10 focus:border-error/30 uppercase"
+              className="w-full bg-surface-container px-4 py-3 rounded-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-error/50 transition-all border border-outline/10 focus:border-error/30 uppercase"
               required
             />
           </div>
@@ -122,14 +122,14 @@ export default function PurgeModal({ isOpen, onClose, onSuccess }: PurgeModalPro
               type="button"
               onClick={onClose}
               disabled={isPurging}
-              className="flex-1 py-3.5 rounded-xl border border-outline/20 text-on-surface font-label-caps text-xs tracking-widest hover:bg-surface-container transition-colors disabled:opacity-50"
+              className="flex-1 py-3.5 rounded-sm border border-outline/20 text-on-surface font-label-caps text-xs tracking-widest hover:bg-surface-container transition-colors disabled:opacity-50"
             >
               CANCEL
             </button>
             <button
               type="submit"
               disabled={confirmText !== 'PURGE' || isPurging || (isPasswordUser && !password)}
-              className="flex-1 py-3.5 rounded-xl bg-error text-white font-label-caps text-xs tracking-widest hover:bg-error/90 hover:shadow-[0_0_20px_rgba(255,82,82,0.3)] transition-all disabled:opacity-50 flex justify-center items-center gap-2"
+              className="flex-1 py-3.5 rounded-sm bg-error text-white font-label-caps text-xs tracking-widest hover:bg-error/90 hover:shadow-[0_0_20px_rgba(255,82,82,0.3)] transition-all disabled:opacity-50 flex justify-center items-center gap-2"
             >
               {isPurging ? (
                 <>

@@ -67,6 +67,8 @@ export default function Notes() {
   const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
   const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [showMoveMenuId, setShowMoveMenuId] = useState<string | null>(null);
 
   const allTags = getAllTags();
   const pinnedCount = notes.filter(n => n.pinned).length;
@@ -88,6 +90,16 @@ export default function Notes() {
     setSelectedNote(null);
     setIsEditorOpen(false);
   };
+
+  useEffect(() => {
+    if (!openMenuId) return;
+    const handler = () => {
+      setOpenMenuId(null);
+      setShowMoveMenuId(null);
+    };
+    document.addEventListener('click', handler);
+    return () => document.removeEventListener('click', handler);
+  }, [openMenuId]);
 
   const handleEditFolder = (id: string) => {
     setEditingFolderId(id);
@@ -301,22 +313,22 @@ export default function Notes() {
   return (
     <div className="flex-grow flex flex-col space-y-6 lg:space-y-8 h-full max-w-7xl mx-auto w-full px-2 sm:px-4 py-4 sm:py-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+      <div className="mb-8 pt-8 lg:pt-12 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
         <div>
-          <h1 className="font-headline-lg text-4xl lg:text-5xl text-on-surface mb-2 tracking-tight">Notebook</h1>
-          <div className="flex items-center gap-4 text-on-surface-variant font-label-caps text-[10px] tracking-widest opacity-80">
+          <h1 className="font-headline-lg text-4xl sm:text-6xl text-on-surface font-bold tracking-tight">Notebook</h1>
+          <div className="flex flex-wrap items-center gap-3 mt-5 font-label-caps text-[11px] sm:text-[13px] text-on-surface-variant/80 tracking-wider">
             <span>{notes.length} NOTES</span>
-            <span className="w-1 h-1 rounded-full bg-on-surface/20" />
+            <span className="w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
             <span>{pinnedCount} PINNED</span>
-            <span className="w-1 h-1 rounded-full bg-on-surface/20" />
+            <span className="w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
             <span>{folders.length} FOLDERS</span>
           </div>
         </div>
         <button
           onClick={() => handleOpenEditor()}
-          className="flex justify-center items-center gap-2 px-5 py-2.5 bg-primary-fixed-dim text-background font-label-caps text-xs hover:bg-[#6ff6ff] transition-all cursor-pointer shadow-[0_0_15px_rgba(0,220,230,0.3)] hover:shadow-[0_0_25px_rgba(0,220,230,0.5)] hover:scale-[1.02] active:scale-[0.98] rounded-md w-full sm:w-fit"
+          className="flex items-center gap-2 px-6 py-3 bg-primary-fixed-dim text-background font-label-caps text-[12px] font-bold hover:bg-[#6ff6ff] transition-all cursor-pointer hover:shadow-[0_0_30px_rgba(0,220,230,0.5)] rounded-sm w-fit"
         >
-          <span className="material-symbols-outlined text-sm">edit_square</span>
+          <span className="material-symbols-outlined text-base">edit_square</span>
           <span>NEW NOTE</span>
         </button>
       </div>
@@ -343,7 +355,7 @@ export default function Notes() {
           </button>
 
           {mobileSidebarOpen && (
-            <div className="bg-surface-container-lowest border border-on-surface/10 p-2 rounded-lg max-h-[60vh] overflow-y-auto custom-scrollbar shadow-xl z-10 relative">
+            <div className="bg-surface-container-lowest border border-on-surface/10 p-2 rounded-lg max-h-[60vh] overflow-y-auto custom-scrollbar z-10 relative">
               {sidebarContent}
             </div>
           )}
@@ -393,21 +405,21 @@ export default function Notes() {
               <div className="flex bg-surface-container-highest rounded-md p-0.5 flex-shrink-0">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-1.5 rounded transition-colors cursor-pointer ${viewMode === 'grid' ? 'bg-surface-container-lowest text-primary-fixed-dim shadow-sm' : 'text-on-surface-variant/80 hover:text-on-surface-variant'}`}
+                  className={`p-1.5 rounded transition-colors cursor-pointer ${viewMode === 'grid' ? 'bg-surface-container-lowest text-primary-fixed-dim' : 'text-on-surface-variant/80 hover:text-on-surface-variant'}`}
                   title="Grid view"
                 >
                   <span className="material-symbols-outlined text-[16px]">grid_view</span>
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-1.5 rounded transition-colors cursor-pointer ${viewMode === 'list' ? 'bg-surface-container-lowest text-primary-fixed-dim shadow-sm' : 'text-on-surface-variant/80 hover:text-on-surface-variant'}`}
+                  className={`p-1.5 rounded transition-colors cursor-pointer ${viewMode === 'list' ? 'bg-surface-container-lowest text-primary-fixed-dim' : 'text-on-surface-variant/80 hover:text-on-surface-variant'}`}
                   title="List view"
                 >
                   <span className="material-symbols-outlined text-[16px]">view_list</span>
                 </button>
                 <button
                   onClick={() => setViewMode('table')}
-                  className={`p-1.5 rounded transition-colors cursor-pointer ${viewMode === 'table' ? 'bg-surface-container-lowest text-primary-fixed-dim shadow-sm' : 'text-on-surface-variant/80 hover:text-on-surface-variant'}`}
+                  className={`p-1.5 rounded transition-colors cursor-pointer ${viewMode === 'table' ? 'bg-surface-container-lowest text-primary-fixed-dim' : 'text-on-surface-variant/80 hover:text-on-surface-variant'}`}
                   title="Table view"
                 >
                   <span className="material-symbols-outlined text-[16px]">table_rows</span>
@@ -433,7 +445,7 @@ export default function Notes() {
           {/* Note Grid */}
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             {notes.length === 0 ? (
-              <div className="border border-on-surface/10 border-dashed rounded-2xl p-12 flex flex-col items-center justify-center gap-4 text-center flex-grow mt-4">
+              <div className="border border-on-surface/10 border-dashed rounded-sm p-12 flex flex-col items-center justify-center gap-4 text-center flex-grow mt-4">
                 <button
                   onClick={() => handleOpenEditor()}
                   className="material-symbols-outlined text-[80px] text-on-surface-variant/70 hover:text-primary-fixed-dim/50 transition-colors cursor-pointer"
@@ -457,7 +469,7 @@ export default function Notes() {
                 <p className="font-label-caps text-[11px] tracking-widest">NO MATCHES FOUND</p>
               </div>
             ) : viewMode === 'table' ? (
-              <div className="w-full overflow-x-auto bg-surface-container rounded-xl border border-on-surface/10">
+              <div className="w-full overflow-x-auto bg-surface-container rounded-sm border border-on-surface/10">
                 <table className="w-full text-left border-collapse min-w-[700px]">
                   <thead>
                     <tr className="border-b border-on-surface/20 bg-surface-container-high font-label-caps text-[10px] text-on-surface-variant/60 tracking-wider">
@@ -465,6 +477,7 @@ export default function Notes() {
                       <th className="py-4 px-5 font-normal">Folder</th>
                       <th className="py-4 px-5 font-normal">Tags</th>
                       <th className="py-4 px-5 font-normal text-right">Updated</th>
+                      <th className="py-4 px-5 font-normal w-12"></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -515,6 +528,68 @@ export default function Notes() {
                             <span className="text-[11px] text-on-surface-variant/60 font-data-display tracking-widest whitespace-nowrap">
                               {new Date(note.updated_at).toLocaleDateString()}
                             </span>
+                          </td>
+                          <td className="py-4 px-5 text-center relative">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (openMenuId === note.id) {
+                                  setOpenMenuId(null);
+                                  setShowMoveMenuId(null);
+                                } else {
+                                  setOpenMenuId(note.id);
+                                  setShowMoveMenuId(null);
+                                }
+                              }}
+                              className="material-symbols-outlined text-[18px] text-on-surface-variant/60 hover:bg-on-surface/5 rounded p-0.5 group-hover:text-on-surface-variant transition-colors cursor-pointer"
+                            >
+                              more_vert
+                            </button>
+                            {openMenuId === note.id && (
+                              <div className="absolute z-50 bg-surface-container-highest border border-on-surface/20 rounded-lg p-1 min-w-[160px] flex flex-col gap-1 shadow-md" style={{ top: '50px', right: '20px' }} onClick={e => e.stopPropagation()}>
+                                <button className="flex items-center gap-2 px-3 py-2 hover:bg-on-surface/5 rounded text-sm text-on-surface-variant transition-colors text-left" onClick={(e) => { e.stopPropagation(); togglePin(note.id); setOpenMenuId(null); }}>
+                                  <span className="material-symbols-outlined text-[16px]">{note.pinned ? 'push_pin' : 'keep'}</span>
+                                  {note.pinned ? 'Unpin' : 'Pin to Top'}
+                                </button>
+                                <button className="flex items-center gap-2 px-3 py-2 hover:bg-on-surface/5 rounded text-sm text-on-surface-variant transition-colors text-left" onClick={(e) => { e.stopPropagation(); duplicateNote(note.id); setOpenMenuId(null); }}>
+                                  <span className="material-symbols-outlined text-[16px]">content_copy</span>
+                                  Duplicate
+                                </button>
+                                {folders.length > 0 && (
+                                  <button className="flex items-center gap-2 px-3 py-2 hover:bg-on-surface/5 rounded text-sm text-on-surface-variant transition-colors text-left" onClick={(e) => { e.stopPropagation(); setShowMoveMenuId(showMoveMenuId === note.id ? null : note.id); }}>
+                                    <span className="material-symbols-outlined text-[16px]">folder_move</span>
+                                    Move to Folder
+                                    <span className="material-symbols-outlined text-[14px] ml-auto">chevron_right</span>
+                                  </button>
+                                )}
+                                {showMoveMenuId === note.id && (
+                                  <div className="pl-6 pr-2 py-1 flex flex-col gap-1 border-l-2 border-on-surface/10 ml-4 mt-1">
+                                    <button
+                                      className="flex items-center gap-2 px-2 py-1.5 hover:bg-on-surface/5 rounded text-xs text-on-surface-variant transition-colors text-left"
+                                      onClick={(e) => { e.stopPropagation(); moveToFolder(note.id, null); setOpenMenuId(null); setShowMoveMenuId(null); }}
+                                    >
+                                      <span className="material-symbols-outlined text-[14px]">folder_off</span>
+                                      No Folder
+                                    </button>
+                                    {folders.map(f => (
+                                      <button
+                                        key={f.id}
+                                        className={`flex items-center gap-2 px-2 py-1.5 hover:bg-on-surface/5 rounded text-xs transition-colors text-left ${note.folder_id === f.id ? 'text-primary-fixed-dim font-bold' : 'text-on-surface-variant'}`}
+                                        onClick={(e) => { e.stopPropagation(); moveToFolder(note.id, f.id); setOpenMenuId(null); setShowMoveMenuId(null); }}
+                                      >
+                                        <span className="material-symbols-outlined text-[14px]">{f.icon}</span>
+                                        {f.name}
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
+                                <div className="w-full h-px bg-on-surface/10 my-1" />
+                                <button className="flex items-center gap-2 px-3 py-2 hover:bg-error/20 hover:text-error rounded text-sm text-on-surface-variant transition-colors text-left" onClick={(e) => { e.stopPropagation(); deleteNote(note.id); setOpenMenuId(null); }}>
+                                  <span className="material-symbols-outlined text-[16px]">delete</span>
+                                  Delete
+                                </button>
+                              </div>
+                            )}
                           </td>
                         </tr>
                       );

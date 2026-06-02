@@ -32,7 +32,7 @@ export default function ConfirmModal({ title, message, confirmLabel = 'CONFIRM',
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={messageId}
-        className="glass-panel p-6 lg:p-8 w-full max-w-sm mx-4 rounded-lg border-error/30 shadow-[0_0_30px_rgba(255,75,75,0.1)]"
+        className="glass-panel p-6 lg:p-8 w-full max-w-sm mx-4 rounded-lg border-error/30"
         onClick={e => e.stopPropagation()}
       >
         <h2 id={titleId} className="font-headline-md text-headline-md text-error mb-2">{title}</h2>

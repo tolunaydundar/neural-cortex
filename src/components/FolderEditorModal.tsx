@@ -57,7 +57,7 @@ export default function FolderEditorModal({ folderId, onClose, onSuccess }: Fold
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
-          className="glass-panel p-6 lg:p-8 w-full max-w-md mx-4 rounded-lg border-primary-fixed-dim/30 shadow-[0_0_30px_rgba(0,220,230,0.1)]"
+          className="glass-panel p-6 lg:p-8 w-full max-w-md mx-4 rounded-lg border-primary-fixed-dim/30"
           onClick={e => e.stopPropagation()}
         >
           <h2 id={titleId} className="font-headline-md text-headline-sm text-primary-fixed-dim mb-6">

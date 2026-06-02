@@ -155,7 +155,7 @@ export default function NoteEditorModal({ initialNote, onClose }: NoteEditorModa
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
-          className={`glass-panel p-6 lg:p-8 w-full max-w-5xl h-full lg:h-auto lg:max-h-[90vh] flex flex-col relative rounded-lg border-primary-fixed-dim/30 shadow-[0_0_30px_rgba(0,220,230,0.1)] overflow-hidden note-color-${color}`}
+          className={`glass-panel p-6 lg:p-8 w-full max-w-5xl h-full lg:h-auto lg:max-h-[90vh] flex flex-col relative rounded-lg border-primary-fixed-dim/30 overflow-hidden note-color-${color}`}
           onClick={e => e.stopPropagation()}
         >
           <h2 id={titleId} className="sr-only">Note editor</h2>

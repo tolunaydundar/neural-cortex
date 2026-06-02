@@ -86,7 +86,7 @@ export default function TaskDetailModal({ task, onClose }: TaskDetailModalProps)
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
-          className="glass-panel p-6 lg:p-8 w-full max-w-lg mx-4 relative rounded-lg border-primary-fixed-dim/30 shadow-[0_0_30px_rgba(0,220,230,0.1)] max-h-[90vh] overflow-y-auto custom-scrollbar"
+          className="glass-panel p-6 lg:p-8 w-full max-w-lg mx-4 relative rounded-lg border-primary-fixed-dim/30 max-h-[90vh] overflow-y-auto custom-scrollbar"
           onClick={e => e.stopPropagation()}
         >
           <button

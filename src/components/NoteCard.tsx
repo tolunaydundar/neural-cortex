@@ -84,10 +84,10 @@ export default function NoteCard({ note, onClick }: NoteCardProps) {
       {...attributes}
       {...listeners}
       onClick={() => onClick(note)}
-      className={`bg-surface-container hover:bg-surface-container-high rounded-xl flex flex-col cursor-pointer group transition-all duration-300 relative note-color-${note.color} overflow-hidden shadow-sm hover:shadow-md border border-on-surface/10 hover:border-on-surface/20`}
+      className={`bg-on-surface/5 hover:bg-on-surface/10 rounded-sm flex flex-col cursor-pointer group transition-all duration-300 relative note-color-${note.color} hover:shadow-md border border-on-surface/5 hover:border-on-surface/20`}
     >
       {note.cover_image && (
-        <div className="w-full h-32 overflow-hidden border-b border-on-surface/10">
+        <div className="w-full h-32 overflow-hidden rounded-t-sm border-b border-on-surface/10">
           <img src={note.cover_image} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         </div>
       )}
@@ -159,7 +159,7 @@ export default function NoteCard({ note, onClick }: NoteCardProps) {
 
       {/* Context Menu */}
       {showMenu && (
-        <div ref={menuRef} className="absolute z-50 bg-surface-container-highest border border-on-surface/20 rounded-lg shadow-xl p-1 min-w-[160px] flex flex-col gap-1" style={{ top: '40px', right: '12px' }} onClick={e => e.stopPropagation()}>
+        <div ref={menuRef} className="absolute z-50 bg-surface-container-highest border border-on-surface/20 rounded-lg p-1 min-w-[160px] flex flex-col gap-1" style={{ top: '40px', right: '12px' }} onClick={e => e.stopPropagation()}>
           <button className="flex items-center gap-2 px-3 py-2 hover:bg-on-surface/5 rounded text-sm text-on-surface-variant transition-colors text-left" onClick={(e) => { e.stopPropagation(); togglePin(note.id); setShowMenu(false); }}>
             <span className="material-symbols-outlined text-[16px]">{note.pinned ? 'push_pin' : 'keep'}</span>
             {note.pinned ? 'Unpin' : 'Pin to Top'}

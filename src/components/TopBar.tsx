@@ -72,7 +72,7 @@ export default function TopBar({ onAddHabit, onAddTask, onAddNote, onMenuToggle 
           <div className="relative">
             <button 
               onClick={() => setIsCreateMenuOpen(!isCreateMenuOpen)}
-              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-primary-fixed-dim text-background font-label-caps text-xs hover:bg-[#6ff6ff] transition-colors cursor-pointer shadow-[0_0_15px_rgba(0,220,230,0.4)] hover:shadow-[0_0_20px_rgba(0,220,230,0.6)] rounded-sm"
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-primary-fixed-dim text-background font-label-caps text-xs hover:bg-[#6ff6ff] transition-colors cursor-pointer hover:shadow-[0_0_20px_rgba(0,220,230,0.6)] rounded-sm"
             >
               <span className="material-symbols-outlined text-sm">add</span>
               <span className="hidden sm:inline">CREATE</span>
@@ -82,7 +82,7 @@ export default function TopBar({ onAddHabit, onAddTask, onAddNote, onMenuToggle 
             {isCreateMenuOpen && (
               <>
                 <div className="fixed inset-0 z-[50]" onClick={() => setIsCreateMenuOpen(false)} />
-                <div className="absolute top-full right-0 mt-2 w-40 bg-surface-container-highest border border-white/10 shadow-lg overflow-hidden z-[60] flex flex-col rounded-sm">
+                <div className="absolute top-full right-0 mt-2 w-40 bg-surface-container-highest border border-white/10 overflow-hidden z-[60] flex flex-col rounded-sm">
                   <button 
                     onClick={() => { onAddHabit(); setIsCreateMenuOpen(false); }} 
                     className="w-full text-left px-4 py-3 hover:bg-white/5 font-label-caps text-[10px] text-on-surface flex items-center gap-3 transition-colors cursor-pointer"

@@ -57,83 +57,85 @@ export default function PerformanceAnalytics() {
   const worst = sortedByEfficiency.at(-1);
 
   return (
-    <div className="flex-grow space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="font-headline-lg text-headline-lg-mobile lg:text-headline-lg text-primary-fixed-dim">Performance Analytics</h1>
-        <p className="text-on-surface-variant font-label-caps text-[10px] mt-1">SYSTEM TELEMETRY & OPTIMIZATION METRICS</p>
+    <div className="flex-grow space-y-8 max-w-[1200px] mx-auto w-full pb-24">
+      {/* Massive Header */}
+      <div className="mb-8 pt-8 lg:pt-12">
+        <h1 className="font-headline-lg text-4xl sm:text-6xl text-on-surface font-bold tracking-tight">Analytics</h1>
+        <div className="flex flex-wrap items-center gap-3 mt-5 font-label-caps text-[11px] sm:text-[13px] text-on-surface-variant/80 tracking-wider">
+          <span>{totalCompletions} TOTAL EXECUTIONS</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
+          <span className={overallEfficiency < 50 ? 'text-secondary' : 'text-primary-fixed-dim'}>{overallEfficiency}% SYSTEM EFFICIENCY</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
+          <span>{tasksDoneTotal} TASKS DONE</span>
+        </div>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4">
-        <div className="glass-panel p-4 lg:p-6 text-center">
-          <p className="font-label-caps text-[10px] text-on-surface-variant mb-2">ACTIVE HABITS</p>
-          <p className="font-data-display text-3xl text-primary-fixed-dim">{totalActive}</p>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+        <div className="bg-on-surface/5 rounded-md p-6 lg:p-8 text-center border border-on-surface/5">
+          <p className="font-label-caps text-[11px] text-on-surface-variant mb-2">ACTIVE HABITS</p>
+          <p className="font-data-display text-4xl text-on-surface">{totalActive}</p>
         </div>
-        <div className="glass-panel p-4 lg:p-6 text-center">
-          <p className="font-label-caps text-[10px] text-on-surface-variant mb-2">TOTAL EXECUTIONS</p>
-          <p className="font-data-display text-3xl text-primary-fixed-dim">{totalCompletions}</p>
+        <div className="bg-on-surface/5 rounded-md p-6 lg:p-8 text-center border border-on-surface/5">
+          <p className="font-label-caps text-[11px] text-on-surface-variant mb-2">TOTAL LOGS</p>
+          <p className="font-data-display text-4xl text-primary-fixed-dim">{totalCompletions}</p>
         </div>
-        <div className="glass-panel p-4 lg:p-6 text-center">
-          <p className="font-label-caps text-[10px] text-on-surface-variant mb-2">SYSTEM EFFICIENCY</p>
-          <p className="font-data-display text-3xl text-primary-fixed-dim">{overallEfficiency}%</p>
-        </div>
-        <div className="glass-panel p-4 lg:p-6 text-center">
-          <p className="font-label-caps text-[10px] text-on-surface-variant mb-2">TOP STREAK</p>
-          <p className="font-data-display text-3xl text-primary-fixed-dim">
+        <div className="bg-on-surface/5 rounded-md p-6 lg:p-8 text-center border border-on-surface/5">
+          <p className="font-label-caps text-[11px] text-on-surface-variant mb-2">TOP STREAK</p>
+          <p className="font-data-display text-4xl text-on-surface">
             {sortedByStreak.length > 0 ? getStreak(sortedByStreak.at(0)!.id) : 0}
           </p>
         </div>
-        <div className="glass-panel p-4 lg:p-6 text-center">
-          <p className="font-label-caps text-[10px] text-on-surface-variant mb-2">TASKS DONE</p>
-          <p className="font-data-display text-3xl text-primary-fixed-dim">{tasksDoneTotal}</p>
+        <div className="bg-on-surface/5 rounded-md p-6 lg:p-8 text-center border border-on-surface/5">
+          <p className="font-label-caps text-[11px] text-on-surface-variant mb-2">TASKS DONE</p>
+          <p className="font-data-display text-4xl text-primary-fixed-dim">{tasksDoneTotal}</p>
         </div>
       </div>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-10">
         {/* Weekly Breakdown Table */}
-        <div className="lg:col-span-8 glass-panel p-4 lg:p-6">
-          <h2 className="font-headline-sm text-headline-sm text-primary-fixed-dim mb-1">WEEKLY TELEMETRY</h2>
-          <p className="font-label-caps text-[10px] text-on-surface-variant mb-6">EFFICIENCY BY HABIT — LAST 4 WEEKS</p>
+        <div className="xl:col-span-8 bg-on-surface/5 rounded-md p-6 lg:p-8 border border-on-surface/5">
+          <h2 className="font-headline-sm text-2xl text-on-surface mb-2">Weekly Telemetry</h2>
+          <p className="font-label-caps text-[11px] text-on-surface-variant mb-8">EFFICIENCY BY HABIT — LAST 4 WEEKS</p>
           
           {habits.length === 0 ? (
             <p className="text-on-surface-variant text-sm py-8 text-center">No habits initialized yet.</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="border-b border-white/10">
+            <div className="overflow-x-auto custom-scrollbar">
+              <table className="w-full text-left min-w-[600px]">
+                <thead className="border-b border-on-surface/10">
                   <tr>
-                    <th className="pb-3 font-label-caps text-[10px] text-on-surface-variant">HABIT</th>
+                    <th className="pb-4 font-label-caps text-[11px] text-on-surface-variant font-bold">HABIT</th>
                     {weeks.map(w => (
-                      <th key={w.label} className="pb-3 font-label-caps text-[10px] text-on-surface-variant text-center">{w.label}</th>
+                      <th key={w.label} className="pb-4 font-label-caps text-[11px] text-on-surface-variant text-center font-bold">{w.label}</th>
                     ))}
-                    <th className="pb-3 font-label-caps text-[10px] text-on-surface-variant text-center">30-DAY</th>
+                    <th className="pb-4 font-label-caps text-[11px] text-on-surface-variant text-center font-bold">30-DAY</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {habits.map(habit => (
-                    <tr key={habit.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                      <td className="py-4">
+                  {habits.map((habit, idx) => (
+                    <tr key={habit.id} className={`transition-colors hover:bg-on-surface/5 ${idx !== habits.length - 1 ? 'border-b border-on-surface/5' : ''}`}>
+                      <td className="py-4 pr-4">
                         <div className="flex items-center gap-3">
-                          <span className="material-symbols-outlined text-primary-fixed-dim/60 text-sm">{habit.icon}</span>
-                          <span className="text-sm text-on-surface">{habit.title}</span>
+                          <span className="material-symbols-outlined text-primary-fixed-dim/60 text-[18px]">{habit.icon}</span>
+                          <span className="text-base text-on-surface font-medium truncate">{habit.title}</span>
                         </div>
                       </td>
                       {weeks.map(w => {
                         const eff = getWeeklyEfficiency(habit.id, w.start, w.end);
                         return (
-                          <td key={w.label} className="py-4 text-center">
-                            <span className={`font-data-display text-sm ${
-                              eff >= 80 ? 'text-primary-fixed-dim' : eff >= 50 ? 'text-on-surface' : 'text-error'
+                          <td key={w.label} className="py-4 text-center px-2">
+                            <span className={`font-data-display text-sm font-bold ${
+                              eff >= 80 ? 'text-primary-fixed-dim' : eff >= 50 ? 'text-on-surface/80' : 'text-error'
                             }`}>
                               {eff}%
                             </span>
                           </td>
                         );
                       })}
-                      <td className="py-4 text-center">
-                        <span className="font-data-display text-sm text-primary-fixed-dim">{getEfficiency(habit.id)}%</span>
+                      <td className="py-4 text-center pl-2">
+                        <span className="font-data-display text-base font-bold text-primary-fixed-dim bg-primary-fixed-dim/10 px-3 py-1 rounded-full">{getEfficiency(habit.id)}%</span>
                       </td>
                     </tr>
                   ))}
@@ -143,86 +145,89 @@ export default function PerformanceAnalytics() {
           )}
         </div>
 
-        {/* Streak Leaderboard */}
-        <div className="lg:col-span-4 space-y-4 lg:space-y-6">
+        {/* Right Column */}
+        <div className="xl:col-span-4 space-y-6 lg:space-y-8">
           {/* Best & Worst */}
           {best && worst && habits.length >= 2 && (
-            <div className="glass-panel p-6">
-              <h3 className="font-label-caps text-[10px] text-on-surface-variant mb-4">OPTIMIZATION STATUS</h3>
+            <div className="bg-on-surface/5 rounded-md p-6 lg:p-8 border border-on-surface/5">
+              <h3 className="font-headline-sm text-xl text-on-surface mb-6">Optimization Status</h3>
               <div className="space-y-4">
-                <div className="p-3 bg-surface-container/50 border-l-2 border-primary-fixed-dim">
-                  <p className="font-label-caps text-[10px] text-primary-fixed-dim">HIGHEST EFFICIENCY</p>
-                  <p className="text-sm mt-1 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary-fixed-dim text-sm">{best.icon}</span>
+                <div className="p-4 bg-on-surface/5 rounded-sm border-l-4 border-primary-fixed-dim">
+                  <p className="font-label-caps text-[10px] text-primary-fixed-dim tracking-wider font-bold">HIGHEST EFFICIENCY</p>
+                  <p className="text-base font-medium text-on-surface mt-2 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary-fixed-dim text-[18px]">{best.icon}</span>
                     {best.title}
                   </p>
-                  <p className="font-data-display text-lg text-primary-fixed-dim mt-1">{getEfficiency(best.id)}%</p>
+                  <p className="font-data-display text-2xl text-primary-fixed-dim font-bold mt-1">{getEfficiency(best.id)}%</p>
                 </div>
-                <div className="p-3 bg-surface-container/50 border-l-2 border-error">
-                  <p className="font-label-caps text-[10px] text-error">NEEDS ATTENTION</p>
-                  <p className="text-sm mt-1 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-error/60 text-sm">{worst.icon}</span>
+                <div className="p-4 bg-error/5 rounded-sm border-l-4 border-error">
+                  <p className="font-label-caps text-[10px] text-error tracking-wider font-bold">NEEDS ATTENTION</p>
+                  <p className="text-base font-medium text-on-surface mt-2 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-error text-[18px]">{worst.icon}</span>
                     {worst.title}
                   </p>
-                  <p className="font-data-display text-lg text-error mt-1">{getEfficiency(worst.id)}%</p>
+                  <p className="font-data-display text-2xl text-error font-bold mt-1">{getEfficiency(worst.id)}%</p>
                 </div>
               </div>
             </div>
           )}
 
           {/* Task Metrics */}
-          <div className="glass-panel p-4 lg:p-6">
-            <h3 className="font-label-caps text-[10px] text-on-surface-variant mb-4">TASK METRICS</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center py-2 border-b border-white/5">
-                <span className="text-xs text-on-surface-variant">This Week</span>
-                <span className="font-data-display text-sm text-primary-fixed-dim">{taskStats7d.completed}/{taskStats7d.total}</span>
+          <div className="bg-on-surface/5 rounded-md p-6 lg:p-8 border border-on-surface/5">
+            <h3 className="font-headline-sm text-xl text-on-surface mb-6">Task Metrics</h3>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center py-2 border-b border-on-surface/10">
+                <span className="text-sm font-medium text-on-surface/80">This Week</span>
+                <span className="font-data-display text-base font-bold text-primary-fixed-dim">{taskStats7d.completed}/{taskStats7d.total}</span>
               </div>
-              <div className="flex justify-between items-center py-2 border-b border-white/5">
-                <span className="text-xs text-on-surface-variant">Last 2 Weeks</span>
-                <span className="font-data-display text-sm text-primary-fixed-dim">{taskStats14d.completed}/{taskStats14d.total}</span>
+              <div className="flex justify-between items-center py-2 border-b border-on-surface/10">
+                <span className="text-sm font-medium text-on-surface/80">Last 2 Weeks</span>
+                <span className="font-data-display text-base font-bold text-primary-fixed-dim">{taskStats14d.completed}/{taskStats14d.total}</span>
               </div>
-              <div className="flex justify-between items-center py-2 border-b border-white/5">
-                <span className="text-xs text-on-surface-variant">Overdue</span>
-                <span className={`font-data-display text-sm ${overdueTaskCount > 0 ? 'text-error' : 'text-primary-fixed-dim'}`}>{overdueTaskCount}</span>
+              <div className="flex justify-between items-center py-2 border-b border-on-surface/10">
+                <span className="text-sm font-medium text-on-surface/80">Overdue Tasks</span>
+                <span className={`font-data-display text-base font-bold ${overdueTaskCount > 0 ? 'text-error' : 'text-primary-fixed-dim'}`}>{overdueTaskCount}</span>
               </div>
+              
               {categoryStats.length > 0 && (
-                <div className="pt-2">
-                  <p className="font-label-caps text-[9px] text-on-surface-variant/70 mb-2">BY CATEGORY</p>
-                  {categoryStats.map(cat => (
-                    <div key={cat.name} className="mb-2">
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-[10px] text-on-surface-variant">{cat.name}</span>
-                        <span className="font-data-display text-[10px] text-primary-fixed-dim">{cat.rate}%</span>
+                <div className="pt-4">
+                  <p className="font-label-caps text-[10px] text-on-surface-variant mb-4 font-bold tracking-wider">COMPLETION BY CATEGORY</p>
+                  <div className="space-y-4">
+                    {categoryStats.map(cat => (
+                      <div key={cat.name}>
+                        <div className="flex justify-between items-center mb-1.5">
+                          <span className="text-xs font-medium text-on-surface/80">{cat.name}</span>
+                          <span className="font-data-display text-xs font-bold text-primary-fixed-dim">{cat.rate}%</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-on-surface/10 rounded-full overflow-hidden">
+                          <div className="h-full bg-primary-fixed-dim rounded-full" style={{ width: `${cat.rate}%` }} />
+                        </div>
                       </div>
-                      <div className="subtask-progress-bar">
-                        <div className="subtask-progress-fill" style={{ width: `${cat.rate}%` }} />
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
           </div>
 
           {/* Streak Rankings */}
-          <div className="glass-panel p-6">
-            <h3 className="font-label-caps text-[10px] text-on-surface-variant mb-4">STREAK RANKINGS</h3>
+          <div className="bg-on-surface/5 rounded-md p-6 lg:p-8 border border-on-surface/5">
+            <h3 className="font-headline-sm text-xl text-on-surface mb-6">Streak Leaderboard</h3>
             {sortedByStreak.length === 0 ? (
               <p className="text-on-surface-variant text-sm text-center py-4">No data available.</p>
             ) : (
               <div className="space-y-3">
-                {sortedByStreak.map((habit, index) => (
-                  <div key={habit.id} className="flex items-center gap-3 p-3 bg-surface-container/30 hover:bg-surface-container/50 transition-colors">
-                    <span className={`font-data-display text-lg w-6 text-center ${
-                      index === 0 ? 'text-primary-fixed-dim' : 'text-on-surface-variant'
+                {sortedByStreak.slice(0, 5).map((habit, index) => (
+                  <div key={habit.id} className="flex items-center gap-4 p-3 bg-on-surface/5 rounded-sm hover:bg-on-surface/10 transition-colors">
+                    <span className={`font-data-display text-xl w-6 text-center font-bold ${
+                      index === 0 ? 'text-primary-fixed-dim' : 'text-on-surface-variant/50'
                     }`}>
                       {index + 1}
                     </span>
-                    <span className="material-symbols-outlined text-primary-fixed-dim/40 text-sm">{habit.icon}</span>
-                    <span className="text-sm flex-grow truncate">{habit.title}</span>
-                    <span className="font-data-display text-sm text-primary-fixed-dim">
-                      {getStreak(habit.id).toString().padStart(2, '0')}d
+                    <span className="material-symbols-outlined text-primary-fixed-dim/70 text-[20px]">{habit.icon}</span>
+                    <span className="text-sm font-medium text-on-surface flex-grow truncate">{habit.title}</span>
+                    <span className="font-data-display text-sm font-bold text-primary-fixed-dim bg-primary-fixed-dim/10 px-2 py-1 rounded-full">
+                      {getStreak(habit.id)}d
                     </span>
                   </div>
                 ))}
