@@ -237,33 +237,36 @@ export default function Tasks() {
         </button>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
-        <button 
-          onClick={() => setStatusFilter('all')} 
-          className={`px-5 py-2.5 rounded-sm text-[11px] font-label-caps transition-all ${statusFilter === 'all' ? 'bg-primary-fixed-dim text-background font-bold' : 'bg-on-surface/5 text-on-surface hover:bg-on-surface/10'}`}
-        >
-          {t('tasks.all')}
-        </button>
-        <button 
-          onClick={() => setStatusFilter('active')} 
-          className={`px-5 py-2.5 rounded-sm text-[11px] font-label-caps transition-all ${statusFilter === 'active' ? 'bg-primary-fixed-dim text-background font-bold' : 'bg-on-surface/5 text-on-surface hover:bg-on-surface/10'}`}
-        >
-          {t('tasks.active')}
-        </button>
-        <button 
-          onClick={() => setStatusFilter('done')} 
-          className={`px-5 py-2.5 rounded-sm text-[11px] font-label-caps transition-all ${statusFilter === 'done' ? 'bg-primary-fixed-dim text-background font-bold' : 'bg-on-surface/5 text-on-surface hover:bg-on-surface/10'}`}
-        >
-          {t('tasks.done')}
-        </button>
+      <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4 sm:gap-6 mb-6 sm:mb-8 w-full">
+        {/* Status Segmented Control */}
+        <div className="flex w-full sm:w-auto bg-on-surface/5 p-1 rounded-md border border-on-surface/10">
+          <button 
+            onClick={() => setStatusFilter('all')} 
+            className={`flex-1 sm:flex-none px-5 py-2 rounded-sm text-[11px] font-label-caps transition-all ${statusFilter === 'all' ? 'bg-primary-fixed-dim text-background font-bold shadow-sm' : 'text-on-surface hover:bg-on-surface/10'}`}
+          >
+            {t('tasks.all')}
+          </button>
+          <button 
+            onClick={() => setStatusFilter('active')} 
+            className={`flex-1 sm:flex-none px-5 py-2 rounded-sm text-[11px] font-label-caps transition-all ${statusFilter === 'active' ? 'bg-primary-fixed-dim text-background font-bold shadow-sm' : 'text-on-surface hover:bg-on-surface/10'}`}
+          >
+            {t('tasks.active')}
+          </button>
+          <button 
+            onClick={() => setStatusFilter('done')} 
+            className={`flex-1 sm:flex-none px-5 py-2 rounded-sm text-[11px] font-label-caps transition-all ${statusFilter === 'done' ? 'bg-primary-fixed-dim text-background font-bold shadow-sm' : 'text-on-surface hover:bg-on-surface/10'}`}
+          >
+            {t('tasks.done')}
+          </button>
+        </div>
         
-        <div className="hidden sm:block w-px h-6 bg-on-surface/10 mx-2" />
+        <div className="hidden sm:block w-px h-6 bg-on-surface/10" />
 
         {categories.length > 0 && (
-          <>
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 w-full sm:w-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             <button 
               onClick={() => setCategoryFilter('')} 
-              className={`px-5 py-2.5 rounded-sm text-[11px] font-label-caps transition-all ${!categoryFilter ? 'bg-on-surface-variant/20 text-on-surface font-bold' : 'bg-on-surface/5 text-on-surface hover:bg-on-surface/10'}`}
+              className={`flex-shrink-0 px-4 py-2 rounded-full border text-[11px] font-label-caps transition-all ${!categoryFilter ? 'bg-on-surface-variant/20 border-on-surface-variant/30 text-on-surface font-bold' : 'border-on-surface/10 bg-on-surface/5 text-on-surface hover:bg-on-surface/10'}`}
             >
               {t('tasks.all_categories')}
             </button>
@@ -271,21 +274,21 @@ export default function Tasks() {
               <button 
                 key={cat} 
                 onClick={() => setCategoryFilter(cat === categoryFilter ? '' : cat)} 
-                className={`px-5 py-2.5 rounded-sm text-[11px] font-label-caps transition-all ${categoryFilter === cat ? 'bg-on-surface-variant/20 text-on-surface font-bold' : 'bg-on-surface/5 text-on-surface hover:bg-on-surface/10'}`}
+                className={`flex-shrink-0 px-4 py-2 rounded-full border text-[11px] font-label-caps transition-all ${categoryFilter === cat ? 'bg-on-surface-variant/20 border-on-surface-variant/30 text-on-surface font-bold' : 'border-on-surface/10 bg-on-surface/5 text-on-surface hover:bg-on-surface/10'}`}
               >
                 {cat}
               </button>
             ))}
-          </>
+          </div>
         )}
         
-        <div className="flex-grow" />
+        <div className="flex-grow hidden sm:block" />
         
-        <div className="relative group">
+        <div className="relative group w-full sm:w-auto">
           <select 
             value={sortMode} 
             onChange={(e) => setSortMode(e.target.value as SortMode)} 
-            className="appearance-none bg-on-surface/5 border border-on-surface/5 px-6 py-2.5 pr-10 rounded-sm text-[11px] font-label-caps text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim cursor-pointer transition-all hover:bg-on-surface/10"
+            className="w-full appearance-none bg-on-surface/5 border border-on-surface/5 px-6 py-2.5 pr-10 rounded-sm text-[11px] font-label-caps text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim cursor-pointer transition-all hover:bg-on-surface/10"
           >
             <option value="custom">SORT: CUSTOM</option>
             <option value="priority">SORT: PRIORITY</option>
