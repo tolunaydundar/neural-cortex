@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SystemStatus from './SystemStatus';
 import { useSync } from '../context/SyncContext';
+import { useAuth } from '../context/AuthContext';
 
 interface TopBarProps {
   onAddHabit: () => void;
@@ -15,6 +16,7 @@ export default function TopBar({ onAddHabit, onAddTask, onAddNote, onMenuToggle 
   const [isCreateMenuOpen, setIsCreateMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { isSaving, lastSaved } = useSync();
+  const { isAnonymous } = useAuth();
   
   useEffect(() => {
     const updateClock = () => {
@@ -39,8 +41,20 @@ export default function TopBar({ onAddHabit, onAddTask, onAddNote, onMenuToggle 
   }, []);
 
   return (
-    <header className="flex justify-between items-center w-full px-4 lg:px-margin-desktop py-gutter bg-transparent">
-      <div className="flex items-center gap-3">
+    <>
+      {isAnonymous && (
+        <div className="w-full bg-surface-container-highest text-on-surface py-2 px-4 lg:px-margin-desktop flex justify-between items-center text-[10px] font-label-caps border-b border-outline/10">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+            <span>TEST DRIVE MODE: DATA CLEARS ON EXIT</span>
+          </div>
+          <button onClick={() => navigate('/auth?mode=signup')} className="text-primary-fixed-dim hover:underline font-bold transition-all px-2 py-1 rounded bg-primary-fixed-dim/10 hover:bg-primary-fixed-dim/20">
+            SIGN UP TO SAVE
+          </button>
+        </div>
+      )}
+      <header className="flex justify-between items-center w-full px-4 lg:px-margin-desktop py-gutter bg-transparent">
+        <div className="flex items-center gap-3">
         {/* Mobile hamburger */}
         <button
           onClick={onMenuToggle}
@@ -121,5 +135,6 @@ export default function TopBar({ onAddHabit, onAddTask, onAddNote, onMenuToggle 
         </div>
       </div>
     </header>
+    </>
   );
 }

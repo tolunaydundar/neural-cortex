@@ -71,6 +71,11 @@ function AppLayout() {
         setIsInitializingData(false);
         return;
       }
+      if (currentUser.isAnonymous) {
+        setShowOnboarding(false);
+        setIsInitializingData(false);
+        return;
+      }
       const hasCloud = await checkHasCloudData(currentUser);
       setShowOnboarding(!hasCloud);
       setIsInitializingData(false);
@@ -264,7 +269,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 // Public Only Route Component
 const PublicOnlyRoute = ({ children }: { children: React.ReactNode }) => {
   const { currentUser } = useAuth();
-  if (currentUser) {
+  if (currentUser && !currentUser.isAnonymous) {
     return <Navigate to="/" replace />;
   }
   return <>{children}</>;

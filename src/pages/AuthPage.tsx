@@ -98,11 +98,8 @@ const AuthPage = () => {
         </div>
 
         <div className="relative z-10 w-full max-w-lg">
-          <Link to="/welcome" className="inline-flex items-center gap-3 group cursor-pointer mb-16">
-            <div className="w-12 h-12 rounded-sm bg-surface-container flex items-center justify-center border border-outline/10 group-hover:border-primary-fixed-dim/40 transition-colors group-hover:shadow-[0_0_25px_rgba(0,220,230,0.3)]">
-              <span className="material-symbols-outlined text-primary-fixed-dim text-2xl">psychology</span>
-            </div>
-            <span className="font-headline-sm font-bold text-xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-primary-fixed-dim to-secondary-container">
+          <Link to="/welcome" className="inline-flex items-center group cursor-pointer mb-16">
+            <span className="font-headline-sm font-bold text-2xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-primary-fixed-dim to-secondary">
               Neural Cortex
             </span>
           </Link>
@@ -112,7 +109,7 @@ const AuthPage = () => {
             className="font-headline-lg text-5xl xl:text-6xl mb-6 text-on-surface leading-[1.1] tracking-tight"
           >
             Welcome to the <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary-fixed-dim to-secondary-container">Cognitive OS</span>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary-fixed-dim to-secondary">Cognitive OS</span>
           </motion.h1>
           
           <motion.p 
@@ -156,11 +153,8 @@ const AuthPage = () => {
         >
           {/* Mobile Logo */}
           <div className="lg:hidden mb-12 flex justify-center">
-            <Link to="/welcome" className="inline-flex items-center gap-2 group cursor-pointer">
-              <div className="w-10 h-10 rounded-sm bg-surface-container flex items-center justify-center border border-outline/10">
-                <span className="material-symbols-outlined text-primary-fixed-dim text-xl">psychology</span>
-              </div>
-              <span className="font-headline-sm font-bold text-lg tracking-wide text-on-surface">
+            <Link to="/welcome" className="inline-flex items-center group cursor-pointer">
+              <span className="font-headline-sm font-bold text-xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-primary-fixed-dim to-secondary">
                 Neural Cortex
               </span>
             </Link>

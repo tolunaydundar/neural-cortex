@@ -1,5 +1,10 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
+import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
+import { auth } from '../firebase';
+import { createSampleLocalData } from '../utils/sampleData';
+import { importDataToCloud } from '../utils/migration';
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -18,6 +23,9 @@ const staggerContainer = {
 
 const LandingPage = () => {
   const reduceMotion = useReducedMotion();
+  const { isDark, toggleTheme } = useTheme();
+  const { testDrive } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background text-on-surface overflow-x-hidden selection:bg-primary-fixed-dim/30">
@@ -47,15 +55,21 @@ const LandingPage = () => {
 
       {/* Navigation */}
       <nav className="relative z-50 flex items-center justify-between px-6 py-6 md:px-12 max-w-7xl mx-auto">
-        <div className="flex items-center gap-3 group cursor-pointer">
-          <div className="w-10 h-10 rounded-sm bg-surface-container flex items-center justify-center border border-outline/10 group-hover:border-primary-fixed-dim/50 transition-colors group-hover:shadow-[0_0_20px_rgba(0,220,230,0.3)]">
-            <span className="material-symbols-outlined text-primary-fixed-dim text-xl">psychology</span>
-          </div>
-          <span className="font-headline-sm font-bold text-lg tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-primary-fixed-dim to-secondary-container">
+        <div className="flex items-center group cursor-pointer">
+          <span className="font-headline-sm font-bold text-xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-primary-fixed-dim to-secondary">
             Neural Cortex
           </span>
         </div>
         <div className="flex items-center gap-4">
+          <button 
+            onClick={toggleTheme}
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-highest/50 hover:bg-surface-container-highest transition-colors text-on-surface-variant hover:text-on-surface"
+            aria-label="Toggle theme"
+          >
+            <span className="material-symbols-outlined text-[20px]">
+              {isDark ? 'light_mode' : 'dark_mode'}
+            </span>
+          </button>
           <Link to="/auth?mode=login" className="hidden md:inline-block px-5 py-2.5 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors">
             Sign In
           </Link>
@@ -78,7 +92,7 @@ const LandingPage = () => {
             className="font-headline-lg text-5xl md:text-7xl lg:text-8xl tracking-tight leading-[1.1] mb-6"
           >
             Orchestrate your <br className="hidden md:block" />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary-fixed-dim via-primary-container to-secondary-container animate-gradient-x">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary-fixed-dim via-primary to-secondary animate-gradient-x">
               execution system.
             </span>
           </motion.h1>
@@ -92,13 +106,25 @@ const LandingPage = () => {
           
           <motion.div 
             initial="hidden" animate="visible" variants={fadeIn} transition={{ delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto"
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full"
           >
-            <Link to="/auth?mode=signup" className="w-full sm:w-auto px-8 py-4 rounded-full bg-primary-fixed-dim text-background font-label-caps text-sm tracking-widest font-bold hover:bg-[#6ff6ff] hover:shadow-[0_0_30px_rgba(0,220,230,0.4)] hover:-translate-y-1 transition-all">
+            <Link to="/auth?mode=signup" className="w-full sm:w-auto px-8 py-4 rounded-full bg-primary-fixed-dim text-background font-label-caps text-sm tracking-widest font-bold hover:bg-[#6ff6ff] hover:shadow-[0_0_30px_rgba(0,220,230,0.4)] hover:-translate-y-1 transition-all text-center">
               INITIALIZE HABIT
             </Link>
-            <a href="#features" className="w-full sm:w-auto px-8 py-4 rounded-full border border-outline/20 glass-panel text-on-surface font-label-caps text-sm tracking-widest hover:bg-surface-container-highest hover:border-outline/40 transition-all">
-              EXPLORE FEATURES
+            <button 
+              onClick={async () => {
+                await testDrive();
+                if (auth.currentUser) {
+                  await importDataToCloud(auth.currentUser, createSampleLocalData());
+                }
+                navigate('/');
+              }}
+              className="w-full sm:w-auto px-8 py-4 rounded-full border border-primary-fixed-dim text-primary-fixed-dim font-label-caps text-sm tracking-widest font-bold hover:bg-primary-fixed-dim/10 hover:-translate-y-1 transition-all"
+            >
+              TEST DRIVE
+            </button>
+            <a href="#features" className="w-full sm:w-auto px-8 py-4 rounded-full border border-outline/20 glass-panel text-on-surface font-label-caps text-sm tracking-widest hover:bg-surface-container-highest hover:border-outline/40 transition-all text-center">
+              EXPLORE
             </a>
           </motion.div>
         </section>

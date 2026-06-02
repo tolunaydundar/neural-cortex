@@ -6,7 +6,11 @@ import {
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  signInAnonymously,
+  setPersistence,
+  browserSessionPersistence,
+  browserLocalPersistence
 } from 'firebase/auth';
 import { auth, googleProvider, db } from '../firebase';
 import { doc, setDoc, updateDoc, onSnapshot } from 'firebase/firestore';
@@ -30,9 +34,11 @@ interface AuthContextType {
   operatorName: string;
   theme: 'dark' | 'light';
   userPreferences: UserPreferences;
+  isAnonymous: boolean;
   updateOperatorName: (name: string) => Promise<void>;
   updateTheme: (theme: 'dark' | 'light') => Promise<void>;
   updateUserPreferences: (prefs: Partial<UserPreferences>) => Promise<void>;
+  testDrive: () => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   signupWithEmail: (email: string, pass: string) => Promise<void>;
   loginWithEmail: (email: string, pass: string) => Promise<void>;
@@ -157,20 +163,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }), [currentUser, runSync]);
 
+  const testDrive = async () => {
+    await setPersistence(auth, browserSessionPersistence);
+    await signInAnonymously(auth);
+  };
+
   const loginWithGoogle = async () => {
+    if (auth.currentUser?.isAnonymous) {
+      await auth.currentUser.delete().catch(console.error);
+    }
+    await setPersistence(auth, browserLocalPersistence);
     await signInWithRedirect(auth, googleProvider);
   };
 
   const signupWithEmail = async (email: string, pass: string) => {
+    if (auth.currentUser?.isAnonymous) {
+      await auth.currentUser.delete().catch(console.error);
+    }
+    await setPersistence(auth, browserLocalPersistence);
     await createUserWithEmailAndPassword(auth, email, pass);
   };
 
   const loginWithEmail = async (email: string, pass: string) => {
+    if (auth.currentUser?.isAnonymous) {
+      await auth.currentUser.delete().catch(console.error);
+    }
+    await setPersistence(auth, browserLocalPersistence);
     await signInWithEmailAndPassword(auth, email, pass);
   };
 
   const logout = async () => {
-    await signOut(auth);
+    if (auth.currentUser?.isAnonymous) {
+      await auth.currentUser.delete().catch(console.error);
+    } else {
+      await signOut(auth);
+    }
   };
 
   const value = useMemo(() => ({
@@ -179,9 +206,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     operatorName,
     theme,
     userPreferences,
+    isAnonymous: !!currentUser?.isAnonymous,
     updateOperatorName,
     updateTheme,
     updateUserPreferences,
+    testDrive,
     loginWithGoogle,
     signupWithEmail,
     loginWithEmail,
