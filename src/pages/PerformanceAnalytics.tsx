@@ -1,6 +1,6 @@
 import { useHabits } from '../context/HabitContext';
 import { useTasks } from '../context/TaskContext';
-import { startOfDay, subDays, isSameDay } from 'date-fns';
+import { startOfDay, subDays, isSameDay, differenceInDays } from 'date-fns';
 
 export default function PerformanceAnalytics() {
   const { habits, logs, getStreak, getEfficiency } = useHabits();
@@ -16,12 +16,38 @@ export default function PerformanceAnalytics() {
   const taskCategories = Array.from(new Set(tasks.map(t => t.category).filter(Boolean)));
   const categoryStats = taskCategories.map(cat => {
     const catTasks = tasks.filter(t => t.category === cat);
-    const done = catTasks.filter(t => t.status === 'done').length;
+    const done = catTasks.filter(t => t.status === 'done' || t.status === 'completed').length;
     return { name: cat, done, total: catTasks.length, rate: catTasks.length > 0 ? Math.round((done / catTasks.length) * 100) : 0 };
   }).sort((a, b) => b.rate - a.rate);
 
-  // Calculate weekly efficiency for last 4 weeks per habit
+  // Focus metrics
   const today = startOfDay(new Date());
+  const focusTasks = tasks.filter(t => t.category === 'Focus' && (t.status === 'done' || t.status === 'completed'));
+  let totalFocusMinutes = 0;
+  let focusMinutes7d = 0;
+  let focusMinutes30d = 0;
+
+  focusTasks.forEach(t => {
+    const match = t.title.match(/\((\d+)m\)/);
+    const mins = match ? parseInt(match[1]) : 0;
+    totalFocusMinutes += mins;
+    
+    if (t.due_date) {
+      const daysDiff = Math.abs(differenceInDays(today, new Date(t.due_date)));
+      if (daysDiff <= 7) focusMinutes7d += mins;
+      if (daysDiff <= 30) focusMinutes30d += mins;
+    }
+  });
+
+  const formatHours = (mins: number) => {
+    if (mins < 60) return `${mins}m`;
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return m > 0 ? `${h}h ${m}m` : `${h}h`;
+  };
+
+  // Calculate weekly efficiency for last 4 weeks per habit
+
   const weeks = [
     { label: 'THIS WEEK', start: 0, end: 6 },
     { label: 'LAST WEEK', start: 7, end: 13 },
@@ -67,11 +93,13 @@ export default function PerformanceAnalytics() {
           <span className={overallEfficiency < 50 ? 'text-secondary' : 'text-primary-fixed-dim'}>{overallEfficiency}% SYSTEM EFFICIENCY</span>
           <span className="w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
           <span>{tasksDoneTotal} TASKS DONE</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
+          <span>{formatHours(totalFocusMinutes)} DEEP WORK</span>
         </div>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6">
         <div className="bg-on-surface/5 rounded-md p-6 lg:p-8 text-center border border-on-surface/5">
           <p className="font-label-caps text-[11px] text-on-surface-variant mb-2">ACTIVE HABITS</p>
           <p className="font-data-display text-4xl text-on-surface">{totalActive}</p>
@@ -89,6 +117,10 @@ export default function PerformanceAnalytics() {
         <div className="bg-on-surface/5 rounded-md p-6 lg:p-8 text-center border border-on-surface/5">
           <p className="font-label-caps text-[11px] text-on-surface-variant mb-2">TASKS DONE</p>
           <p className="font-data-display text-4xl text-primary-fixed-dim">{tasksDoneTotal}</p>
+        </div>
+        <div className="bg-on-surface/5 rounded-md p-6 lg:p-8 text-center border border-on-surface/5">
+          <p className="font-label-caps text-[11px] text-on-surface-variant mb-2 flex items-center justify-center gap-1"><span className="material-symbols-outlined text-[14px]">timer</span> FOCUS</p>
+          <p className="font-data-display text-4xl text-secondary">{formatHours(totalFocusMinutes)}</p>
         </div>
       </div>
 
@@ -171,6 +203,32 @@ export default function PerformanceAnalytics() {
               </div>
             </div>
           )}
+
+          {/* Focus Metrics */}
+          <div className="bg-on-surface/5 rounded-md p-6 lg:p-8 border border-on-surface/5">
+            <h3 className="font-headline-sm text-xl text-on-surface mb-6 flex items-center gap-2">
+              <span className="material-symbols-outlined text-secondary">timer</span>
+              Focus Analytics
+            </h3>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center py-2 border-b border-on-surface/10">
+                <span className="text-sm font-medium text-on-surface/80">Total Sessions</span>
+                <span className="font-data-display text-base font-bold text-secondary">{focusTasks.length}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-on-surface/10">
+                <span className="text-sm font-medium text-on-surface/80">Total Time</span>
+                <span className="font-data-display text-base font-bold text-secondary">{formatHours(totalFocusMinutes)}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-on-surface/10">
+                <span className="text-sm font-medium text-on-surface/80">Last 7 Days</span>
+                <span className="font-data-display text-base font-bold text-secondary">{formatHours(focusMinutes7d)}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-on-surface/10">
+                <span className="text-sm font-medium text-on-surface/80">Last 30 Days</span>
+                <span className="font-data-display text-base font-bold text-secondary">{formatHours(focusMinutes30d)}</span>
+              </div>
+            </div>
+          </div>
 
           {/* Task Metrics */}
           <div className="bg-on-surface/5 rounded-md p-6 lg:p-8 border border-on-surface/5">

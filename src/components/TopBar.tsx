@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import SystemStatus from './SystemStatus';
 import { useSync } from '../context/SyncContext';
 import { useAuth } from '../context/AuthContext';
+import { useTimer } from '../context/TimerContext';
 
 interface TopBarProps {
   onAddHabit: () => void;
@@ -17,7 +18,16 @@ export default function TopBar({ onAddHabit, onAddTask, onAddNote, onMenuToggle 
   const navigate = useNavigate();
   const { isSaving, lastSaved } = useSync();
   const { isAnonymous } = useAuth();
+  const { status, mode, timeLeft } = useTimer();
+  const location = useLocation();
   
+  const isFocusRoute = location.pathname === '/focus';
+  
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
   useEffect(() => {
     const updateClock = () => {
       const now = new Date();
@@ -53,7 +63,7 @@ export default function TopBar({ onAddHabit, onAddTask, onAddNote, onMenuToggle 
           </button>
         </div>
       )}
-      <header className="flex justify-between items-center w-full px-4 lg:px-margin-desktop py-gutter bg-transparent">
+      <header className="flex justify-between items-center w-full px-4 lg:px-margin-desktop py-gutter bg-transparent relative">
         <div className="flex items-center gap-3">
         {/* Mobile hamburger */}
         <button
@@ -65,7 +75,24 @@ export default function TopBar({ onAddHabit, onAddTask, onAddNote, onMenuToggle 
         </button>
         <span className="font-label-caps text-label-caps text-on-surface-variant hidden sm:inline">{time}</span>
       </div>
+      <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center">
+        {status !== 'idle' && !isFocusRoute && (
+          <button 
+            onClick={() => navigate('/focus')}
+            className={`hidden sm:flex items-center gap-2 transition-all cursor-pointer hover:opacity-70 ${
+              status === 'running' 
+                ? mode === 'focus' ? 'text-primary-fixed-dim' : 'text-secondary'
+                : 'text-on-surface-variant'
+            }`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${status === 'running' ? 'animate-pulse' : ''} bg-current shadow-[0_0_8px_currentColor]`}></span>
+            <span className="font-data-display text-sm font-bold tracking-[0.2em]">{formatTime(timeLeft)}</span>
+          </button>
+        )}
+      </div>
+
       <div className="flex items-center gap-3 sm:gap-8">
+
         <div className="hidden md:flex items-center gap-2">
           {isSaving ? (
             <>
@@ -82,6 +109,7 @@ export default function TopBar({ onAddHabit, onAddTask, onAddNote, onMenuToggle 
           )}
         </div>
         <SystemStatus />
+
         <div className="flex items-center gap-4">
           <div className="relative">
             <button 

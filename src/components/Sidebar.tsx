@@ -53,6 +53,7 @@ export default function Sidebar({ onLogActivity, isOpen = false, onClose }: Side
           <span className="material-symbols-outlined">routine</span>
           <span className="font-label-caps text-label-caps">Habits</span>
         </NavLink>
+
         <NavLink to="/tasks" className={getNavLinkClass} onClick={handleNavClick}>
           <span className="material-symbols-outlined">task_alt</span>
           <span className="font-label-caps text-label-caps">Tasks</span>
@@ -60,6 +61,10 @@ export default function Sidebar({ onLogActivity, isOpen = false, onClose }: Side
         <NavLink to="/notes" className={getNavLinkClass} onClick={handleNavClick}>
           <span className="material-symbols-outlined">book</span>
           <span className="font-label-caps text-label-caps">Notebook</span>
+        </NavLink>
+        <NavLink to="/focus" className={getNavLinkClass} onClick={handleNavClick}>
+          <span className="material-symbols-outlined">timer</span>
+          <span className="font-label-caps text-label-caps">Focus</span>
         </NavLink>
         <NavLink to="/performance" className={getNavLinkClass} onClick={handleNavClick}>
           <span className="material-symbols-outlined">insights</span>

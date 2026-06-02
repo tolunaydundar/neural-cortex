@@ -59,9 +59,49 @@ export function createSampleLocalData(now = new Date()): Record<string, string> 
     },
   ];
 
+  const dummyNotes = [
+    {
+      id: crypto.randomUUID(),
+      title: 'Neural Cortex Launch',
+      content: '<h1>Launch Checklist</h1><ul><li>Verify database indexes</li><li>Check edge caching</li><li>Run full test suite</li></ul><p>Make sure to have the status page ready.</p>',
+      tags: ['Work', 'Launch'],
+      folder_id: null,
+      format: 'html',
+      color: 'blue',
+      pinned: true,
+      created_at: new Date(now.getTime() - 2 * 86400000).toISOString(),
+      updated_at: new Date(now.getTime() - 1 * 86400000).toISOString(),
+    },
+    {
+      id: crypto.randomUUID(),
+      title: 'Workout Regimen',
+      content: '<p><strong>Monday:</strong> Push (Chest, Shoulders, Triceps)</p><p><strong>Wednesday:</strong> Pull (Back, Biceps)</p><p><strong>Friday:</strong> Legs (Quads, Hamstrings, Calves)</p>',
+      tags: ['Personal', 'Fitness'],
+      folder_id: null,
+      format: 'html',
+      color: 'green',
+      pinned: false,
+      created_at: new Date(now.getTime() - 10 * 86400000).toISOString(),
+      updated_at: new Date(now.getTime() - 5 * 86400000).toISOString(),
+    },
+    {
+      id: crypto.randomUUID(),
+      title: 'Idea: Quantum AI',
+      content: '<p>What if we combine quantum annealing with transformers? Could we achieve exponential speedups in attention mechanism computations? Needs more research...</p>',
+      tags: ['Research', 'Ideas'],
+      folder_id: null,
+      format: 'html',
+      color: 'purple',
+      pinned: false,
+      created_at: new Date(now.getTime() - 20 * 86400000).toISOString(),
+      updated_at: new Date(now.getTime() - 15 * 86400000).toISOString(),
+    }
+  ];
+
   return {
     nexus_habits: JSON.stringify(dummyHabits),
     nexus_logs: JSON.stringify(dummyLogs),
     nexus_tasks: JSON.stringify(dummyTasks),
+    nexus_notes: JSON.stringify(dummyNotes),
   };
 }

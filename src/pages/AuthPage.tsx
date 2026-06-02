@@ -111,7 +111,7 @@ const AuthPage = () => {
             className="font-headline-lg text-5xl xl:text-6xl mb-6 text-on-surface leading-[1.1] tracking-tight"
           >
             Welcome to the <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary-fixed-dim to-secondary">Cognitive OS</span>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary-fixed-dim to-secondary">Intelligent Productivity Center</span>
           </motion.h1>
           
           <motion.p 

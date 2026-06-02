@@ -87,7 +87,7 @@ const LandingPage = () => {
         <section className="min-h-[85vh] flex flex-col items-center justify-center px-6 text-center pt-10 pb-20 max-w-5xl mx-auto">
           <motion.div initial="hidden" animate="visible" variants={fadeIn} className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary-fixed-dim/30 bg-primary-fixed-dim/5 backdrop-blur-md mb-8">
             <span className="w-2 h-2 rounded-full bg-primary-fixed-dim animate-pulse"></span>
-            <span className="font-label-caps text-[10px] tracking-[0.2em] text-primary-fixed-dim">COGNITIVE OS v1.0</span>
+            <span className="font-label-caps text-[10px] tracking-[0.2em] text-primary-fixed-dim">INTELLIGENT PRODUCTIVITY CENTER</span>
           </motion.div>
           
           <motion.h1 

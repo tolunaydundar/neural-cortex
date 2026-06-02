@@ -5,6 +5,7 @@ import { TaskProvider } from './context/TaskContext';
 import { NoteProvider } from './context/NoteContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { SyncProvider } from './context/SyncContext';
+import { TimerProvider } from './context/TimerContext';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
 import Toast from './components/Toast';
@@ -23,6 +24,7 @@ const NoteDetail = lazy(() => import('./pages/NoteDetail'));
 const PerformanceAnalytics = lazy(() => import('./pages/PerformanceAnalytics'));
 const LegacyLogs = lazy(() => import('./pages/LegacyLogs'));
 const Settings = lazy(() => import('./pages/Settings'));
+const Focus = lazy(() => import('./pages/Focus'));
 const HabitDetails = lazy(() => import('./pages/HabitDetails'));
 const LogActivityModal = lazy(() => import('./components/LogActivityModal'));
 const AddHabitModal = lazy(() => import('./components/AddHabitModal'));
@@ -204,6 +206,10 @@ function AppLayout() {
             <span className="material-symbols-outlined text-[24px]">add</span>
           </button>
 
+          <NavLink to="/focus" className={({ isActive }) => getMobileNavClass(isActive)}>
+            <span className="material-symbols-outlined text-[22px]">timer</span>
+            <span className="text-[9px] font-label-caps tracking-wider">Focus</span>
+          </NavLink>
           <NavLink to="/tasks" className={({ isActive }) => getMobileNavClass(isActive)}>
             <span className="material-symbols-outlined text-[22px]">task_alt</span>
             <span className="text-[9px] font-label-caps tracking-wider">Tasks</span>
@@ -283,8 +289,9 @@ function App() {
           <HabitProvider>
             <TaskProvider>
               <NoteProvider>
-                <Router>
-                  <Routes>
+                <TimerProvider>
+                  <Router>
+                    <Routes>
                     <Route path="/welcome" element={<PublicOnlyRoute><Suspense fallback={<RouteFallback />}><LandingPage /></Suspense></PublicOnlyRoute>} />
                     <Route path="/auth" element={<PublicOnlyRoute><Suspense fallback={<RouteFallback />}><AuthPage /></Suspense></PublicOnlyRoute>} />
                     <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
@@ -293,13 +300,15 @@ function App() {
                       <Route path="tasks" element={<Suspense fallback={<RouteFallback />}><Tasks /></Suspense>} />
                       <Route path="notes" element={<Suspense fallback={<RouteFallback />}><Notes /></Suspense>} />
                       <Route path="notes/:id" element={<Suspense fallback={<RouteFallback />}><NoteDetail /></Suspense>} />
+                      <Route path="focus" element={<Suspense fallback={<RouteFallback />}><Focus /></Suspense>} />
                       <Route path="performance" element={<Suspense fallback={<RouteFallback />}><PerformanceAnalytics /></Suspense>} />
                       <Route path="legacy" element={<Suspense fallback={<RouteFallback />}><LegacyLogs /></Suspense>} />
                       <Route path="settings" element={<Suspense fallback={<RouteFallback />}><Settings /></Suspense>} />
                       <Route path="habit/:id" element={<Suspense fallback={<RouteFallback />}><HabitDetails /></Suspense>} />
                     </Route>
-                  </Routes>
-                </Router>
+                    </Routes>
+                  </Router>
+                </TimerProvider>
               </NoteProvider>
             </TaskProvider>
           </HabitProvider>
