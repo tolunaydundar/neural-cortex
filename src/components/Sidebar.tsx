@@ -14,7 +14,7 @@ export default function Sidebar({ onLogActivity, isOpen = false, onClose }: Side
   const { logout, operatorName } = useAuth();
 
   const getNavLinkClass = ({ isActive }: { isActive: boolean }) => {
-    const base = "flex items-center gap-4 px-6 py-4";
+    const base = "flex items-center gap-4 px-6 py-3 lg:py-4";
     if (isActive) {
       return `${base} text-primary-fixed-dim bg-primary-fixed-dim/10 border-r-2 border-primary-fixed-dim active:scale-95`;
     }
@@ -28,7 +28,7 @@ export default function Sidebar({ onLogActivity, isOpen = false, onClose }: Side
 
   const sidebarContent = (
     <>
-      <div className="px-8 mb-12 flex items-center justify-between">
+      <div className="px-8 mb-6 lg:mb-12 flex items-center justify-between shrink-0">
         <Link to="/" onClick={handleNavClick} className="cursor-pointer block group">
           <h1 className="font-headline-md text-headline-md font-bold tracking-tighter text-primary-fixed-dim group-hover:opacity-80 transition-opacity">Neural Cortex</h1>
           <p className="font-label-caps text-label-caps text-on-surface-variant/60 mt-1 ml-[2px]">Version 1.0.0</p>
@@ -44,7 +44,7 @@ export default function Sidebar({ onLogActivity, isOpen = false, onClose }: Side
           </button>
         )}
       </div>
-      <nav className="flex-grow flex flex-col gap-2">
+      <nav className="flex-grow flex flex-col gap-1 lg:gap-2 overflow-y-auto shrink">
         <NavLink to="/" className={getNavLinkClass} end onClick={handleNavClick}>
           <span className="material-symbols-outlined">dashboard</span>
           <span className="font-label-caps text-label-caps">Core</span>
@@ -79,14 +79,14 @@ export default function Sidebar({ onLogActivity, isOpen = false, onClose }: Side
           <span className="font-label-caps text-label-caps">Systems</span>
         </NavLink>
       </nav>
-      <div className="px-6 mt-auto">
+      <div className="px-6 mt-4 lg:mt-auto shrink-0 pb-4 lg:pb-0">
         <button 
           onClick={() => { onLogActivity(); onClose?.(); }}
-          className="w-full py-4 border border-primary-fixed-dim/30 text-primary-fixed-dim font-label-caps text-label-caps hover:bg-primary-fixed-dim/10 transition-colors tracking-widest cursor-pointer"
+          className="w-full py-3 lg:py-4 border border-primary-fixed-dim/30 text-primary-fixed-dim font-label-caps text-label-caps hover:bg-primary-fixed-dim/10 transition-colors tracking-widest cursor-pointer"
         >
           LOG ACTIVITY
         </button>
-        <div className="mt-6 flex items-center justify-between">
+        <div className="mt-4 lg:mt-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-sm text-on-surface-variant" style={{fontVariationSettings: "'FILL' 1"}}>
               {isDark ? 'dark_mode' : 'light_mode'}
@@ -101,7 +101,7 @@ export default function Sidebar({ onLogActivity, isOpen = false, onClose }: Side
             aria-label={`Switch to ${isDark ? 'light' : 'dark'} theme`}
           />
         </div>
-        <div className="mt-6 border-t border-white/5 pt-4 flex flex-col gap-1">
+        <div className="mt-4 lg:mt-6 border-t border-white/5 pt-4 flex flex-col gap-1">
           <span className="text-[10px] font-label-caps text-on-surface-variant tracking-widest">OPERATOR</span>
           <div className="flex items-center justify-between">
             <span className="text-sm font-headline-sm font-bold text-primary-fixed-dim truncate">{operatorName}</span>
@@ -133,7 +133,7 @@ export default function Sidebar({ onLogActivity, isOpen = false, onClose }: Side
 
       {/* Mobile drawer panel */}
       <aside
-        className={`drawer-panel lg:hidden flex flex-col py-8 ${isOpen ? 'open' : ''}`}
+        className={`drawer-panel lg:hidden flex flex-col pt-8 pb-4 ${isOpen ? 'open' : ''} max-h-screen`}
       >
         {sidebarContent}
       </aside>

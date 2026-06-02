@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Outlet, NavLink, useLocation, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Outlet, NavLink, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { HabitProvider } from './context/HabitContext';
 import { TaskProvider } from './context/TaskContext';
@@ -59,8 +59,10 @@ function AppLayout() {
   const [isInitializingData, setIsInitializingData] = useState(true);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileCreateMenuOpen, setIsMobileCreateMenuOpen] = useState(false);
 
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -197,19 +199,14 @@ function AppLayout() {
             <span className="text-[9px] font-label-caps tracking-wider">Habits</span>
           </NavLink>
 
-          {/* Center FAB — Log Activity */}
+          {/* Center FAB — Log Activity / Create */}
           <button
-            onClick={() => setIsLogModalOpen(true)}
+            onClick={() => setIsMobileCreateMenuOpen(!isMobileCreateMenuOpen)}
             className="mobile-fab cursor-pointer"
-            aria-label="Log activity"
+            aria-label="Create new"
           >
             <span className="material-symbols-outlined text-[24px]">add</span>
           </button>
-
-          <NavLink to="/focus" className={({ isActive }) => getMobileNavClass(isActive)}>
-            <span className="material-symbols-outlined text-[22px]">timer</span>
-            <span className="text-[9px] font-label-caps tracking-wider">Focus</span>
-          </NavLink>
           <NavLink to="/tasks" className={({ isActive }) => getMobileNavClass(isActive)}>
             <span className="material-symbols-outlined text-[22px]">task_alt</span>
             <span className="text-[9px] font-label-caps tracking-wider">Tasks</span>
@@ -220,6 +217,59 @@ function AppLayout() {
           </NavLink>
         </div>
       </nav>
+
+      {/* Mobile Create Menu Action Sheet */}
+      <AnimatePresence>
+        {isMobileCreateMenuOpen && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm lg:hidden" 
+              onClick={() => setIsMobileCreateMenuOpen(false)} 
+            />
+            <motion.div 
+              initial={{ opacity: 0, y: 40, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 40, scale: 0.95 }}
+              className="fixed bottom-24 left-1/2 -translate-x-1/2 w-[90vw] max-w-sm bg-surface-container-highest border border-outline/10 rounded-xl shadow-2xl z-[70] overflow-hidden flex flex-col p-3 gap-1 lg:hidden"
+            >
+              <p className="font-label-caps text-[10px] text-on-surface-variant text-center mb-3 mt-1 tracking-[0.2em] font-bold">WHAT DO YOU WANT TO DO?</p>
+              <button 
+                onClick={() => { setIsLogModalOpen(true); setIsMobileCreateMenuOpen(false); }} 
+                className="w-full text-left px-5 py-4 hover:bg-white/5 font-label-caps text-xs text-on-surface flex items-center gap-4 transition-colors rounded-lg active:scale-95"
+              >
+                <span className="material-symbols-outlined text-[22px] text-primary-fixed-dim">check_circle</span> LOG ACTIVITY
+              </button>
+              <button 
+                onClick={() => { setIsAddModalOpen(true); setIsMobileCreateMenuOpen(false); }} 
+                className="w-full text-left px-5 py-4 hover:bg-white/5 font-label-caps text-xs text-on-surface flex items-center gap-4 transition-colors rounded-lg active:scale-95"
+              >
+                <span className="material-symbols-outlined text-[22px] text-primary-fixed-dim">routine</span> NEW HABIT
+              </button>
+              <button 
+                onClick={() => { setIsAddTaskModalOpen(true); setIsMobileCreateMenuOpen(false); }} 
+                className="w-full text-left px-5 py-4 hover:bg-white/5 font-label-caps text-xs text-on-surface flex items-center gap-4 transition-colors rounded-lg active:scale-95"
+              >
+                <span className="material-symbols-outlined text-[22px] text-primary-fixed-dim">task_alt</span> NEW TASK
+              </button>
+              <button 
+                onClick={() => { setIsAddNoteModalOpen(true); setIsMobileCreateMenuOpen(false); }} 
+                className="w-full text-left px-5 py-4 hover:bg-white/5 font-label-caps text-xs text-on-surface flex items-center gap-4 transition-colors rounded-lg active:scale-95"
+              >
+                <span className="material-symbols-outlined text-[22px] text-primary-fixed-dim">description</span> NEW NOTE
+              </button>
+              <button 
+                onClick={() => { navigate('/focus'); setIsMobileCreateMenuOpen(false); }} 
+                className="w-full text-left px-5 py-4 hover:bg-white/5 font-label-caps text-xs text-on-surface flex items-center gap-4 transition-colors rounded-lg active:scale-95"
+              >
+                <span className="material-symbols-outlined text-[22px] text-primary-fixed-dim">timer</span> START FOCUS
+              </button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {isLogModalOpen && (
         <Suspense fallback={null}>

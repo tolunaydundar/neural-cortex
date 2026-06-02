@@ -1,10 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTasks, type Task } from '../context/TaskContext';
+import { useAuth } from '../context/AuthContext';
 import TaskCard from '../components/TaskCard';
 import TaskDetailModal from '../components/TaskDetailModal';
 import { useOutletContext } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { DndContext, DragOverlay, closestCorners, PointerSensor, useSensor, useSensors, useDroppable } from '@dnd-kit/core';
+import { DndContext, DragOverlay, closestCorners, MouseSensor, TouchSensor, useSensor, useSensors, useDroppable } from '@dnd-kit/core';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -50,7 +51,7 @@ function DroppableColumn({ id, title, icon, tasks, onToggleComplete, onClick }: 
   return (
     <div 
       ref={setNodeRef} 
-      className={`flex-1 min-w-[320px] flex flex-col rounded-md p-6 transition-all duration-300 border ${isOver ? 'bg-primary-fixed-dim/5 border-primary-fixed-dim/30' : 'bg-on-surface/5 border-on-surface/5 hover:bg-surface-container/50'}`}
+      className={`flex-1 min-w-[85vw] sm:min-w-[320px] shrink-0 snap-center flex flex-col rounded-md p-6 transition-all duration-300 border ${isOver ? 'bg-primary-fixed-dim/5 border-primary-fixed-dim/30' : 'bg-on-surface/5 border-on-surface/5 hover:bg-surface-container/50'}`}
     >
       <div className="flex items-center gap-3 mb-6">
         <span className="material-symbols-outlined text-primary-fixed-dim text-[20px]">{icon}</span>
@@ -83,6 +84,9 @@ export default function Tasks() {
   const [sortMode, setSortMode] = useState<SortMode>('priority');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [activeDragTask, setActiveDragTask] = useState<Task | null>(null);
+  const { userPreferences, updateUserPreferences } = useAuth();
+  const viewMode = userPreferences.tasksViewMode || 'list';
+  const setViewMode = (newMode: 'kanban' | 'list') => updateUserPreferences({ tasksViewMode: newMode });
 
   const overdue = getOverdueTasks();
   const stats7d = getCompletionStats(7);
@@ -137,7 +141,8 @@ export default function Tasks() {
   };
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+    useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } })
   );
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -284,6 +289,23 @@ export default function Tasks() {
         
         <div className="flex-grow hidden sm:block" />
         
+        <div className="hidden lg:flex items-center bg-on-surface/5 rounded-md p-1 border border-on-surface/10">
+          <button
+            onClick={() => setViewMode('list')}
+            className={`px-3 py-1.5 rounded-sm transition-all flex items-center justify-center ${viewMode === 'list' ? 'bg-primary-fixed-dim text-background shadow-sm' : 'text-on-surface hover:bg-on-surface/10'}`}
+            title="List View"
+          >
+            <span className="material-symbols-outlined text-[16px]">view_list</span>
+          </button>
+          <button
+            onClick={() => setViewMode('kanban')}
+            className={`px-3 py-1.5 rounded-sm transition-all flex items-center justify-center ${viewMode === 'kanban' ? 'bg-primary-fixed-dim text-background shadow-sm' : 'text-on-surface hover:bg-on-surface/10'}`}
+            title="Kanban View"
+          >
+            <span className="material-symbols-outlined text-[16px]">view_kanban</span>
+          </button>
+        </div>
+
         <div className="relative group w-full sm:w-auto">
           <select 
             value={sortMode} 
@@ -310,22 +332,38 @@ export default function Tasks() {
           <p className="text-on-surface-variant/70 max-w-md">Your task matrix is empty. Start by adding a new objective to begin tracking your progress.</p>
         </div>
       ) : (
-        <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-          <div className="flex flex-col xl:flex-row gap-6 items-stretch w-full overflow-x-auto pb-6 custom-scrollbar">
-            {['all', 'active'].includes(statusFilter) && (
-              <DroppableColumn id="todo" title="QUEUED" icon="radio_button_unchecked" tasks={queuedTasks} onToggleComplete={handleToggleComplete} onClick={setSelectedTask} />
-            )}
-            {['all', 'active'].includes(statusFilter) && (
-              <DroppableColumn id="in_progress" title="IN PROGRESS" icon="pending" tasks={inProgressTasks} onToggleComplete={handleToggleComplete} onClick={setSelectedTask} />
-            )}
-            {['all', 'done'].includes(statusFilter) && (
-              <DroppableColumn id="done" title="DONE" icon="check_circle" tasks={doneTasks} onToggleComplete={handleToggleComplete} onClick={setSelectedTask} />
+        <>
+          {/* Desktop Kanban View */}
+          <div className={`hidden ${viewMode === 'kanban' ? 'lg:block' : ''}`}>
+            <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+              <div className="flex flex-row gap-4 sm:gap-6 items-stretch w-full overflow-x-auto pb-6 custom-scrollbar snap-x snap-mandatory">
+                {['all', 'active'].includes(statusFilter) && (
+                  <DroppableColumn id="todo" title="QUEUED" icon="radio_button_unchecked" tasks={queuedTasks} onToggleComplete={handleToggleComplete} onClick={setSelectedTask} />
+                )}
+                {['all', 'active'].includes(statusFilter) && (
+                  <DroppableColumn id="in_progress" title="IN PROGRESS" icon="pending" tasks={inProgressTasks} onToggleComplete={handleToggleComplete} onClick={setSelectedTask} />
+                )}
+                {['all', 'done'].includes(statusFilter) && (
+                  <DroppableColumn id="done" title="DONE" icon="check_circle" tasks={doneTasks} onToggleComplete={handleToggleComplete} onClick={setSelectedTask} />
+                )}
+              </div>
+              <DragOverlay>
+                {activeDragTask ? <div className="opacity-80 scale-105 rotate-2 transition-all"><TaskCard task={activeDragTask} onToggleComplete={() => {}} onClick={() => {}} /></div> : null}
+              </DragOverlay>
+            </DndContext>
+          </div>
+
+          {/* List View (Always on mobile, or on desktop if viewMode === 'list') */}
+          <div className={`flex flex-col gap-3 w-full ${viewMode === 'kanban' ? 'lg:hidden' : ''}`}>
+            {filteredTasks.length === 0 ? (
+              <div className="text-center py-12 text-on-surface-variant font-label-caps text-xs">No tasks match your filters.</div>
+            ) : (
+              filteredTasks.map(t => (
+                <TaskCard key={t.id} task={t} onToggleComplete={handleToggleComplete} onClick={setSelectedTask} />
+              ))
             )}
           </div>
-          <DragOverlay>
-            {activeDragTask ? <div className="opacity-80 scale-105 rotate-2 transition-all"><TaskCard task={activeDragTask} onToggleComplete={() => {}} onClick={() => {}} /></div> : null}
-          </DragOverlay>
-        </DndContext>
+        </>
       )}
 
       {liveSelectedTask && <TaskDetailModal task={liveSelectedTask} onClose={() => setSelectedTask(null)} />}

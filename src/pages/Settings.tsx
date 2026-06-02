@@ -50,6 +50,9 @@ export default function Settings() {
         theme,
         notesSortMode: userPreferences.notesSortMode,
         notesViewMode: userPreferences.notesViewMode,
+        notesEditorMode: userPreferences.notesEditorMode,
+        tasksViewMode: userPreferences.tasksViewMode,
+        timerSettings: userPreferences.timerSettings,
       }),
       exported_at: new Date().toISOString(),
     };

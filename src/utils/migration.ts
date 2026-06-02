@@ -1,5 +1,5 @@
 import { db } from '../firebase';
-import { collection, writeBatch, doc, query, where, limit, getDocs, getDoc, updateDoc } from 'firebase/firestore';
+import { collection, writeBatch, doc, query, where, limit, getDocs, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
 import { validateBackupPayload } from './backupSchema';
 
@@ -59,6 +59,9 @@ export async function importDataToCloud(currentUser: User, importedData: Record<
       if (preferences.theme === 'dark' || preferences.theme === 'light') prefsUpdate.theme = preferences.theme;
       if (preferences.notesSortMode) prefsUpdate.notesSortMode = preferences.notesSortMode;
       if (preferences.notesViewMode) prefsUpdate.notesViewMode = preferences.notesViewMode;
+      if (preferences.notesEditorMode) prefsUpdate.notesEditorMode = preferences.notesEditorMode;
+      if (preferences.tasksViewMode) prefsUpdate.tasksViewMode = preferences.tasksViewMode;
+      if (preferences.timerSettings) prefsUpdate.timerSettings = preferences.timerSettings;
 
       if (Object.keys(prefsUpdate).length > 0) {
         await updateDoc(userRef, prefsUpdate);
@@ -118,9 +121,16 @@ export async function purgeCloudData(currentUser: User): Promise<void> {
 
   const allPaths = results.flat();
   
-  // Also reset the user profile flag so they see the onboarding modal again
+  // Completely delete the user profile so AuthContext seamlessly factory-resets it
   const userRef = doc(db, 'users', currentUser.uid);
-  await updateDoc(userRef, { hasOnboarded: false, operatorName: 'OPERATOR' }).catch(() => {});
+  await deleteDoc(userRef).catch(() => {});
+
+  // Clear all local browser caches so no phantom settings survive the reload
+  Object.keys(localStorage).forEach(key => {
+    if (key.startsWith('nexus_')) {
+      localStorage.removeItem(key);
+    }
+  });
 
   if (allPaths.length === 0) return;
 

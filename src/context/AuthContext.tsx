@@ -20,12 +20,36 @@ export interface UserPreferences {
   notesSortMode: string;
   notesViewMode: string;
   notesEditorMode: 'full' | 'modal';
+  tasksViewMode: 'kanban' | 'list';
+  timerSettings: {
+    focusDuration: number;
+    shortBreakDuration: number;
+    longBreakDuration: number;
+    longBreakInterval: number;
+    autoStartFocus: boolean;
+    autoStartBreaks: boolean;
+    soundEnabled: boolean;
+    browserNotifications: boolean;
+    logActivity: boolean;
+  };
 }
 
 const DEFAULT_PREFERENCES: UserPreferences = {
   notesSortMode: 'updated',
   notesViewMode: 'grid',
   notesEditorMode: 'full',
+  tasksViewMode: 'list',
+  timerSettings: {
+    focusDuration: 25 * 60,
+    shortBreakDuration: 5 * 60,
+    longBreakDuration: 15 * 60,
+    longBreakInterval: 4,
+    autoStartBreaks: false,
+    autoStartFocus: false,
+    soundEnabled: true,
+    browserNotifications: false,
+    logActivity: true,
+  }
 };
 
 interface AuthContextType {
@@ -91,6 +115,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               notesSortMode: data.notesSortMode || DEFAULT_PREFERENCES.notesSortMode,
               notesViewMode: data.notesViewMode || DEFAULT_PREFERENCES.notesViewMode,
               notesEditorMode: data.notesEditorMode || DEFAULT_PREFERENCES.notesEditorMode,
+              tasksViewMode: data.tasksViewMode || DEFAULT_PREFERENCES.tasksViewMode,
+              timerSettings: data.timerSettings || DEFAULT_PREFERENCES.timerSettings,
             });
           } else {
             // First login — create profile doc

@@ -78,26 +78,19 @@ const playPing = () => {
 };
 
 export const TimerProvider = ({ children }: { children: ReactNode }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, userPreferences, updateUserPreferences } = useAuth();
   const { addTask } = useTasks();
   
   const [status, setStatus] = useState<TimerStatus>('idle');
   const [mode, setMode] = useState<TimerMode>('focus');
-  const [timeLeft, setTimeLeft] = useState(DEFAULT_SETTINGS.focusDuration);
+  const settings = userPreferences.timerSettings || DEFAULT_SETTINGS;
+  const [timeLeft, setTimeLeft] = useState(settings.focusDuration);
   const [sessionCount, setSessionCount] = useState(0);
-  
-  const [settings, setSettings] = useState<TimerSettings>(() => {
-    const saved = localStorage.getItem('nexus_timer_settings');
-    return saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SETTINGS;
-  });
 
   const workerRef = useRef<Worker | null>(null);
   const targetEndTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
-    // Save settings when they change
-    localStorage.setItem('nexus_timer_settings', JSON.stringify(settings));
-    
     // Request notification permission if enabled
     if (settings.browserNotifications && 'Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
@@ -255,7 +248,7 @@ export const TimerProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateSettings = (newSettings: Partial<TimerSettings>) => {
-    setSettings(prev => ({ ...prev, ...newSettings }));
+    updateUserPreferences({ timerSettings: { ...settings, ...newSettings } });
   };
 
   return (
