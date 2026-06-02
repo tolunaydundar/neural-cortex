@@ -72,7 +72,7 @@ export default function TopBar({ onAddHabit, onAddTask, onAddNote, onMenuToggle 
           <div className="relative">
             <button 
               onClick={() => setIsCreateMenuOpen(!isCreateMenuOpen)}
-              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-primary-fixed-dim text-background font-label-caps text-xs hover:bg-[#6ff6ff] transition-colors cursor-pointer hover:shadow-[0_0_20px_rgba(0,220,230,0.6)] rounded-sm"
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-primary-fixed-dim text-background font-label-caps text-xs hover:bg-[#6ff6ff] transition-colors cursor-pointer rounded-sm hover:shadow-lg"
             >
               <span className="material-symbols-outlined text-sm">add</span>
               <span className="hidden sm:inline">CREATE</span>

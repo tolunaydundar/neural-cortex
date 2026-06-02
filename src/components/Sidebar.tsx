@@ -116,7 +116,7 @@ export default function Sidebar({ onLogActivity, isOpen = false, onClose }: Side
   return (
     <>
       {/* Desktop sidebar — always visible on lg+ */}
-      <aside className="hidden lg:flex fixed left-0 top-0 h-full z-50 flex-col py-8 w-64 border-r border-white/10 bg-surface/10 backdrop-blur-xl">
+      <aside className="hidden lg:flex fixed left-0 top-0 h-full z-50 flex-col py-8 w-64 border-r border-white/5 bg-surface/40 backdrop-blur-md">
         {sidebarContent}
       </aside>
 

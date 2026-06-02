@@ -38,7 +38,7 @@ export default function TaskCard({ task, onToggleComplete, onClick }: TaskCardPr
 
   return (
     <div
-      className={`bg-on-surface/5 rounded-sm border border-on-surface/5 group hover:border-on-surface/20 hover:bg-on-surface/10 transition-all duration-300 cursor-pointer priority-${task.priority} ${isDone ? 'opacity-60' : ''}`}
+      className={`bg-on-surface/5 rounded-sm border border-on-surface/5 group hover:border-on-surface/20 hover:bg-on-surface/10 hover:shadow-md transition-all duration-300 cursor-pointer priority-${task.priority} ${isDone ? 'opacity-60' : ''}`}
       onClick={() => onClick(task)}
     >
       <div className="flex items-start gap-3 p-4 lg:p-5">
