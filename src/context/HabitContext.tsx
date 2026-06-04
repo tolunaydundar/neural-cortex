@@ -14,6 +14,7 @@ interface HabitContextType {
   habits: Habit[];
   logs: HabitLog[];
   addHabit: (habit: Omit<Habit, 'id' | 'created_at' | 'userId'>) => Promise<void>;
+  updateHabit: (habitId: string, updates: Partial<Omit<Habit, 'id' | 'created_at' | 'userId'>>) => Promise<void>;
   logHabit: (habitId: string, date?: Date) => Promise<void>;
   removeLog: (logId: string) => Promise<void>;
   deleteHabit: (habitId: string) => Promise<void>;
@@ -78,6 +79,12 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       userId: currentUser.uid,
       created_at: new Date().toISOString()
     });
+  }), [currentUser, runSync]);
+
+  const updateHabit = useCallback((habitId: string, updates: Partial<Omit<Habit, 'id' | 'created_at' | 'userId'>>) => runSync(async () => {
+    if (!currentUser) return;
+    await assertOwnedDocument('habits', habitId, currentUser.uid);
+    await setDoc(doc(db, 'habits', habitId), updates, { merge: true });
   }), [currentUser, runSync]);
 
   const logHabit = useCallback((habitId: string, date: Date = new Date()) => runSync(async () => {
@@ -174,8 +181,8 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [getPattern]);
 
   const value = useMemo(() => ({
-    habits, logs, addHabit, logHabit, removeLog, deleteHabit, getStreak, getEfficiency, getPattern
-  }), [habits, logs, addHabit, logHabit, removeLog, deleteHabit, getStreak, getEfficiency, getPattern]);
+    habits, logs, addHabit, updateHabit, logHabit, removeLog, deleteHabit, getStreak, getEfficiency, getPattern
+  }), [habits, logs, addHabit, updateHabit, logHabit, removeLog, deleteHabit, getStreak, getEfficiency, getPattern]);
 
   return (
     <HabitContext.Provider value={value}>

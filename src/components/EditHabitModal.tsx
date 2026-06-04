@@ -1,20 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
-import { useHabits } from '../context/HabitContext';
+import { useHabits, type Habit } from '../context/HabitContext';
 import { useFocusTrap } from '../utils/useFocusTrap';
 
-interface AddHabitModalProps {
+interface EditHabitModalProps {
+  habit: Habit;
   onClose: () => void;
   onSuccess?: () => void;
 }
 
-export default function AddHabitModal({ onClose, onSuccess }: AddHabitModalProps) {
+export default function EditHabitModal({ habit, onClose, onSuccess }: EditHabitModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
-  const titleId = 'add-habit-title';
-  const descriptionId = 'add-habit-description';
-  const { addHabit } = useHabits();
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [icon, setIcon] = useState('psychology');
+  const titleId = 'edit-habit-title';
+  const descriptionId = 'edit-habit-description';
+  const { updateHabit } = useHabits();
+  const [title, setTitle] = useState(habit.title);
+  const [description, setDescription] = useState(habit.description || '');
+  const [icon, setIcon] = useState(habit.icon);
 
   // Curated list of futuristic / practical icons (15 icons for a clean 3x5 grid)
   const availableIcons = [
@@ -43,7 +44,7 @@ export default function AddHabitModal({ onClose, onSuccess }: AddHabitModalProps
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim()) {
-      addHabit({ title: title.trim(), description: description.trim(), icon });
+      updateHabit(habit.id, { title: title.trim(), description: description.trim(), icon });
       onSuccess?.();
       onClose();
     }
@@ -67,8 +68,8 @@ export default function AddHabitModal({ onClose, onSuccess }: AddHabitModalProps
           <span className="material-symbols-outlined">close</span>
         </button>
 
-        <h2 id={titleId} className="font-headline-md text-headline-md text-primary-fixed-dim mb-2">NEW HABIT</h2>
-        <p id={descriptionId} className="font-label-caps text-[10px] text-on-surface-variant mb-6">INITIALIZE A NEW HABIT TO TRACK</p>
+        <h2 id={titleId} className="font-headline-md text-headline-md text-primary-fixed-dim mb-2">EDIT HABIT</h2>
+        <p id={descriptionId} className="font-label-caps text-[10px] text-on-surface-variant mb-6">UPDATE YOUR HABIT PROTOCOL</p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">
@@ -119,7 +120,7 @@ export default function AddHabitModal({ onClose, onSuccess }: AddHabitModalProps
             disabled={!title.trim()}
             className="w-full py-4 mt-2 bg-primary-fixed-dim text-background font-label-caps text-label-caps hover:bg-[#6ff6ff] transition-colors disabled:opacity-50 disabled:cursor-not-allowed tracking-widest cursor-pointer"
           >
-            INITIALIZE HABIT
+            UPDATE HABIT
           </button>
         </form>
       </div>

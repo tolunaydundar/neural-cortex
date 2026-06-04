@@ -1,6 +1,7 @@
 export interface Habit {
   id: string;
   title: string;
+  description?: string;
   icon: string;
   created_at: string;
   userId: string;

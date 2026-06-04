@@ -1,13 +1,16 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useHabits } from '../context/HabitContext';
 import ConfirmModal from '../components/ConfirmModal';
+
+const EditHabitModal = lazy(() => import('../components/EditHabitModal'));
 
 export default function HabitDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { habits, getStreak, getEfficiency, getPattern, deleteHabit, logHabit, logs } = useHabits();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   
   const habit = habits.find(h => h.id === id);
   
@@ -44,11 +47,16 @@ export default function HabitDetails() {
       
       <div className="bg-on-surface/5 rounded-md p-6 lg:p-10 border border-on-surface/5">
         <div className="flex flex-col sm:flex-row justify-between items-start gap-6 border-b border-on-surface/10 pb-8 mb-8">
-          <div>
-            <h1 className="font-headline-lg text-4xl sm:text-5xl text-on-surface flex items-center gap-4 font-bold tracking-tight">
-              <span className="material-symbols-outlined text-[48px] text-primary-fixed-dim">{habit.icon}</span>
-              {habit.title}
+          <div className="flex-1">
+            <h1 className="font-headline-lg text-4xl sm:text-5xl text-on-surface flex items-center gap-4 font-bold tracking-tight break-words">
+              <span className="material-symbols-outlined text-[48px] text-primary-fixed-dim shrink-0">{habit.icon}</span>
+              <span>{habit.title}</span>
             </h1>
+            {habit.description && (
+              <p className="mt-4 text-on-surface-variant/90 text-sm sm:text-base max-w-2xl leading-relaxed whitespace-pre-wrap">
+                {habit.description}
+              </p>
+            )}
             <p className="font-label-caps text-[11px] text-on-surface-variant mt-4 tracking-wider">CREATED: {new Date(habit.created_at).toLocaleDateString()}</p>
           </div>
           <div className="flex gap-3 w-full sm:w-auto">
@@ -67,6 +75,13 @@ export default function HabitDetails() {
                 {loggedToday ? 'check_circle' : 'add_circle'}
               </span>
               {loggedToday ? 'LOGGED TODAY' : 'LOG TODAY'}
+            </button>
+            <button 
+              onClick={() => setShowEditModal(true)}
+              className="border border-primary-fixed-dim/30 text-primary-fixed-dim hover:bg-primary-fixed-dim/10 px-6 py-3 font-label-caps text-[11px] font-bold rounded-sm transition-all cursor-pointer tracking-widest flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined text-[16px]">edit</span>
+              EDIT
             </button>
             <button 
               onClick={() => setShowDeleteConfirm(true)}
@@ -151,6 +166,15 @@ export default function HabitDetails() {
           }}
           onCancel={() => setShowDeleteConfirm(false)}
         />
+      )}
+
+      {showEditModal && (
+        <Suspense fallback={null}>
+          <EditHabitModal
+            habit={habit}
+            onClose={() => setShowEditModal(false)}
+          />
+        </Suspense>
       )}
     </div>
   );

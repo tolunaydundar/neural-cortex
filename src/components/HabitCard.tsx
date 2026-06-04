@@ -3,21 +3,27 @@ import { Link } from 'react-router-dom';
 interface HabitCardProps {
   id: string;
   title: string;
+  description?: string;
   streak: number;
   icon: string;
   efficiency: number;
   pattern: boolean[];
 }
 
-export default function HabitCard({ id, title, streak, icon, efficiency, pattern }: HabitCardProps) {
+export default function HabitCard({ id, title, description, streak, icon, efficiency, pattern }: HabitCardProps) {
   return (
     <Link to={`/habit/${id}`} className="bg-on-surface/5 p-5 lg:p-7 rounded-md border border-on-surface/5 hover:border-on-surface/20 hover:bg-on-surface/10 hover:shadow-md group transition-all duration-300 block">
-      <div className="flex justify-between items-start mb-6">
-        <div>
-          <h3 className="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary-fixed-dim transition-colors">{title}</h3>
+      <div className="flex justify-between items-start mb-4">
+        <div className="flex-1 pr-4">
+          <h3 className="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary-fixed-dim transition-colors mb-1">{title}</h3>
+          {description && (
+            <p className="text-on-surface-variant/80 text-xs line-clamp-2 mb-3 leading-relaxed">
+              {description}
+            </p>
+          )}
           <p className="font-label-caps text-[10px] text-on-surface-variant">CURRENT STREAK: {streak.toString().padStart(2, '0')} DAYS</p>
         </div>
-        <span className="material-symbols-outlined text-primary-fixed-dim/40 group-hover:text-primary-fixed-dim transition-colors">{icon}</span>
+        <span className="material-symbols-outlined text-primary-fixed-dim/40 group-hover:text-primary-fixed-dim transition-colors shrink-0">{icon}</span>
       </div>
       
       {/* Habit Grid */}

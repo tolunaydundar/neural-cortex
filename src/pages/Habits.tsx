@@ -105,6 +105,7 @@ export default function Habits() {
               key={habit.id}
               id={habit.id}
               title={habit.title}
+              description={habit.description}
               streak={getStreak(habit.id)}
               icon={habit.icon}
               efficiency={getEfficiency(habit.id)}
