@@ -497,9 +497,7 @@ export default function Notes() {
                         >
                           <td className="py-4 px-5">
                             <div className="flex items-center gap-3">
-                              {note.cover_image ? (
-                                <img src={note.cover_image} alt="" className="w-6 h-6 rounded object-cover flex-shrink-0" />
-                              ) : note.icon ? (
+                              {note.icon ? (
                                 <span className="text-[18px] leading-none flex-shrink-0">{note.icon}</span>
                               ) : (
                                 <span className="material-symbols-outlined text-[18px] text-on-surface-variant/60 flex-shrink-0">description</span>

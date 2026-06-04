@@ -8,7 +8,7 @@ const EditHabitModal = lazy(() => import('../components/EditHabitModal'));
 export default function HabitDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { habits, getStreak, getEfficiency, getPattern, deleteHabit, logHabit, logs } = useHabits();
+  const { habits, getStreak, getHighestStreak, getEfficiency, getPattern, deleteHabit, logHabit, logs } = useHabits();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   
@@ -26,6 +26,7 @@ export default function HabitDetails() {
 
   const pattern = getPattern(habit.id, 60);
   const streak = getStreak(habit.id);
+  const highestStreak = getHighestStreak(habit.id);
   const efficiency = getEfficiency(habit.id);
   const totalLogs = logs.filter(l => l.habitId === habit.id).length;
 
@@ -95,10 +96,13 @@ export default function HabitDetails() {
         
         {/* Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-10">
-          <div className="bg-on-surface/5 rounded-md p-6 lg:p-8 text-center border border-on-surface/5">
-            <p className="font-label-caps text-[11px] text-on-surface-variant mb-2 tracking-wider">CURRENT STREAK</p>
-            <p className="font-data-display text-4xl text-primary-fixed-dim font-bold">{streak}</p>
-            <p className="font-label-caps text-[9px] text-on-surface-variant/60 mt-2 tracking-widest">DAYS</p>
+          <div className="bg-on-surface/5 rounded-md p-6 lg:p-8 text-center border border-on-surface/5 flex flex-col justify-between">
+            <p className="font-label-caps text-[11px] text-on-surface-variant mb-2 tracking-wider">STREAK</p>
+            <div className="flex items-baseline justify-center gap-2">
+              <span className="font-data-display text-4xl text-primary-fixed-dim font-bold">{streak}</span>
+              <span className="font-data-display text-2xl text-on-surface-variant/50">/ {highestStreak}</span>
+            </div>
+            <p className="font-label-caps text-[9px] text-on-surface-variant/60 mt-2 tracking-widest">CURRENT / BEST</p>
           </div>
           <div className="bg-on-surface/5 rounded-md p-6 lg:p-8 text-center border border-on-surface/5">
             <p className="font-label-caps text-[11px] text-on-surface-variant mb-2 tracking-wider">30-DAY EFFICIENCY</p>

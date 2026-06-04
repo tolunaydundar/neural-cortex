@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useNotes, type NoteColor } from '../context/NoteContext';
 import TipTapEditor, { type HeadingItem } from '../components/TipTapEditor';
 import FolderEditorModal from '../components/FolderEditorModal';
-import { uploadFile } from '../utils/storage';
 import { useAuth } from '../context/AuthContext';
 
 const COLORS: NoteColor[] = ['default', 'red', 'orange', 'yellow', 'green', 'blue', 'purple'];
@@ -39,9 +38,7 @@ export default function NoteDetail() {
   const [color, setColor] = useState<NoteColor>('default');
   const [pinned, setPinned] = useState(false);
   const [icon, setIcon] = useState<string | null>(null);
-  const [coverImage, setCoverImage] = useState<string | null>(null);
   
-  const [isUploading, setIsUploading] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const [showNewFolderModal, setShowNewFolderModal] = useState(false);
   
@@ -60,7 +57,6 @@ export default function NoteDetail() {
       setColor(existingNote.color || 'default');
       setPinned(existingNote.pinned || false);
       setIcon(existingNote.icon || null);
-      setCoverImage(existingNote.cover_image || null);
       setInitialized(true);
     } else if (isNew && !initialized) {
       setInitialized(true);
@@ -83,11 +79,10 @@ export default function NoteDetail() {
         color,
         pinned,
         icon,
-        cover_image: coverImage,
         format: 'html'
       });
     }
-  }, [initialized, title, content, existingNote, tags, folderId, color, pinned, icon, coverImage, updateNote]);
+  }, [initialized, title, content, existingNote, tags, folderId, color, pinned, icon, updateNote]);
 
   // Ctrl+S
   useEffect(() => {
@@ -116,7 +111,6 @@ export default function NoteDetail() {
         color,
         pinned,
         icon,
-        cover_image: coverImage,
         format: 'html'
       });
       navigate(`/notes`);
@@ -146,21 +140,6 @@ export default function NoteDetail() {
     }
     if (e.key === 'Backspace' && !tagInput && tags.length > 0) {
       setTags(prev => prev.slice(0, -1));
-    }
-  };
-
-  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !currentUser) return;
-    setIsUploading(true);
-    try {
-      const path = `users/${currentUser.uid}/covers/${Date.now()}_${file.name}`;
-      const url = await uploadFile(file, path);
-      setCoverImage(url);
-    } catch (err) {
-      console.error('Failed to upload cover', err);
-    } finally {
-      setIsUploading(false);
     }
   };
 
@@ -195,7 +174,6 @@ export default function NoteDetail() {
             <span className="material-symbols-outlined text-[16px]">visibility</span>
             FOCUS
           </button>
-          {isUploading && <span className="text-[10px] text-on-surface-variant">Uploading...</span>}
           <button
             onClick={() => setPinned(!pinned)}
             className={`material-symbols-outlined text-xl transition-colors cursor-pointer p-1.5 ${
@@ -234,47 +212,23 @@ export default function NoteDetail() {
         <div className={`flex-grow overflow-y-auto custom-scrollbar flex flex-col items-center transition-all duration-500 pb-24 ${focusMode ? 'px-4 sm:px-12' : 'px-4 sm:px-12'}`}>
           <div className="max-w-[760px] w-full flex flex-col relative pt-8">
             
-            {/* Cover Image */}
-            {coverImage ? (
-              <div className="relative w-full h-48 sm:h-64 rounded-sm overflow-hidden mb-12 group">
-                <img src={coverImage} alt="Cover" className="w-full h-full object-cover" />
-                <div className={`absolute top-4 right-4 transition-opacity flex gap-2 ${focusMode ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'}`}>
-                  <label className="bg-black/40 hover:bg-black/70 text-on-surface px-3 py-1.5 rounded-md text-[10px] font-label-caps cursor-pointer backdrop-blur-md transition-colors border border-on-surface/20">
-                    CHANGE
-                    <input type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} />
-                  </label>
-                  <button 
-                    onClick={() => setCoverImage(null)}
-                    className="bg-black/40 hover:bg-red-500/70 text-on-surface px-3 py-1.5 rounded-md text-[10px] font-label-caps cursor-pointer backdrop-blur-md transition-colors border border-on-surface/20"
-                  >
-                    REMOVE
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className={`mb-8 transition-opacity flex gap-4 ${focusMode ? 'opacity-0 pointer-events-none hidden' : 'opacity-0 hover:opacity-100 focus-within:opacity-100'}`}>
-                <label className="flex items-center gap-1.5 text-on-surface-variant/80 hover:text-primary-fixed-dim text-[11px] font-label-caps cursor-pointer transition-colors">
-                  <span className="material-symbols-outlined text-[16px]">image</span>
-                  ADD COVER
-                  <input type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} />
-                </label>
-                {!icon && (
-                  <button 
-                    onClick={() => {
-                      const newIcon = window.prompt("Enter an emoji or icon name", "📄");
-                      if (newIcon) setIcon(newIcon);
-                    }}
-                    className="flex items-center gap-1.5 text-on-surface-variant/80 hover:text-primary-fixed-dim text-[11px] font-label-caps cursor-pointer transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">sentiment_satisfied</span>
-                    ADD ICON
-                  </button>
-                )}
-              </div>
-            )}
+            <div className={`mb-8 transition-opacity flex gap-4 ${focusMode ? 'opacity-0 pointer-events-none hidden' : 'opacity-0 hover:opacity-100 focus-within:opacity-100'}`}>
+              {!icon && (
+                <button 
+                  onClick={() => {
+                    const newIcon = window.prompt("Enter an emoji or icon name", "📄");
+                    if (newIcon) setIcon(newIcon);
+                  }}
+                  className="flex items-center gap-1.5 text-on-surface-variant/80 hover:text-primary-fixed-dim text-[11px] font-label-caps cursor-pointer transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[16px]">sentiment_satisfied</span>
+                  ADD ICON
+                </button>
+              )}
+            </div>
 
             {/* Icon & Title */}
-            <div className={`flex flex-col relative ${coverImage ? '-mt-24 pl-8 mb-6 z-10' : 'mb-6'}`}>
+            <div className="flex flex-col relative mb-6">
               {icon && (
                 <div className="relative group w-fit mb-4">
                   <div className="text-6xl sm:text-[80px] leading-none drop-shadow-xl select-none">{icon}</div>

@@ -10,7 +10,6 @@ export interface Note {
   tags: string[];
   folder_id: string | null;
   parent_id?: string | null;
-  cover_image?: string | null;
   icon?: string | null;
   format?: 'markdown' | 'html';
   color: NoteColor;

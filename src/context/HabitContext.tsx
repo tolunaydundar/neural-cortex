@@ -19,6 +19,7 @@ interface HabitContextType {
   removeLog: (logId: string) => Promise<void>;
   deleteHabit: (habitId: string) => Promise<void>;
   getStreak: (habitId: string) => number;
+  getHighestStreak: (habitId: string) => number;
   getEfficiency: (habitId: string, days?: number) => number;
   getPattern: (habitId: string, days?: number) => boolean[];
 }
@@ -162,6 +163,35 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return streak;
   }, [logs]);
 
+  const getHighestStreak = useCallback((habitId: string): number => {
+    const uniqueLogDates = Array.from(new Set(
+      logs
+        .filter(l => l.habitId === habitId)
+        .map(l => startOfDay(new Date(l.date)).getTime())
+    )).sort((a, b) => b - a);
+
+    if (uniqueLogDates.length === 0) return 0;
+
+    let maxStreak = 1;
+    let currentStreak = 1;
+
+    for (let i = 0; i < uniqueLogDates.length - 1; i++) {
+      const current = uniqueLogDates[i];
+      const next = uniqueLogDates[i + 1];
+
+      // Difference is one day
+      if (current - next === 86400000) {
+        currentStreak++;
+      } else {
+        maxStreak = Math.max(maxStreak, currentStreak);
+        currentStreak = 1;
+      }
+    }
+    
+    maxStreak = Math.max(maxStreak, currentStreak);
+    return maxStreak;
+  }, [logs]);
+
   const getPattern = useCallback((habitId: string, days: number = 30): boolean[] => {
     const pattern = [];
     const today = startOfDay(new Date());
@@ -181,8 +211,8 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [getPattern]);
 
   const value = useMemo(() => ({
-    habits, logs, addHabit, updateHabit, logHabit, removeLog, deleteHabit, getStreak, getEfficiency, getPattern
-  }), [habits, logs, addHabit, updateHabit, logHabit, removeLog, deleteHabit, getStreak, getEfficiency, getPattern]);
+    habits, logs, addHabit, updateHabit, logHabit, removeLog, deleteHabit, getStreak, getHighestStreak, getEfficiency, getPattern
+  }), [habits, logs, addHabit, updateHabit, logHabit, removeLog, deleteHabit, getStreak, getHighestStreak, getEfficiency, getPattern]);
 
   return (
     <HabitContext.Provider value={value}>

@@ -15,6 +15,7 @@ import {
 import { auth, googleProvider, db } from '../firebase';
 import { doc, setDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { useSync } from './SyncContext';
+import Loader from '../components/Loader';
 
 export interface UserPreferences {
   notesSortMode: string;
@@ -245,7 +246,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {loading ? (
+        <Loader title="AUTHENTICATING" subtitle="VERIFYING CREDENTIALS" fullScreen={true} />
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 };

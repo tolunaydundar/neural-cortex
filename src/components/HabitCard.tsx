@@ -5,12 +5,13 @@ interface HabitCardProps {
   title: string;
   description?: string;
   streak: number;
+  highestStreak: number;
   icon: string;
   efficiency: number;
   pattern: boolean[];
 }
 
-export default function HabitCard({ id, title, description, streak, icon, efficiency, pattern }: HabitCardProps) {
+export default function HabitCard({ id, title, description, streak, highestStreak, icon, efficiency, pattern }: HabitCardProps) {
   return (
     <Link to={`/habit/${id}`} className="bg-on-surface/5 p-5 lg:p-7 rounded-md border border-on-surface/5 hover:border-on-surface/20 hover:bg-on-surface/10 hover:shadow-md group transition-all duration-300 block">
       <div className="flex justify-between items-start mb-4">
@@ -21,7 +22,7 @@ export default function HabitCard({ id, title, description, streak, icon, effici
               {description}
             </p>
           )}
-          <p className="font-label-caps text-[10px] text-on-surface-variant">CURRENT STREAK: {streak.toString().padStart(2, '0')} DAYS</p>
+          <p className="font-label-caps text-[10px] text-on-surface-variant">STREAK: {streak.toString().padStart(2, '0')} / {highestStreak.toString().padStart(2, '0')} BEST</p>
         </div>
         <span className="material-symbols-outlined text-primary-fixed-dim/40 group-hover:text-primary-fixed-dim transition-colors shrink-0">{icon}</span>
       </div>

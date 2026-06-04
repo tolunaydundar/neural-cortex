@@ -7,7 +7,7 @@ import { usePageTitle } from '../utils/usePageTitle';
 
 export default function Habits() {
   usePageTitle('Habits');
-  const { habits, logs, getStreak, getEfficiency, getPattern } = useHabits();
+  const { habits, logs, getStreak, getHighestStreak, getEfficiency, getPattern } = useHabits();
   const { isDark } = useTheme();
   const { openAddModal } = useOutletContext<{ openAddModal: () => void }>();
 
@@ -107,6 +107,7 @@ export default function Habits() {
               title={habit.title}
               description={habit.description}
               streak={getStreak(habit.id)}
+              highestStreak={getHighestStreak(habit.id)}
               icon={habit.icon}
               efficiency={getEfficiency(habit.id)}
               pattern={getPattern(habit.id, 30)}

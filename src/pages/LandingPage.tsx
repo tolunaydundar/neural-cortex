@@ -139,7 +139,7 @@ const LandingPage = () => {
                 }}
                 className="w-full sm:w-auto px-8 py-4 rounded-full border border-primary-fixed-dim text-primary-fixed-dim font-label-caps text-sm tracking-widest font-bold hover:bg-primary-fixed-dim/10 hover:-translate-y-1 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {isLoading && <span className="material-symbols-outlined animate-spin text-sm">sync</span>}
+                {isLoading && <span className="w-4 h-4 border-2 border-primary-fixed-dim/30 border-t-primary-fixed-dim rounded-full animate-spin"></span>}
                 TEST DRIVE
               </button>
               {error && (

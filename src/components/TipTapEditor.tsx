@@ -4,11 +4,9 @@ import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
-import { CustomImage as Image } from './extensions/TipTapImage';
 import Link from '@tiptap/extension-link';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { uploadFile } from '../utils/storage';
 
 export interface HeadingItem {
   id: string;
@@ -27,7 +25,6 @@ interface TipTapEditorProps {
 
 export default function TipTapEditor({ content, onChange, onHeadingsUpdate, placeholder = 'Start typing...', readOnly = false }: TipTapEditorProps) {
   const { currentUser } = useAuth();
-  const [isUploading, setIsUploading] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -46,7 +43,6 @@ export default function TipTapEditor({ content, onChange, onHeadingsUpdate, plac
       TaskItem.configure({
         nested: true,
       }),
-      Image,
       Link.configure({
         openOnClick: false,
       }),
@@ -98,24 +94,6 @@ export default function TipTapEditor({ content, onChange, onHeadingsUpdate, plac
   }, [content, editor]);
 
   if (!editor) return null;
-
-  const handleImageUpload = async (file: File) => {
-    if (!currentUser) {
-      const url = window.prompt('URL');
-      if (url) editor.chain().focus().setImage({ src: url }).run();
-      return;
-    }
-    setIsUploading(true);
-    try {
-      const path = `users/${currentUser.uid}/images/${Date.now()}_${file.name}`;
-      const url = await uploadFile(file, path);
-      editor.chain().focus().setImage({ src: url }).run();
-    } catch (err) {
-      console.error('Upload failed', err);
-    } finally {
-      setIsUploading(false);
-    }
-  };
 
   return (
     <div className="flex flex-col w-full h-full relative group">
@@ -213,25 +191,6 @@ export default function TipTapEditor({ content, onChange, onHeadingsUpdate, plac
           >
             <span className="material-symbols-outlined text-[18px]">code_blocks</span>
           </button>
-          <label
-            className={`w-8 h-8 flex items-center justify-center rounded transition-colors text-on-surface hover:bg-on-surface/10 cursor-pointer ${isUploading ? 'opacity-50' : ''}`}
-            title="Upload Image"
-          >
-            <span className="material-symbols-outlined text-[18px]">
-              {isUploading ? 'hourglass_empty' : 'image'}
-            </span>
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              disabled={isUploading}
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (file) handleImageUpload(file);
-                e.target.value = '';
-              }}
-            />
-          </label>
         </div>
       )}
       

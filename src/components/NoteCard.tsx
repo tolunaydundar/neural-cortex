@@ -95,12 +95,6 @@ export default function NoteCard({ note, onClick }: NoteCardProps) {
       onClick={() => onClick(note)}
       className={`bg-on-surface/5 hover:bg-on-surface/10 rounded-sm flex flex-col cursor-pointer group transition-all duration-300 relative note-color-${note.color} hover:shadow-md border border-on-surface/5 hover:border-on-surface/20`}
     >
-      {note.cover_image && (
-        <div className="w-full h-32 overflow-hidden rounded-t-sm border-b border-on-surface/10">
-          <img src={note.cover_image} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-        </div>
-      )}
-      
       <div className="p-4 flex flex-col gap-3 flex-grow">
         {/* Header: title + menu */}
         <div className="flex justify-between items-start gap-2">

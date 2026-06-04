@@ -9,6 +9,7 @@ import { TimerProvider } from './context/TimerContext';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
 import Toast from './components/Toast';
+import Loader from './components/Loader';
 import { lazy, Suspense, useState, useEffect, useCallback } from 'react';
 import { importDataToCloud, checkHasCloudData } from './utils/migration';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -38,14 +39,7 @@ interface ToastState {
 }
 
 function RouteFallback() {
-  return (
-    <div className="flex min-h-[320px] flex-grow items-center justify-center">
-      <div className="flex items-center gap-3 text-on-surface-variant">
-        <span className="material-symbols-outlined animate-spin text-primary-fixed-dim">progress_activity</span>
-        <span className="font-label-caps text-[11px] tracking-widest">LOADING MODULE</span>
-      </div>
-    </div>
-  );
+  return <Loader title="LOADING MODULE" subtitle="ESTABLISHING NEURAL LINK" fullScreen={false} />;
 }
 
 // Layout component to wrap pages that share the sidebar and topbar
@@ -147,11 +141,7 @@ function AppLayout() {
     `mobile-nav-item ${isActive ? 'active text-primary-fixed-dim' : 'text-on-surface-variant'}`;
 
   if (isInitializingData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-12 h-12 border-4 border-primary-fixed-dim border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
+    return <Loader title="INITIALIZING CORTEX" subtitle="SYNCHRONIZING SECURE DATA" fullScreen={true} />;
   }
 
   return (
