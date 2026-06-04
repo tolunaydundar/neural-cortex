@@ -6,7 +6,7 @@ import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import Link from '@tiptap/extension-link';
 import { useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+
 
 export interface HeadingItem {
   id: string;
@@ -24,7 +24,7 @@ interface TipTapEditorProps {
 }
 
 export default function TipTapEditor({ content, onChange, onHeadingsUpdate, placeholder = 'Start typing...', readOnly = false }: TipTapEditorProps) {
-  const { currentUser } = useAuth();
+
 
   const editor = useEditor({
     extensions: [

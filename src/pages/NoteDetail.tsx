@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useNotes, type NoteColor } from '../context/NoteContext';
 import TipTapEditor, { type HeadingItem } from '../components/TipTapEditor';
 import FolderEditorModal from '../components/FolderEditorModal';
-import { useAuth } from '../context/AuthContext';
+
 
 const COLORS: NoteColor[] = ['default', 'red', 'orange', 'yellow', 'green', 'blue', 'purple'];
 const COLOR_MAP: Record<NoteColor, string> = {
@@ -25,7 +25,7 @@ export default function NoteDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { notes, folders, updateNote, addNote } = useNotes();
-  const { currentUser } = useAuth();
+
   
   const isNew = id === 'new';
   const existingNote = notes.find(n => n.id === id);
